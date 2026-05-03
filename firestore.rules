@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // ============================================
+    // USERS COLLECTION
+    // ============================================
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+      
+      // RESUMES SUBCOLLECTION
+      match /resumes/{resumeId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // SAVED JOBS SUBCOLLECTION
+      match /savedJobs/{jobId} {
+        allow read, write: if isOwner(userId);
+      }
+      
+      // APPLICATIONS SUBCOLLECTION
+      match /applications/{applicationId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // ============================================
+    // JOBS COLLECTION
+    // ============================================
+    match /jobs/{jobId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+      allow delete: if isAuthenticated();
+    }
+
+    // ============================================
+    // ALL DETAILS COLLECTION (Auto-fill data)
+    // ============================================
+    match /allDetails/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+  }
+}
