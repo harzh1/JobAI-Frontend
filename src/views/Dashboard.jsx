@@ -134,7 +134,7 @@ export default function Dashboard({ setShowAIModal, setView }) {
             <Button
               variant="ghost"
               className="text-indigo-600 text-sm"
-              onClick={() => setView?.("tracker")}
+              onClick={() => setView?.("applications")}
             >
               View All
             </Button>
@@ -264,7 +264,7 @@ export default function Dashboard({ setShowAIModal, setView }) {
           </div>
           <Button
             onClick={() => setShowAIModal?.(true)}
-            className="w-full bg-indigo-600 text-white hover:bg-indigo-500 text-sm py-2 shadow-none border-0 theme-dark:bg-white theme-dark:text-indigo-700"
+            className="w-full bg-[var(--primary-blue)] text-white hover:opacity-90 text-sm py-2 shadow-none border-0 theme-dark:bg-white theme-dark:text-indigo-700"
           >
             View Opportunity
           </Button>

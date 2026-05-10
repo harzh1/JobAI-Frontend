@@ -24,7 +24,7 @@ const VIEW_PATHS = {
   "all-details": "/all-details",
   "user-profile": "/profile",
   resumes: "/resumes",
-  tracker: "/applications",
+  applications: "/applications",
   referrals: "/network",
 };
 
@@ -178,7 +178,7 @@ function AppContent() {
 
             {view === "resumes" && <Resumes />}
 
-            {view === "tracker" && (
+            {view === "applications" && (
               <Applications
                 setView={setView}
                 setSelectedJobId={setSelectedJobId}

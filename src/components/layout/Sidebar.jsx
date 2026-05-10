@@ -12,6 +12,8 @@ import {
   X,
 } from "@phosphor-icons/react";
 import NavItem from "../ui/NavItem";
+// import { Logo } from "../ui/Logo";
+import logo from "../../assets/logo.svg";
 
 export default function Sidebar({
   view,
@@ -32,15 +34,15 @@ export default function Sidebar({
     >
       <div className={`flex flex-col h-full ${isCollapsed ? "px-2 py-5" : "px-4 py-5"}`}>
         <div
-          className={`flex items-center h-7 ${
+          className={`flex items-center h-10 ${
             isCollapsed ? "justify-center" : "justify-between"
           }`}
         >
           {!isCollapsed && (
-            <div className="min-w-0">
-              <h1 className="text-lg font-semibold tracking-tight text-slate-900 leading-none theme-dark:text-white">
-                JobAI
-              </h1>
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-24 pl-2 text-[var(--icon-color)]">
+                <img src={logo} alt="JobBot Logo" className="w-full h-auto" />
+              </div>
             </div>
           )}
           <div className="flex items-center gap-1">
@@ -84,7 +86,7 @@ export default function Sidebar({
           <NavItem
             icon={Checks}
             label="Applications"
-            id="tracker"
+            id="applications"
             view={view}
             setView={setView}
             collapsed={isCollapsed}

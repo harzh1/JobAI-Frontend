@@ -140,9 +140,9 @@ export default function UserProfile({ onLogout }) {
         ].map((stat) => (
           <Card key={stat.label} className="text-center py-4">
             <div
-              className={`w-10 h-10 mx-auto mb-2 rounded-lg bg-${stat.color}-100 flex items-center justify-center`}
+              className={`w-10 h-10 mx-auto mb-2 rounded-lg bg-[#F0F2FF] flex items-center justify-center`}
             >
-              <stat.icon size={20} className={`text-${stat.color}-600`} />
+              <stat.icon size={20} className={`text-[#3442FF]`} />
             </div>
             <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
             <div className="text-sm text-gray-500">{stat.label}</div>
@@ -207,21 +207,28 @@ export default function UserProfile({ onLogout }) {
           ].map((item) => (
             <div
               key={item.key}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
+              className="flex items-center justify-between p-3 bg-transparent rounded-xl"
             >
               <div>
                 <h4 className="font-medium text-gray-900">{item.label}</h4>
                 <p className="text-sm text-gray-500">{item.desc}</p>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={notifications[item.key]}
-                  onChange={() => toggleNotification(item.key)}
-                  className="sr-only peer"
+              <button
+                type="button"
+                role="switch"
+                aria-checked={notifications[item.key]}
+                onClick={() => toggleNotification(item.key)}
+                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  notifications[item.key] ? "bg-[#3442FF]" : "bg-gray-200"
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    notifications[item.key] ? "translate-x-5" : "translate-x-0"
+                  }`}
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-              </label>
+              </button>
             </div>
           ))}
         </div>

@@ -326,11 +326,14 @@ const buildResumeSnapshot = async (userId, resumeId) => {
   const resume = await resumeService.get(userId, resumeId);
   if (!resume) return null;
 
+  const resumeUrl =
+    resume.downloadUrl || resume.cloudinaryUrl || resume.fileUrl || null;
+
   return {
     id: resumeId,
     name: resume.name || resume.displayName || resume.fileName || "Resume",
-    downloadUrl:
-      resume.downloadUrl || resume.cloudinaryUrl || resume.fileUrl || null,
+    url: resumeUrl,
+    downloadUrl: resumeUrl,
     isPrimary: !!resume.isPrimary,
   };
 };

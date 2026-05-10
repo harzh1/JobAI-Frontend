@@ -2,6 +2,7 @@ import React from "react";
 import {
   ArrowLeft as PhArrowLeft,
   ArrowRight as PhArrowRight,
+  ArrowUpRight as PhArrowUpRight,
   ArrowSquareOut,
   Bell as PhBell,
   Buildings,
@@ -17,6 +18,7 @@ import {
   ChatsCircle,
   CreditCard as PhCreditCard,
   CurrencyDollar,
+  DotsThree,
   DownloadSimple,
   EnvelopeSimple,
   Eye as PhEye,
@@ -25,12 +27,14 @@ import {
   FloppyDisk,
   FadersHorizontal,
   LinkSimple,
+  List as PhList,
   LockSimple,
   MagnifyingGlass,
   MapPin as PhMapPin,
   Moon as PhMoon,
   Note,
   PaperPlaneTilt,
+  Pen,
   PencilSimple,
   Plus as PhPlus,
   Question,
@@ -40,6 +44,7 @@ import {
   Sparkle,
   SpinnerGap,
   Square as PhSquare,
+  SquaresFour,
   SuitcaseSimple,
   Trash,
   TrendUp,
@@ -97,6 +102,7 @@ export const Lock = withDefaultWeight(LockSimple);
 export const Eye = withDefaultWeight(PhEye);
 export const EyeOff = withDefaultWeight(EyeSlash);
 export const ArrowRight = withDefaultWeight(PhArrowRight);
+export const ArrowUpRight = withDefaultWeight(PhArrowUpRight);
 export const User = withDefaultWeight(PhUser);
 export const LogOut = withDefaultWeight(SignOut);
 export const Bell = withDefaultWeight(PhBell);
@@ -110,3 +116,9 @@ export const Upload = withDefaultWeight(UploadSimple);
 export const StickyNote = withDefaultWeight(Note);
 export const Square = withDefaultWeight(PhSquare);
 export const CheckSquare = withDefaultWeight(PhCheckSquare);
+
+// --- Newly Added Missing Icons ---
+export const Edit3 = withDefaultWeight(Pen);
+export const MoreHorizontal = withDefaultWeight(DotsThree);
+export const LayoutDashboard = withDefaultWeight(SquaresFour);
+export const List = withDefaultWeight(PhList);

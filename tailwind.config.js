@@ -7,6 +7,26 @@ export default {
   theme: {
     extend: {
       colors: {
+        brand: {
+          blue: "#3442FF",
+          black: "#111111",
+          white: "#FFFFFF",
+          ice: "#F0F2FF",
+          gray: "#9CA3AF",
+        },
+        indigo: {
+          50: '#F0F2FF',
+          100: '#E0E7FF',
+          200: '#C7D2FE',
+          300: '#A5B4FC',
+          400: '#818CF8',
+          500: '#6366F1',
+          600: '#3442FF', // Brand Blue
+          700: '#2A35CC',
+          800: '#202899',
+          900: '#151A66',
+          950: '#0A0D33',
+        },
         dark: {
           50: "#f8f9fc",
           100: "#f1f5f9",
@@ -20,6 +40,10 @@ export default {
           900: "#0f172a",
           950: "#020617",
         },
+      },
+      fontFamily: {
+        sans: ['"Inter"', "sans-serif"],
+        heading: ['"Plus Jakarta Sans"', "sans-serif"],
       },
       animation: {
         spin: "spin 1s linear infinite",

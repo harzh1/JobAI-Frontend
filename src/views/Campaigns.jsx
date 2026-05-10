@@ -167,16 +167,18 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
       {/* List of campaigns */}
       <div className="space-y-4">
         {campaigns.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200">
-            <div className="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Mail size={32} />
+          <div className="flex flex-col items-center justify-center text-center p-12 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+            <div className="w-12 h-12 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center mb-4">
+              <Mail size={24} />
             </div>
-            <h3 className="text-lg font-bold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">
               No campaigns yet
             </h3>
+            <p className="text-sm text-gray-500 mb-6">
+              You haven't created any campaigns. Automate your job applications globally.
+            </p>
             <Button
-              className="mt-6"
-              variant="secondary"
+              variant="primary"
               onClick={() => setView("new-campaign")}
             >
               Create First Campaign

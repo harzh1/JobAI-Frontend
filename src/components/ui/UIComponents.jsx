@@ -20,21 +20,23 @@ export const Button = ({
     "px-6 py-3 rounded-md font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed";
   const variants = {
     primary:
-      "bg-gray-900 text-white hover:bg-black shadow-md shadow-black/15 theme-dark:bg-indigo-500 theme-dark:hover:bg-indigo-400 theme-dark:shadow-md theme-dark:shadow-black/55",
+      "bg-[#3442FF] text-white font-medium hover:bg-blue-700 transition-colors shadow-sm",
     secondary:
-      "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm theme-dark:bg-gray-800 theme-dark:text-gray-100 theme-dark:border-gray-700 theme-dark:hover:bg-gray-750",
+      "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm",
     copilot:
-      "bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md shadow-black/20 hover:shadow-black/25 theme-dark:shadow-md theme-dark:shadow-black/55",
+      "bg-gradient-to-r from-violet-600 to-[#3442FF] text-white shadow-sm hover:shadow-md",
     ghost:
-      "text-gray-500 hover:bg-gray-100 hover:text-gray-900 theme-dark:text-gray-200 theme-dark:hover:bg-gray-800",
-    danger: "bg-red-50 text-red-600 hover:bg-red-100 border border-red-100",
+      "text-gray-500 hover:bg-gray-50 hover:text-gray-900",
+    danger: "bg-white text-red-600 hover:bg-red-50 border border-red-200 shadow-sm",
   };
 
   return (
     <button
       type={type}
       onClick={onClick}
-      className={`${baseStyle} ${variants[variant]} ${className}`}
+      className={`${baseStyle} ${variants[variant]} ${
+        variant === "primary" ? "primary" : ""
+      } ${className}`}
       disabled={disabled}
       {...props}
     >
@@ -48,8 +50,8 @@ export const Button = ({
 
 export const Card = ({ children, className = "", noPadding = false }) => (
   <div
-    className={`card bg-white rounded-lg border border-gray-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ${
-      noPadding ? "" : "p-6"
+    className={`bg-white rounded-xl border border-gray-200 shadow-sm ${
+      noPadding ? "" : "p-2"
     } ${className}`}
   >
     {children}

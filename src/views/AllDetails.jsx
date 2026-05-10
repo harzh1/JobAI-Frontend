@@ -209,13 +209,13 @@ export default function AllDetails() {
 
       {/* Empty State */}
       {userDetails.length === 0 && (
-        <Card className="py-12 text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+        <Card noPadding className="flex flex-col items-center justify-center text-center p-12 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-500">
             <FileText size={24} />
           </div>
-          <h3 className="text-gray-900 font-bold mb-1">No details added yet</h3>
-          <p className="text-sm text-gray-500 mb-4">
-            Add your personal information to auto-fill job applications
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">No details added yet</h3>
+          <p className="text-sm text-gray-500 mb-6">
+            Add your personal information to auto-fill job applications.
           </p>
           <Button variant="primary" icon={Plus} onClick={handleAddNew}>
             Add Your First Detail

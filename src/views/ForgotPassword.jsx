@@ -7,6 +7,9 @@ import {
   AlertCircle,
   CheckCircle,
 } from "../components/ui/AppIcons";
+// import { Logo } from "../components/ui/Logo";
+import logo from "../assets/logo.svg";
+
 
 export default function ForgotPassword({ onBackToLogin }) {
   const { resetPassword } = useAuth();
@@ -42,34 +45,32 @@ export default function ForgotPassword({ onBackToLogin }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
-          {/* Logo */}
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center">
-              <Briefcase className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold text-gray-900">JobAI</span>
-          </div>
+    <div className="min-h-screen bg-[var(--page-bg)] flex flex-col items-center justify-center p-4">
+      {/* Isolated Header Above Card */}
+      <div className="flex flex-col items-center gap-2 mb-8">
+        <div className="w-40 flex items-center justify-center text-[var(--icon-color)]">
+          <img src={logo} alt="JobBot Logo" className="w-full h-auto" />
+        </div>
+      </div>
 
-          <button
-            onClick={onBackToLogin}
-            className="flex items-center gap-2 text-gray-500 hover:text-gray-700 text-sm mb-6 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to login
-          </button>
+      <div className="w-full max-w-md card p-8 md:p-10 relative z-10 bg-white">
+        <button
+          onClick={onBackToLogin}
+          className="flex items-center gap-2 text-gray-500 hover:text-gray-700 text-sm mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to login
+        </button>
 
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Reset your password
-            </h1>
-            <p className="text-gray-500 text-sm">
-              Enter your email address and we'll send you a link to reset your
-              password.
-            </p>
-          </div>
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold font-heading text-gray-900 mb-2 mt-2">
+            Reset your password
+          </h1>
+          <p className="text-gray-500 text-sm font-medium">
+            Enter your email address and we'll send you a link to reset your
+            password.
+          </p>
+        </div>
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600">
@@ -138,7 +139,6 @@ export default function ForgotPassword({ onBackToLogin }) {
             </form>
           )}
         </div>
-      </div>
     </div>
   );
 }

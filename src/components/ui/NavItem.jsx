@@ -8,14 +8,14 @@ const NavItem = ({ icon, label, id, view, setView, collapsed = false }) => {
     <button
       onClick={() => setView(id)}
       title={collapsed ? label : undefined}
-      className={`relative w-full flex items-center transition-all duration-200 group ${
+      className={`relative w-full flex items-center transition-all duration-200 group border-l-[3px] ${
         collapsed
-          ? "justify-center h-11 rounded-lg"
-          : "gap-3 px-3 h-11 rounded-lg"
+          ? "justify-center h-11"
+          : "gap-3 pl-3 pr-2 h-11"
       } ${
         isActive
-          ? "bg-indigo-50 text-indigo-700 theme-dark:bg-indigo-500/15 theme-dark:text-indigo-200"
-          : "text-slate-500 hover:bg-slate-100 hover:text-slate-900 theme-dark:text-slate-300 theme-dark:hover:bg-white/5 theme-dark:hover:text-white"
+          ? "bg-gray-100 text-gray-900 border-[#3442FF]"
+          : "text-gray-500 border-transparent hover:bg-gray-50 hover:text-gray-900"
       }`}
     >
       <span className="flex items-center justify-center">
@@ -29,9 +29,7 @@ const NavItem = ({ icon, label, id, view, setView, collapsed = false }) => {
           <span className="block truncate">{label}</span>
         </span>
       )}
-      {collapsed && isActive && (
-        <span className="absolute -right-2 h-5 w-1 rounded-full bg-indigo-500 theme-dark:bg-indigo-300 md:block" />
-      )}
+      
     </button>
   );
 };

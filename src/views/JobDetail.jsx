@@ -26,16 +26,12 @@ import {
 import { useAuth } from "../context/AuthContext";
 
 const InfoTile = ({ icon: Icon, label, value }) => (
-  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
-    <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-700">
-      <Icon size={18} />
+  <div className="flex flex-col px-6 w-full text-left bg-white">
+    <div className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-1 flex items-center gap-2">
+      <Icon size={14} className="text-gray-400" />
+      {label}
     </div>
-    <div>
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-        {label}
-      </p>
-      <p className="text-sm font-bold text-gray-900">{value}</p>
-    </div>
+    <div className="text-gray-900 font-bold text-base">{value}</div>
   </div>
 );
 
@@ -230,7 +226,7 @@ export default function JobDetail({ jobId, job: jobProp, onBack }) {
             </div>
           </div>
 
-          <div className="flex gap-3 self-start">
+          <div className="flex gap-3 self-start lg:sticky lg:top-4">
             <Button
               variant="primary"
               icon={ExternalLink}
@@ -373,7 +369,7 @@ export default function JobDetail({ jobId, job: jobProp, onBack }) {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-gray-200 border-t border-gray-100 mt-6 pt-6">
           <InfoTile
             icon={Clock}
             label="Required experience"
