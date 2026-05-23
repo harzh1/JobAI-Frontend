@@ -75,6 +75,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
+
 button,
 input,
 textarea,
@@ -109,6 +110,23 @@ select {
   100% { background-position: 0% 50%; }
 }
 
+@keyframes geminiRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes geminiBorderOrbit {
+  0% { background-position: 6% 0%; }
+  24% { background-position: 94% 0%; }
+  25% { background-position: 100% 8%; }
+  49% { background-position: 100% 92%; }
+  50% { background-position: 94% 100%; }
+  74% { background-position: 6% 100%; }
+  75% { background-position: 0% 92%; }
+  99% { background-position: 0% 8%; }
+  100% { background-position: 6% 0%; }
+}
+
 .gemini-bg-gradient {
   background: linear-gradient(135deg, #4285f4, #9b72cb, #d96570, #f8a86f, #fff275);
   background-size: 300% 300%;
@@ -136,6 +154,118 @@ select {
 .gemini-pill {
   border-radius: 9999px !important;
   padding: 0.5rem 1rem;
+}
+
+.surface-control {
+  background: var(--surface-bg);
+  border: 1px solid color-mix(in srgb, var(--surface-border) 82%, white 18%);
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.surface-control:focus-within {
+  border-color: color-mix(in srgb, var(--primary-blue) 40%, white 60%);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary-blue) 12%, transparent);
+}
+
+.surface-pill-control {
+  background: var(--surface-bg);
+  border: 1px solid color-mix(in srgb, var(--surface-border) 82%, white 18%);
+  border-radius: 9999px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.surface-pill-control:focus-within {
+  border-color: color-mix(in srgb, var(--primary-blue) 40%, white 60%);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary-blue) 12%, transparent);
+}
+
+.gemini-processing-shell {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.gemini-processing-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: conic-gradient(from 0deg, #4285f4, #9b72cb, #d96570, #f8a86f, #fff275, #4285f4);
+  animation: geminiRotate 3.2s linear infinite;
+  padding: 1.5px;
+  border-radius: inherit;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.gemini-processing-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+.gemini-processing-shell--card {
+  border-radius: 1.75rem;
+  box-shadow: 0 0 0 1px rgba(66, 133, 244, 0.08), 0 8px 24px rgba(66, 133, 244, 0.08);
+}
+
+.gemini-processing-ring {
+  position: relative;
+  border-radius: 1.75rem;
+  padding: 2px;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(180deg, rgba(66, 133, 244, 0.18), rgba(155, 114, 203, 0.12));
+}
+
+.gemini-processing-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(180deg, rgba(66, 133, 244, 0.22), rgba(155, 114, 203, 0.14));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.gemini-processing-ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background-image: radial-gradient(
+    circle,
+    rgba(66, 133, 244, 0.95) 0%,
+    rgba(155, 114, 203, 0.78) 28%,
+    rgba(248, 168, 111, 0.28) 42%,
+    rgba(255, 255, 255, 0) 56%
+  );
+  background-repeat: no-repeat;
+  background-size: 110px 110px;
+  background-position: 6% 0%;
+  filter: blur(7px);
+  animation: geminiBorderOrbit 4.8s linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.gemini-processing-ring > * {
+  position: relative;
+  z-index: 1;
+  border-radius: calc(1.75rem - 2px);
+  background: var(--surface-bg);
 }
 
 button.primary {
@@ -184,6 +314,59 @@ button.primary:hover {
 }
 .theme-dark .card {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Gemini Redesign Hardcoded Color Overrides for Dark Mode */
+.theme-dark .bg-\[\#f0f4f9\],
+.theme-dark .bg-\[\#f8fafc\] {
+  background-color: #282a2c !important;
+}
+.theme-dark .bg-\[\#dde3ea\] {
+  background-color: #333538 !important;
+  color: #e3e3e3 !important;
+}
+.theme-dark .text-\[\#1f1f1f\] {
+  color: var(--text-primary) !important;
+}
+.theme-dark .text-\[\#444746\] {
+  color: var(--icon-color) !important;
+}
+.theme-dark .border-\[\#e1e5ea\] {
+  border-color: var(--surface-border) !important;
+}
+.theme-dark .text-\[\#3846e6\] {
+  color: var(--primary-blue) !important;
+}
+.theme-dark .bg-\[\#3846e6\] {
+  background-color: var(--primary-blue) !important;
+  color: #062e6f !important;
+}
+.theme-dark .bg-\[\#e8f0fe\] {
+  background-color: rgba(168, 199, 250, 0.08) !important;
+}
+.theme-dark .mix-blend-multiply {
+  mix-blend-mode: screen !important;
+}
+.theme-dark .hover\:bg-\[\#e1e5ea\]:hover {
+  background-color: #333538 !important;
+}
+.theme-dark .hover\:bg-\[\#f0f4f9\]:hover {
+  background-color: #282a2c !important;
+}
+.theme-dark .ring-\[\#e1e5ea\] {
+  --tw-ring-color: #333538 !important;
+}
+.theme-dark .text-\[\#137333\] {
+  color: #81c995 !important;
+}
+.theme-dark .bg-\[\#e6f4ea\] {
+  background-color: rgba(129, 201, 149, 0.15) !important;
+}
+.theme-dark .bg-\[\#fce8e6\] {
+  background-color: rgba(242, 139, 130, 0.15) !important;
+}
+.theme-dark .text-\[\#d93025\] {
+  color: #f28b82 !important;
 }
 
 /* Utility helpers for theme-aware classes used in JS strings */

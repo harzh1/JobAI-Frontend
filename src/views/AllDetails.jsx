@@ -112,12 +112,11 @@ export default function AllDetails() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-4xl mx-auto w-full space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:justify-end items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold text-gray-900">All Details</h2>
             {isSaving && (
               <span className="flex items-center gap-1 text-sm text-indigo-600">
                 <Loader2 className="animate-spin" size={14} />
@@ -125,15 +124,13 @@ export default function AllDetails() {
               </span>
             )}
           </div>
-          <p className="text-gray-500 mt-1">
-            Store your personal information for auto-filling job applications
-          </p>
         </div>
         <Button
           variant="primary"
           onClick={handleAddNew}
           icon={Plus}
           disabled={isSaving}
+          className="w-full sm:w-auto sm:ml-auto"
         >
           Add Detail
         </Button>

@@ -138,28 +138,28 @@ export default function Sidebar({
       </div>
 
       <div
-        className={`mt-auto border-t border-slate-200 theme-dark:border-slate-800 ${
+        className={`mt-auto border-t border-[var(--surface-border)] ${
           isCollapsed ? "p-2" : "p-3"
         }`}
       >
         <button
           onClick={() => setView("user-profile")}
           title={isCollapsed ? "Profile" : undefined}
-          className={`w-full text-left rounded-lg transition-colors hover:bg-slate-100 theme-dark:hover:bg-white/5 ${
+          className={`w-full text-left rounded-full transition-colors hover:bg-black/5 theme-dark:hover:bg-white/5 ${
             isCollapsed
               ? "flex items-center justify-center h-11"
-              : "flex items-center gap-3 px-2.5 py-2.5"
+              : "flex items-center gap-3 px-3 py-2.5"
           }`}
         >
-          <div className="w-8 h-8 rounded-md bg-slate-900 text-white flex items-center justify-center text-xs font-semibold theme-dark:bg-white theme-dark:text-slate-900">
+          <div className="w-8 h-8 rounded-full bg-[#f0f4f9] group-hover:bg-white flex items-center justify-center border border-[var(--surface-border)] text-[#1f1f1f] text-xs font-semibold theme-dark:bg-[#1e1f20] theme-dark:border-[#333538] theme-dark:text-[#e3e3e3]">
             {user && user.displayName ? user.displayName.charAt(0) : "?"}
           </div>
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-900 truncate theme-dark:text-slate-100">
+              <p className="text-sm font-medium text-[var(--text-primary)] truncate">
                 {user?.displayName ?? "Guest User"}
               </p>
-              <p className="text-xs text-slate-400 truncate">Pro Plan</p>
+              <p className="text-xs text-[var(--icon-color)] truncate">Pro Plan</p>
             </div>
           )}
         </button>

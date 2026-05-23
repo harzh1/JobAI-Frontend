@@ -120,15 +120,9 @@ export default function Resumes() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="max-w-5xl mx-auto flex flex-col gap-6 w-full">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">My Resumes</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Upload and manage your resume files. Store them securely in the cloud.
-          </p>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:justify-end items-start sm:items-center gap-4">
         <div>
           <input
             type="file"
@@ -141,6 +135,7 @@ export default function Resumes() {
             variant="primary"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
+            className="w-full sm:w-auto sm:ml-auto"
           >
             {uploading ? (
               <>
@@ -202,7 +197,7 @@ export default function Resumes() {
           </p>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {resumes.map((resume) => (
             <Card
               key={resume.id}

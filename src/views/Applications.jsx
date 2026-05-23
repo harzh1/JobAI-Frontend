@@ -80,7 +80,7 @@ const Button = ({ children, onClick, variant = "primary", disabled, className = 
   const baseStyle = "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
   const variants = {
     primary: "bg-[#dde3ea] theme-dark:bg-[#333538] text-[#1f1f1f] theme-dark:text-[#e3e3e3] hover:bg-[#c9d3e0] py-2 px-4 shadow-none border-none",
-    outline: "bg-transparent hover:bg-black/5 py-2 px-4 border-none shadow-none text-gray-700",
+    outline: "bg-gray-100/80 hover:bg-gray-200/80 py-2 px-4 border-none shadow-none text-gray-700",
   };
   return (
     <button type={type} onClick={onClick} disabled={disabled} className={`${baseStyle} ${variants[variant]} ${className}`}>
@@ -464,42 +464,42 @@ function KanbanCard({ application, onClick, onViewJob, onViewResume, onDelete })
       draggable
       onDragStart={(e) => e.dataTransfer.setData("appId", application.id)}
       onClick={onClick}
-      className="group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-[#3846e6]/60 transition-all duration-200 p-3.5 relative cursor-grab active:cursor-grabbing flex flex-col gap-3"
+      className="group bg-[var(--surface-bg)] rounded-[1.5rem] shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] transition-all duration-300 p-4 relative cursor-grab active:cursor-grabbing flex flex-col gap-3 border-transparent border"
     >
       <button 
         onClick={(e) => { e.stopPropagation(); onDelete(); }}
-        className="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md opacity-0 group-hover:opacity-100 transition-all z-10"
+        className="absolute top-3 right-3 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition-all z-10"
         title="Delete Application"
       >
         <Trash2 size={14} />
       </button>
 
-      <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-lg border border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0">
+      <div className="flex items-start gap-4">
+        <div className="w-12 h-12 rounded-xl bg-[#f0f4f9] flex items-center justify-center overflow-hidden shrink-0 border-none">
           {companyDomain ? (
-            <img src={`https://www.google.com/s2/favicons?domain=${companyDomain}&sz=128`} alt={job.company} className="w-6 h-6 object-contain" />
+            <img src={`https://www.google.com/s2/favicons?domain=${companyDomain}&sz=128`} alt={job.company} className="w-7 h-7 object-contain mix-blend-multiply" />
           ) : (
-            <Building2 size={16} className="text-gray-400" />
+            <Building2 size={18} className="text-gray-400" />
           )}
         </div>
         
         <div className="flex-1 min-w-0 pt-0.5 pr-6">
-          <h4 className="text-[14px] font-bold text-gray-900 leading-tight truncate mb-1" title={job.title}>
+          <h4 className="text-[15px] font-bold text-[#1f1f1f] leading-tight truncate mb-1" title={job.title}>
             {job.title || "Untitled Role"}
           </h4>
-          <p className="text-[12px] font-medium text-gray-500 truncate">{job.company || "Unknown Company"}</p>
+          <p className="text-[13px] font-medium text-[#444746] truncate">{job.company || "Unknown Company"}</p>
         </div>
       </div>
       
       {job.location && (
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-gray-50 text-gray-600 text-[11px] font-medium border border-gray-100">
-            <MapPin size={10} className="text-gray-400" /> {job.location}
+        <div className="flex flex-wrap items-center gap-1.5 mt-1">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#f0f4f9] text-[#444746] text-[11px] font-semibold tracking-wide border-none">
+            <MapPin size={10} className="opacity-70" /> {job.location}
           </span>
         </div>
       )}
 
-      <div className="flex justify-between items-center pt-3 mt-0.5 border-t border-gray-100/80">
+      <div className="flex justify-between items-center mt-2">
         <div className="flex items-center gap-2 flex-wrap text-gray-400">
           {resumeUrl && (
             <button
@@ -508,10 +508,10 @@ function KanbanCard({ application, onClick, onViewJob, onViewResume, onDelete })
                 e.stopPropagation();
                 onViewResume?.();
               }}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-600 transition-colors hover:border-[#3846e6]/30 hover:text-[#3846e6]"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border-transparent bg-[#f0f4f9] text-[#444746] transition-colors hover:bg-[#e1e5ea]"
               title={resumeName ? `View ${resumeName}` : "View resume"}
             >
-              <Eye size={12} />
+              <Eye size={14} />
             </button>
           )}
           {jobId || sourceUrl ? (
@@ -521,14 +521,14 @@ function KanbanCard({ application, onClick, onViewJob, onViewResume, onDelete })
                 e.stopPropagation();
                 onViewJob?.();
               }}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-600 transition-colors hover:border-[#3846e6]/30 hover:text-[#3846e6]"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border-transparent bg-[#f0f4f9] text-[#444746] transition-colors hover:bg-[#e1e5ea]"
               title="View job"
             >
-              <ExternalLink size={12} />
+              <ExternalLink size={14} />
             </button>
           ) : null}
         </div>
-        <span className="text-[11px] font-medium text-gray-400 shrink-0 flex items-center gap-1.5">
+        <span className="text-[12px] font-semibold text-[#444746] shrink-0 flex items-center gap-1.5 opacity-80">
           <Clock size={12} /> {timeStr}
         </span>
       </div>
@@ -556,71 +556,73 @@ function AppDetailsModal({ app, isOpen, onClose, onStatusChange, onEdit, onViewJ
   const timeline = app.timeline || [{ status: app.status, date: app.updatedAt }];
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} hideHeader maxWidth="max-w-3xl">
-      <div className="p-4 sm:p-5 bg-white text-gray-900 relative">
+    <Modal isOpen={isOpen} onClose={onClose} hideHeader maxWidth="max-w-[42rem]">
+      <div className="p-6 md:p-8 bg-white text-gray-900 relative rounded-[28px]">
         {/* Close Button overlay */}
         <button 
           onClick={onClose} 
-          className="absolute top-4 right-4 sm:top-5 sm:right-5 -mt-1.5 -mr-1.5 p-1 text-gray-400 hover:text-gray-700 bg-transparent hover:bg-gray-100 rounded-lg transition-colors"
+          className="absolute top-5 right-5 p-2 text-[#444746] hover:text-[#1f1f1f] bg-transparent hover:bg-[#f0f4f9] rounded-full transition-colors"
         >
-          <X size={18} />
+          <X size={20} />
         </button>
 
         {/* Header Section */}
-        <div className="flex items-start gap-3 mb-4 pr-10">
-          <div className="w-12 h-12 rounded-xl border border-gray-100 bg-white shadow-sm flex items-center justify-center overflow-hidden shrink-0">
+        <div className="flex items-start gap-4 mb-8 pr-12">
+          <div className="w-[52px] h-[52px] rounded-2xl bg-[#f0f4f9] flex items-center justify-center shrink-0">
             {companyDomain ? (
-              <img src={`https://www.google.com/s2/favicons?domain=${companyDomain}&sz=128`} alt={job.company} className="w-6 h-6 object-contain" />
+              <img src={`https://www.google.com/s2/favicons?domain=${companyDomain}&sz=128`} alt={job.company} className="w-7 h-7 object-contain mix-blend-multiply" />
             ) : (
-              <Building2 size={20} className="text-gray-400" />
+              <Building2 size={24} className="text-[#444746]" />
             )}
           </div>
-          <div className="flex-1">
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1">
-              <div>
-                <h2 className="text-[18px] font-bold text-gray-900 tracking-tight leading-tight">{job.title || "Untitled Role"}</h2>
-                <p className="text-[13px] font-medium text-gray-600 mt-0.5">{job.company || "Unknown Company"}</p>
-              </div>
-              <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium ${currentStatusCol.bg} ${currentStatusCol.color} self-start`}>
-                <StatusIcon size={12} /> {currentStatusCol.label}
+          <div className="flex-1 mt-0.5">
+            <h2 className="text-[22px] font-normal text-[#1f1f1f] tracking-tight leading-snug mb-1">{job.title || "Untitled Role"}</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <p className="text-[14px] font-normal text-[#444746]">{job.company || "Unknown Company"}</p>
+              <div className="hidden sm:block w-[3px] h-[3px] rounded-full bg-[#c4c7c5]"></div>
+              <div className="flex items-center gap-1.5 text-[13px] text-[#444746] font-normal">
+                <Clock size={14} className="opacity-70" />
+                Applied {formatDate(app.createdAt || app.updatedAt)}
               </div>
             </div>
-            <div className="flex items-center gap-1 mt-2 text-[12px] text-gray-500 font-medium">
-              <Clock size={12} className="text-gray-400" />
-              Applied {formatDate(app.createdAt || app.updatedAt)}
+            <div className="mt-3">
+               <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium tracking-wide ${currentStatusCol.bg} ${currentStatusCol.color}`}>
+                  <StatusIcon size={12} /> {currentStatusCol.label}
+               </div>
             </div>
           </div>
         </div>
 
-        <div className="h-px bg-gray-200 w-full mb-4"></div>
-
         {/* Resume Strip */}
-        <div className="bg-[#f8fafc] border border-gray-200 rounded-lg p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-          <div className="flex items-center gap-2">
-            <FileText size={16} className="text-[#3846e6] shrink-0" />
-            <span className="text-[12px] text-gray-700">Resume: <span className="font-semibold text-gray-900 ml-1">{resumeName || "Not provided"}</span></span>
+        <div className="bg-[#f0f4f9] rounded-[20px] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 transition-colors hover:bg-[#e1e5ea] cursor-pointer" onClick={() => onViewResume?.()}>
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+              <FileText size={18} className="text-[#1f1f1f]" />
+            </div>
+            <div>
+              <div className="text-[12px] text-[#444746] font-medium mb-0.5">Attached Resume</div>
+              <div className="text-[14px] font-medium text-[#1f1f1f]">{resumeName || "Not provided"}</div>
+            </div>
           </div>
           {resumeName && resumeUrl && (
-            <div className="flex items-center gap-3 text-[12px] font-medium">
-              <button onClick={() => onViewResume?.()} className="flex items-center gap-1 text-[#3846e6] hover:text-[#2834b3] transition-colors">
-                <Eye size={14} /> View
-              </button>
+            <div className="flex items-center gap-2 text-[14px] font-medium text-[#1f1f1f]">
+              <span className="hidden sm:inline-block">View</span> <Eye size={16} />
             </div>
           )}
         </div>
 
         {/* Update Status Buttons */}
-        <div className="mb-5">
-          <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Update Status</h4>
-          <div className="flex flex-wrap gap-1.5 sm:gap-2">
+        <div className="mb-8 pl-1">
+          <h4 className="text-[12px] font-medium text-[#444746] uppercase tracking-wider mb-4">Stage</h4>
+          <div className="flex flex-wrap gap-2">
             {BOARD_COLUMNS.map(col => (
               <button
                 key={col.key}
                 onClick={() => onStatusChange(app.id, col.key)}
-                className={`px-3 py-1.5 rounded-lg text-[12px] transition-all duration-200
+                className={`px-5 py-2 rounded-full text-[14px] transition-all duration-200 font-medium tracking-wide border-none
                   ${app.status === col.key 
-                    ? "bg-[#3846e6] text-white font-semibold border border-[#3846e6] shadow-sm" 
-                    : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+                    ? "bg-[#dde3ea] text-[#1f1f1f]" 
+                    : "bg-transparent text-[#444746] hover:bg-[#f0f4f9]"
                   }`}
               >
                 {col.label}
@@ -630,9 +632,9 @@ function AppDetailsModal({ app, isOpen, onClose, onStatusChange, onEdit, onViewJ
         </div>
 
         {/* Horizontal Timeline */}
-        <div className="mb-5 overflow-hidden w-full">
-          <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Timeline</h4>
-          <div className="flex items-start overflow-x-auto pb-3 pt-0.5 w-full gap-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="mb-10 pl-1 overflow-hidden w-full">
+          <h4 className="text-[12px] font-medium text-[#444746] uppercase tracking-wider mb-5">Timeline</h4>
+          <div className="flex items-start overflow-x-auto pb-2 w-full gap-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {timeline
               .sort((a, b) => {
                 const aTime = a.date?.toDate ? a.date.toDate().getTime() : new Date(a.date).getTime();
@@ -640,32 +642,34 @@ function AppDetailsModal({ app, isOpen, onClose, onStatusChange, onEdit, onViewJ
                 return aTime - bTime;
               })
               .map((event, index, arr) => (
-              <div key={index} className="relative flex flex-col min-w-[100px] shrink-0">
+              <div key={index} className="relative flex flex-col min-w-[120px] shrink-0">
                 {/* Connecting Line */}
                 {index !== arr.length - 1 && (
-                  <div className="absolute top-[2px] left-[5px] w-[calc(100%+1.5rem)] h-[1.5px] bg-gray-100" />
+                  <div className="absolute top-[6px] left-[14px] w-[calc(100%-4px)] h-[2px] bg-[#e1e5ea]" />
                 )}
                 {/* Dot */}
-                <div className="w-1.5 h-1.5 rounded-full bg-[#3846e6] shrink-0 mb-1.5 relative z-10 ring-3 ring-white"></div>
+                <div className="w-3 h-3 rounded-full bg-[#dde3ea] shrink-0 mb-3 relative z-10 flex items-center justify-center">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#1f1f1f]"></div>
+                </div>
                 {/* Label & Date */}
-                <span className="font-bold text-gray-900 capitalize text-[11px] leading-tight mb-0">{event.status}</span>
-                <span className="text-gray-400 text-[10px]">{formatDate(event.date)}</span>
+                <span className="font-medium text-[#1f1f1f] capitalize text-[13px] leading-tight mb-0.5">{event.status}</span>
+                <span className="text-[#444746] text-[12px]">{formatDate(event.date)}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="h-px bg-gray-200 w-full mb-4"></div>
-
         {/* Action Buttons Footer */}
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" icon={ExternalLink} onClick={() => onViewJob?.()} disabled={!jobId && !sourceUrl} className="p-2 text-gray-700" title="View Job" >View Job</Button>
-          <Button variant="outline" icon={Edit3} onClick={onEdit} className="py-2 text-gray-700">
-            Edit
-          </Button>
-          <Button variant="outline" icon={Trash2} onClick={onDelete} className="py-2 text-red-500 hover:bg-red-50 hover:border-red-200">
-            Delete
-          </Button>
+        <div className="flex flex-wrap items-center gap-2 pl-1">
+          <button onClick={() => onViewJob?.()} disabled={!jobId && !sourceUrl} className="flex items-center gap-2 py-2.5 px-5 rounded-full text-[#1f1f1f] bg-transparent hover:bg-[#f0f4f9] transition-colors border-none font-medium text-[14px]" title="View Job" >
+            <ExternalLink size={16} /> View Job
+          </button>
+          <button onClick={onEdit} className="flex items-center gap-2 py-2.5 px-5 rounded-full text-[#1f1f1f] bg-transparent hover:bg-[#f0f4f9] transition-colors border-none font-medium text-[14px]">
+            <Edit3 size={16}/> Edit
+          </button>
+          <button onClick={onDelete} className="flex items-center gap-2 py-2.5 px-5 rounded-full text-[#d93025] bg-transparent hover:bg-[#fce8e6] transition-colors border-none font-medium text-[14px] ml-auto">
+            <Trash2 size={16}/> Delete
+          </button>
         </div>
       </div>
     </Modal>

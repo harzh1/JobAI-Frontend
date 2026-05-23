@@ -274,12 +274,8 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
 
       {viewState === "campaigns" ? (
         <>
-          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6 px-2">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Outreach Campaigns</h2>
-              <p className="text-sm text-gray-500 mt-1">Automate cold emails with personalized snippets.</p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="flex justify-end mb-6 px-2">
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
               <div className="relative w-full sm:w-64">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                 <input
@@ -391,37 +387,33 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
         </>
       ) : viewState === "templates" ? (
         <>
-          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6 px-2">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Template Library</h2>
-              <p className="text-sm text-gray-500 mt-1">Manage your reusable email content and variables.</p>
-            </div>
-            <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="flex justify-end mb-6 px-2">
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full xl:w-auto">
               <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                 <input
                   type="text"
                   placeholder="Search templates..."
                   value={templateSearch}
                   onChange={(e) => setTemplateSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] outline-none shadow-sm transition-all"
+                  className="w-full pl-10 pr-4 py-2 bg-[var(--surface-bg)] rounded-full text-sm focus:outline-none transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] border-transparent"
                 />
               </div>
-              <div className="relative w-full sm:w-auto min-w-[160px]">
-                <Folder className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+              <div className="relative w-full sm:w-auto min-w-[130px]">
+                <Folder className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                 <select
                   value={templateFolderFilter}
                   onChange={(e) => setTemplateFolderFilter(e.target.value)}
-                  className="w-full pl-9 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] appearance-none outline-none shadow-sm cursor-pointer font-medium truncate"
+                  className="w-full pl-10 pr-10 py-2 bg-[var(--surface-bg)] rounded-full text-sm focus:outline-none transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] border-transparent appearance-none cursor-pointer font-medium truncate"
                 >
                   <option value="All">All Folders</option>
                   {uniqueTemplateFolders.map(folder => (
                     <option key={folder} value={folder}>{folder}</option>
                   ))}
                 </select>
-                <ChevronDown size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               </div>
-              <LocalButton onClick={() => { setEditingTemplate(null); setViewState("builder"); }} icon={Plus} variant="secondary" className="w-full sm:w-auto whitespace-nowrap border-[#3846e6]/20 text-[#3846e6] bg-indigo-50/50 hover:bg-indigo-100">
+              <LocalButton onClick={() => { setEditingTemplate(null); setViewState("builder"); }} icon={Plus} className="w-full sm:w-auto whitespace-nowrap">
                 New Template
               </LocalButton>
             </div>
@@ -485,30 +477,26 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
         </>
       ) : viewState === "accounts" ? (
         <>
-          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-6 px-2">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Sender Accounts</h2>
-              <p className="text-sm text-gray-500 mt-1">Connect email accounts to send cold outreach campaigns.</p>
-            </div>
+          <div className="flex justify-end mb-6 px-2">
             <LocalButton onClick={() => setIsConnectModalOpen(true)} icon={Plus} className="w-full sm:w-auto whitespace-nowrap">
               Connect New Account
             </LocalButton>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
+          <div className="flex flex-wrap gap-6 px-2 items-start">
             {accounts.map(acc => (
-              <LocalCard key={acc.id} className="flex flex-col relative group border border-gray-200 hover:shadow-md transition-all duration-300">
-                <div className="flex items-start justify-between mb-4">
+              <LocalCard key={acc.id} className="flex flex-col relative group border border-gray-200 hover:shadow-md transition-all duration-300 p-6 w-full md:w-[min(100%,26rem)]">
+                <div className="flex items-start justify-between mb-5 gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-sm shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-base shrink-0">
                       {acc.name.charAt(0)}
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900 leading-tight">{acc.name}</h3>
-                      <p className="text-xs text-gray-500">{acc.email}</p>
+                      <h3 className="font-bold text-gray-900 leading-tight text-lg">{acc.name}</h3>
+                      <p className="text-sm text-gray-500">{acc.email}</p>
                     </div>
                   </div>
-                  <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider shrink-0 ${
                     acc.status === 'Connected' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
                   }`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${acc.status === 'Connected' ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`}></span>
@@ -516,49 +504,41 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                   </span>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg p-3 mb-4 border border-gray-100 space-y-2">
-                  <div className="flex justify-between items-center text-xs">
+                <div className="bg-gray-50 rounded-2xl p-4 mb-5 border border-gray-100 space-y-3">
+                  <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500 font-medium">Provider</span>
-                    <span className="font-bold text-gray-700 flex items-center gap-1">
+                    <span className="font-bold text-gray-700 flex items-center gap-1.5">
                       {acc.provider === 'Google' ? <Mail size={12} className="text-red-500"/> : 
                        acc.provider === 'Microsoft' ? <Mail size={12} className="text-blue-500"/> : 
                        <Server size={12} className="text-gray-500"/>}
                       {acc.provider}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-xs">
+                  <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500 font-medium">Daily Limit</span>
                     <span className="font-bold text-gray-700">{acc.dailyLimit} emails</span>
                   </div>
-                  <div className="pt-2 mt-2 border-t border-gray-200">
-                    <div className="flex justify-between items-end mb-1">
-                      <span className="text-[10px] text-gray-500 font-bold uppercase">Sending Health</span>
-                      <span className="text-[11px] font-bold text-gray-700">{acc.usedToday} / {acc.dailyLimit}</span>
+                  <div className="pt-3 mt-3 border-t border-gray-200">
+                    <div className="flex justify-between items-end mb-2">
+                      <span className="text-[11px] text-gray-500 font-bold uppercase tracking-wide">Sending Health</span>
+                      <span className="text-[12px] font-bold text-gray-700">{acc.usedToday} / {acc.dailyLimit}</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                      <div className="bg-[#3846e6] h-1.5 rounded-full" style={{ width: `${(acc.usedToday / acc.dailyLimit) * 100}%` }}></div>
+                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div className="bg-[#3846e6] h-2 rounded-full" style={{ width: `${(acc.usedToday / acc.dailyLimit) * 100}%` }}></div>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-auto grid grid-cols-2 gap-2">
-                  <LocalButton variant="outline" className="w-full text-[12px] py-1.5 h-8 text-gray-600 hover:text-gray-900 border-gray-200">
+                <div className="mt-auto grid grid-cols-2 gap-3">
+                  <LocalButton variant="outline" className="w-full text-[13px] py-2.5 h-11 text-gray-600 hover:text-gray-900 border-gray-200 rounded-full">
                     <Settings2 size={14} className="mr-1"/> Settings
                   </LocalButton>
-                  <LocalButton variant="outline" onClick={() => setAccounts(accounts.filter(a => a.id !== acc.id))} className="w-full text-[12px] py-1.5 h-8 text-red-600 hover:text-red-700 hover:bg-red-50 border-gray-200 hover:border-red-200">
+                  <LocalButton variant="outline" onClick={() => setAccounts(accounts.filter(a => a.id !== acc.id))} className="w-full text-[13px] py-2.5 h-11 text-red-600 hover:text-red-700 hover:bg-red-50 border-gray-200 hover:border-red-200 rounded-full">
                     <LogOut size={14} className="mr-1"/> Disconnect
                   </LocalButton>
                 </div>
               </LocalCard>
             ))}
-            
-            <LocalCard onClick={() => setIsConnectModalOpen(true)} className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 bg-gray-50/50 hover:bg-indigo-50/50 hover:border-indigo-300 transition-all duration-300 cursor-pointer min-h-[220px]">
-              <div className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center text-indigo-600 mb-3 shadow-sm">
-                <Plus size={24} />
-              </div>
-              <h3 className="font-bold text-gray-900">Add Account</h3>
-              <p className="text-xs text-gray-500 mt-1 text-center max-w-[200px]">Connect another inbox to scale your outreach safely.</p>
-            </LocalCard>
           </div>
           
           <ConnectAccountModal 

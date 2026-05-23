@@ -248,61 +248,66 @@ export default function Jobs({ setView, setSelectedJobId }) {
       
       {/* --- AI Smart Omnibar --- */}
       {!parseResult ? (
-        <Card noPadding={true} className="overflow-visible relative z-20">
-          <div className="p-2 sm:p-3">
-            <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 sm:gap-4">
-              
-              <div className="flex items-center gap-3 px-2 md:w-1/4 lg:w-1/5 shrink-0">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50/80 backdrop-blur-sm border border-indigo-100 flex items-center justify-center shrink-0 text-indigo-600">
-                  <Sparkles size={20} />
-                </div>
-                <div>
-                  <h3 className="text-[15px] font-bold text-gray-900 tracking-tight">AI Smart Add</h3>
-                  <p className="text-[12px] text-gray-500 font-medium">Auto-extract details</p>
-                </div>
-              </div>
-
-              <div className="flex-1 relative">
-                <div className="flex items-center gap-2 bg-white rounded-xl border border-gray-200 p-1.5 shadow-sm focus-within:border-indigo-400 focus-within:ring-4 focus-within:ring-indigo-500/10 transition-all">
-                  <div className="pl-3 shrink-0 text-gray-400">
-                    <Link2 size={18} />
+        <div className={isLoading ? "gemini-processing-ring" : ""}>
+          <Card
+            noPadding={true}
+            className="overflow-visible relative z-20"
+          >
+            <div className="p-2 sm:p-3">
+              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 sm:gap-4">
+                
+                <div className="flex items-center gap-3 px-2 md:w-1/4 lg:w-1/5 shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50/80 backdrop-blur-sm border border-indigo-100 flex items-center justify-center shrink-0 text-indigo-600">
+                    <Sparkles size={20} />
                   </div>
-                  <input
-                    type="url"
-                    value={linkInput}
-                    onChange={(e) => setLinkInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && !isLoading && addJobByLink()}
-                    placeholder="Paste URL from LinkedIn, Indeed, or company site..."
-                    disabled={isLoading}
-                    className="flex-1 bg-transparent outline-none text-sm px-1 py-2 text-gray-800 placeholder-gray-400 disabled:opacity-50"
-                  />
-                  <Button
-                    onClick={addJobByLink}
-                    disabled={!linkInput.trim() || isLoading}
-                    className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white transition-all px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 disabled:opacity-50 disabled:hover:bg-indigo-600 shadow-sm"
-                  >
-                    {isLoading ? (
-                      <><Loader2 size={16} className="animate-spin" /> <span className="hidden sm:inline">Parsing</span></>
-                    ) : (
-                      <>Extract <ArrowRight size={16} className="hidden sm:inline" /></>
-                    )}
-                  </Button>
+                  <div>
+                    <h3 className="text-[15px] font-bold text-gray-900 tracking-tight">AI Smart Add</h3>
+                    <p className="text-[12px] text-gray-500 font-medium">Auto-extract details</p>
+                  </div>
                 </div>
 
-                {parseError && (
-                  <div className="absolute top-full left-0 mt-2 z-30 text-[13px] text-red-700 flex items-center gap-1.5 font-medium bg-red-50/90 backdrop-blur-md px-4 py-2 rounded-xl border border-red-200 shadow-lg animate-in fade-in slide-in-from-top-2">
-                    <AlertCircle size={16} className="text-red-500 shrink-0" /> 
-                    {parseError}
-                    <button onClick={() => setParseError(null)} className="ml-2 text-red-400 hover:text-red-700 transition-colors">
-                      <X size={14} />
-                    </button>
+                <div className="flex-1 relative">
+                  <div className="surface-control flex items-center gap-2 p-1.5">
+                    <div className="pl-3 shrink-0 text-gray-400">
+                      <Link2 size={18} />
+                    </div>
+                    <input
+                      type="url"
+                      value={linkInput}
+                      onChange={(e) => setLinkInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && !isLoading && addJobByLink()}
+                      placeholder="Paste URL from LinkedIn, Indeed, or company site..."
+                      disabled={isLoading}
+                      className="flex-1 bg-transparent outline-none text-sm px-1 py-2 text-gray-800 placeholder-gray-400 disabled:opacity-50"
+                    />
+                    <Button
+                      onClick={addJobByLink}
+                      disabled={!linkInput.trim() || isLoading}
+                      className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white transition-all px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 disabled:opacity-50 disabled:hover:bg-indigo-600 shadow-sm"
+                    >
+                      {isLoading ? (
+                        <><Loader2 size={16} className="animate-spin" /> <span className="hidden sm:inline">Parsing</span></>
+                      ) : (
+                        <>Extract <ArrowRight size={16} className="hidden sm:inline" /></>
+                      )}
+                    </Button>
                   </div>
-                )}
-              </div>
 
+                  {parseError && (
+                    <div className="absolute top-full left-0 mt-2 z-30 text-[13px] text-red-700 flex items-center gap-1.5 font-medium bg-red-50/90 backdrop-blur-md px-4 py-2 rounded-xl border border-red-200 shadow-lg animate-in fade-in slide-in-from-top-2">
+                      <AlertCircle size={16} className="text-red-500 shrink-0" /> 
+                      {parseError}
+                      <button onClick={() => setParseError(null)} className="ml-2 text-red-400 hover:text-red-700 transition-colors">
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
       ) : (
         /* --- Enterprise Ticket Parse Result Card --- */
         <Card noPadding={true} className="overflow-hidden relative z-20 animate-in fade-in zoom-in-95 duration-200">
@@ -462,7 +467,7 @@ export default function Jobs({ setView, setSelectedJobId }) {
               <input
                 type="text"
                 placeholder="Search your jobs..."
-                className="pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm w-full focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none text-gray-800 placeholder-gray-400 shadow-sm"
+                className="surface-control pl-9 pr-4 py-2.5 text-sm w-full outline-none text-gray-800 placeholder-gray-400"
               />
             </div>
           </div>
@@ -493,7 +498,7 @@ export default function Jobs({ setView, setSelectedJobId }) {
                 onChange={(e) => setRoleInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && addRole()}
                 placeholder="Add skill filter..."
-                className="w-full bg-white border border-gray-200 rounded-lg pl-3 pr-8 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none shadow-sm"
+                className="surface-control w-full pl-3 pr-8 py-2 text-sm outline-none"
               />
               <button
                 onClick={addRole}
@@ -533,25 +538,23 @@ export default function Jobs({ setView, setSelectedJobId }) {
                 <Card
                   key={job.id}
                   noPadding={true}
-                  className={`group relative overflow-hidden rounded-2xl border transition-all duration-300 ease-out hover:shadow-lg hover:-translate-y-0.5 ${
-                    isSelected ? "border-indigo-400 shadow-md ring-1 ring-indigo-400/20" : "border-gray-200 hover:border-indigo-300"
+                  className={`group relative overflow-hidden rounded-[24px] border-none transition-all duration-300 ease-out hover:bg-[#f0f4f9] hover:shadow-sm ${
+                    isSelected ? "bg-[#f0f4f9] shadow-sm" : "bg-white border border-[#e1e5ea]"
                   }`}
                 >
-                  {isSelected && <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-indigo-600 rounded-l-2xl z-10" />}
+                  {isSelected && <div className="absolute left-0 top-0 bottom-0 w-[5px] bg-[#3846e6] rounded-r-full z-10 opacity-80" />}
                   <button
                     type="button"
                     onClick={() => setSelectedJobIdLocal(job.id)}
-                    className={`w-full text-left p-5 flex flex-col gap-4 relative transition-colors ${
-                      isSelected ? "bg-indigo-50/40 backdrop-blur-sm" : "bg-transparent"
-                    }`}
+                    className="w-full text-left p-5 flex flex-col gap-4 relative transition-colors focus:outline-none"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl border border-gray-100 bg-white shadow-sm flex items-center justify-center overflow-hidden shrink-0">
+                      <div className="w-[52px] h-[52px] rounded-2xl bg-white border border-transparent group-hover:border-white group-hover:shadow-sm flex items-center justify-center overflow-hidden shrink-0 transition-all duration-300 shadow-sm border border-[#e1e5ea]/50">
                         {job.companyWebsite ? (
                           <img
                             src={`https://www.google.com/s2/favicons?domain=${job.companyWebsite}&sz=128`}
                             alt={job.company}
-                            className="w-7 h-7 object-contain"
+                            className="w-7 h-7 object-contain mix-blend-multiply"
                             onError={(e) => {
                               e.currentTarget.style.display = "none";
                               if (e.currentTarget.nextSibling) {
@@ -562,28 +565,28 @@ export default function Jobs({ setView, setSelectedJobId }) {
                         ) : null}
                         <span
                           style={{ display: job.companyWebsite ? "none" : "flex" }}
-                          className="w-full h-full items-center justify-center text-xl"
+                          className="w-full h-full items-center justify-center text-xl text-[#444746]"
                         >
                           {job.logo || "💼"}
                         </span>
                       </div>
 
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0 flex-1 relative z-20">
                         <div className="flex justify-between items-start gap-3">
-                          <div className="min-w-0">
-                            <h3 className="text-[17px] font-bold text-gray-900 group-hover:text-indigo-600 transition-colors tracking-tight truncate">
+                          <div className="min-w-0 mt-0.5">
+                            <h3 className="text-[16px] font-semibold text-[#1f1f1f] tracking-tight truncate leading-snug">
                               {job.title}
                             </h3>
-                            <p className="text-[15px] text-gray-500 mt-0.5 font-medium truncate">{job.company}</p>
+                            <p className="text-[14px] text-[#444746] mt-0.5 font-normal truncate">{job.company}</p>
                           </div>
-                          <div className="shrink-0 mt-0.5">
+                          <div className="shrink-0 mt-1">
                             {isApplied ? (
-                              <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-full bg-emerald-50 backdrop-blur text-emerald-600 border border-emerald-200 text-[11px] tooltip font-semibold uppercase tracking-wider" title="Applied">
-                                <CheckCircle size={16} />
+                              <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-[#e6f4ea] text-[#137333] border-none text-[11px] tooltip font-bold uppercase tracking-widest relative z-30" title="Applied">
+                                <CheckCircle size={14} className="mr-1 hidden sm:inline" />
                                 Applied
                               </span>
                             ) : (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-50/80 backdrop-blur text-gray-600 border border-gray-200 text-[11px] font-semibold uppercase tracking-wider">
+                              <span className="inline-flex items-center px-3 py-1 rounded-full bg-white text-[#444746] border border-[#e1e5ea] text-[11px] font-bold uppercase tracking-widest relative z-30 shadow-sm">
                                 Saved
                               </span>
                             )}
@@ -592,13 +595,13 @@ export default function Jobs({ setView, setSelectedJobId }) {
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4 text-[13px] font-medium text-gray-500 pl-16">
-                      <span className="flex items-center gap-1.5">
-                        <MapPin size={14} className="text-gray-400" />
+                    <div className="flex flex-wrap items-center gap-4 text-[13px] font-medium text-[#444746] pl-[68px] opacity-80">
+                      <span className="flex items-center gap-1.5 whitespace-nowrap">
+                        <MapPin size={14} className="opacity-70" />
                         {/remote|hybrid/i.test(job.location || "") ? "Remote / Hybrid" : job.location || "Remote / Hybrid"}
                       </span>
-                      <span className="flex items-center gap-1.5">
-                        <Briefcase size={14} className="text-gray-400" />
+                      <span className="flex items-center gap-1.5 whitespace-nowrap">
+                        <Briefcase size={14} className="opacity-70" />
                         {job.type || "Full-time"}
                       </span>
                     </div>
@@ -611,64 +614,64 @@ export default function Jobs({ setView, setSelectedJobId }) {
 
         {/* --- Selected Job Detailed Preview --- */}
         <div className="lg:sticky lg:top-6">
-          <Card noPadding={true} className="overflow-hidden border-gray-200 shadow-sm min-h-[400px]">
+          <Card noPadding={true} className="overflow-hidden border-none shadow-sm min-h-[400px] rounded-[32px] bg-white ring-1 ring-[#e1e5ea]">
             {selectedJob ? (
-              <div className="flex flex-col h-full">
+              <div className="flex flex-col h-full bg-white relative">
                 {/* Decorative Liquid Glass Header Banner */}
-                <div className="h-28 bg-gradient-to-br from-indigo-100/50 via-blue-50/50 to-white backdrop-blur-md border-b border-gray-100 relative overflow-hidden">
-                  <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-200/40 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
-                  <div className="absolute top-4 -left-8 w-24 h-24 bg-blue-200/40 rounded-full mix-blend-multiply filter blur-xl opacity-70"></div>
+                <div className="h-32 bg-[#f0f4f9] rounded-t-[32px] border-none relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#e8f0fe]/40 via-[#f0f4f9] to-[#f0f4f9] opacity-80"></div>
+                  <div className="absolute -top-16 -right-16 w-64 h-64 bg-[#e8f0fe] rounded-full mix-blend-multiply opacity-50 blur-3xl"></div>
                 </div>
                 
-                <div className="px-6 pb-6 -mt-10 space-y-6 relative z-10">
-                  <div className="flex items-end gap-4 pb-5 border-b border-gray-100">
-                    <div className="w-20 h-20 rounded-2xl border-4 border-white bg-white shadow-sm flex items-center justify-center overflow-hidden shrink-0">
+                <div className="px-8 pb-8 -mt-[44px] space-y-7 relative z-10">
+                  <div className="flex flex-col gap-4 pb-1 border-b border-[#e1e5ea] border-opacity-60">
+                    <div className="w-[88px] h-[88px] rounded-[24px] border-4 border-white bg-white shadow-sm flex items-center justify-center overflow-hidden shrink-0 relative z-20">
                       {selectedJob.companyWebsite ? (
                         <img
                           src={`https://www.google.com/s2/favicons?domain=${selectedJob.companyWebsite}&sz=128`}
                           alt={selectedJob.company}
-                          className="w-10 h-10 object-contain"
+                          className="w-12 h-12 object-contain mix-blend-multiply"
                         />
                       ) : (
-                        <span className="text-3xl">{selectedJob.logo || "💼"}</span>
+                        <span className="text-4xl text-[#444746]">{selectedJob.logo || "💼"}</span>
                       )}
                     </div>
-                    <div className="min-w-0 flex-1 mb-1">
-                      <h3 className="text-[22px] font-extrabold text-gray-900 leading-tight">
+                    <div className="min-w-0 flex-1 pt-1 mb-2">
+                      <h3 className="text-[24px] font-normal text-[#1f1f1f] leading-snug tracking-tight">
                         {selectedJob.title}
                       </h3>
-                      <p className="text-[15px] text-indigo-600 font-semibold mt-1">{selectedJob.company}</p>
+                      <p className="text-[15px] text-[#3846e6] font-medium mt-1 tracking-wide">{selectedJob.company}</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="flex flex-col gap-1 rounded-xl bg-gray-50/50 px-4 py-3 border border-gray-100">
-                      <span className="text-gray-500 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider"><MapPin size={13} /> Location</span>
-                      <span className="font-semibold text-gray-900 text-sm">{selectedJob.location || "Remote / Hybrid"}</span>
+                  <div className="flex flex-wrap gap-2 w-full pt-1">
+                    <div className="flex flex-col gap-1 rounded-[16px] bg-white px-4 py-3 border border-[#e1e5ea] flex-1 min-w-[100px]">
+                      <span className="text-[#444746] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest opacity-80"><MapPin size={13} /> Location</span>
+                      <span className="font-semibold text-[#1f1f1f] text-[14px] leading-tight">{selectedJob.location || "Remote / Hybrid"}</span>
                     </div>
-                    <div className="flex flex-col gap-1 rounded-xl bg-gray-50/50 px-4 py-3 border border-gray-100">
-                      <span className="text-gray-500 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider"><Briefcase size={13} /> Type</span>
-                      <span className="font-semibold text-gray-900 text-sm">{selectedJob.type || "Full-time"}</span>
+                    <div className="flex flex-col gap-1 rounded-[16px] bg-white px-4 py-3 border border-[#e1e5ea] flex-1 min-w-[100px]">
+                      <span className="text-[#444746] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest opacity-80"><Briefcase size={13} /> Type</span>
+                      <span className="font-semibold text-[#1f1f1f] text-[14px] leading-tight">{selectedJob.type || "Full-time"}</span>
                     </div>
-                    <div className="flex flex-col gap-1 rounded-xl bg-gray-50/50 px-4 py-3 border border-gray-100">
-                      <span className="text-gray-500 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider"><DollarSign size={13} /> Salary</span>
-                      <span className="font-semibold text-green-700 text-sm">{selectedJob.salary || "Not listed"}</span>
+                    <div className="flex flex-col gap-1 rounded-[16px] bg-white px-4 py-3 border border-[#e1e5ea] flex-1 min-w-[100px]">
+                      <span className="text-[#444746] flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest opacity-80"><DollarSign size={13} /> Salary</span>
+                      <span className="font-semibold text-[#137333] text-[14px] leading-tight">{selectedJob.salary || "Not listed"}</span>
                     </div>
                   </div>
 
                   <div>
-                    <div className="text-sm font-bold text-gray-900 mb-2">About the role</div>
-                    <p className="text-[14px] text-gray-600 leading-relaxed">
+                    <div className="text-[15px] font-semibold text-[#1f1f1f] mb-2 tracking-tight">About the role</div>
+                    <p className="text-[14px] text-[#444746] leading-relaxed font-normal">
                       {selectedJob.description || "This role is saved in your jobs list. Open full details to view the complete description and application information."}
                     </p>
                   </div>
 
                   {selectedJob.tags && selectedJob.tags.length > 0 && (
                     <div>
-                      <div className="text-sm font-bold text-gray-900 mb-3">Requirements & Skills</div>
+                      <div className="text-[15px] font-semibold text-[#1f1f1f] mb-3 tracking-tight">Requirements & Skills</div>
                       <div className="flex flex-wrap gap-2">
                         {selectedJob.tags.map((tag) => (
-                          <span key={tag} className="px-3 py-1.5 rounded-lg bg-gray-50 text-gray-700 text-[12px] font-medium border border-gray-200/60">
+                          <span key={tag} className="px-3.5 py-1.5 rounded-full bg-[#f0f4f9] text-[#1f1f1f] text-[12px] font-medium border-none tracking-wide">
                             {tag}
                           </span>
                         ))}
@@ -676,19 +679,19 @@ export default function Jobs({ setView, setSelectedJobId }) {
                     </div>
                   )}
 
-                  <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-100">
-                    <Button onClick={() => handleApply(selectedJob)} className="w-full sm:flex-1 py-2.5 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-all">
+                  <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-[#e1e5ea] border-opacity-60">
+                    <button onClick={() => handleApply(selectedJob)} className="w-full sm:flex-1 py-3 px-6 flex items-center justify-center gap-2 bg-[#3846e6] hover:bg-[#3846e6]/90 text-white rounded-full font-medium transition-all text-[14px] tracking-wide border-none shadow-none">
                       <ExternalLink size={16} /> Apply Now
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                       onClick={() => {
                         setSelectedJobId(selectedJob.id);
                         setView("job-detail");
                       }}
-                      className="w-full sm:flex-1 py-2.5 flex items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition-all"
+                      className="w-full sm:flex-1 py-3 px-6 flex items-center justify-center gap-2 bg-[#3846e6] hover:bg-[#3846e6]/90 text-white rounded-full font-medium transition-all text-[14px] tracking-wide border-none shadow-none"
                     >
                       View full details
-                    </Button>
+                    </button>
                   </div>
                 </div>
               </div>

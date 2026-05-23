@@ -79,98 +79,95 @@ export default function UserProfile({ onLogout }) {
   ];
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl mx-auto pb-10">
       {/* Profile Header */}
-      <Card className="border border-gray-100 shadow-sm">
-        <div className="px-6 py-5">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="relative">
-              <div className="w-20 h-20 rounded-2xl bg-gray-100 flex items-center justify-center text-indigo-600 text-2xl font-semibold border border-gray-200">
+      <Card noPadding className="border-none shadow-none bg-[#f0f4f9] rounded-[32px] overflow-hidden relative">
+        {/* Decorative Liquid Glass Header Banner */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none hidden sm:block">
+          <div className="absolute -top-20 -right-10 w-64 h-64 bg-[#e8f0fe] rounded-full mix-blend-multiply opacity-50 blur-3xl"></div>
+          <div className="absolute bottom-10 -left-10 w-40 h-40 bg-[#e8f0fe] rounded-full mix-blend-multiply opacity-50 blur-3xl"></div>
+        </div>
+
+        <div className="p-8 sm:p-10 relative z-10">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+            <div className="relative shrink-0">
+              <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center text-[#1f1f1f] text-3xl font-semibold shadow-sm border border-[#e1e5ea]">
                 {user?.displayName?.charAt(0)?.toUpperCase() ||
                   user?.email?.charAt(0)?.toUpperCase() ||
                   "U"}
               </div>
-              <button className="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-full shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200">
-                <Camera size={14} className="text-gray-600" />
+              <button className="absolute bottom-0 right-0 w-8 h-8 bg-[#3846e6] rounded-full shadow-sm flex items-center justify-center hover:bg-[#3846e6]/90 transition-colors border-2 border-[#f0f4f9] text-white">
+                <Camera size={14} />
               </button>
             </div>
-            <div className="flex-1 space-y-1">
-              <h2 className="text-xl font-bold text-gray-900">
+            <div className="flex-1 space-y-1.5 text-center sm:text-left mt-2">
+              <h2 className="text-[26px] font-normal text-[#1f1f1f] tracking-tight leading-none mb-2">
                 {user?.displayName || "User"}
               </h2>
-              <p className="text-gray-600 text-sm">{user?.email}</p>
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full">
+              <p className="text-[#444746] text-[15px] font-medium">{user?.email}</p>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3 pt-1">
+                <span className="px-3.5 py-1.5 bg-white text-[#1f1f1f] text-[12px] font-bold tracking-widest uppercase rounded-full shadow-sm border border-[#e1e5ea]/50">
                   Free Plan
                 </span>
-                <span className="text-gray-400 text-xs">
+                <span className="text-[#444746] text-[13px] font-medium ml-1">
                   Joined {new Date().getFullYear()}
                 </span>
               </div>
             </div>
-            <Button variant="secondary" icon={LogOut} onClick={onLogout}>
-              Sign Out
-            </Button>
+            <button onClick={onLogout} className="mt-4 sm:mt-0 flex items-center gap-2 px-6 py-3 bg-white hover:bg-[#e1e5ea]/80 text-[#1f1f1f] font-semibold text-[14px] tracking-wide rounded-full transition-colors shrink-0 shadow-sm border-none">
+              <LogOut size={16} /> Sign Out
+            </button>
           </div>
         </div>
       </Card>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
         {[
           {
             label: "Applications",
             value: profileStats.totalApplications ?? 0,
             icon: Briefcase,
-            color: "indigo",
           },
-          { label: "Interviews", value: "-", icon: User, color: "green" },
+          { label: "Interviews", value: "-", icon: User },
           {
             label: "Saved Jobs",
             value: profileStats.savedJobs ?? 0,
             icon: Mail,
-            color: "purple",
           },
           {
             label: "Resumes",
             value: profileStats.resumeCount ?? 0,
             icon: FileText,
-            color: "orange",
           },
         ].map((stat) => (
-          <Card key={stat.label} className="text-center py-4">
-            <div
-              className={`w-10 h-10 mx-auto mb-2 rounded-lg bg-[#F0F2FF] flex items-center justify-center`}
-            >
-              <stat.icon size={20} className={`text-[#3442FF]`} />
+          <div key={stat.label} className="bg-white border border-[#e1e5ea] rounded-[24px] p-6 text-center transition-all hover:bg-[#f0f4f9] hover:border-transparent group">
+            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[#f0f4f9] group-hover:bg-white flex items-center justify-center transition-colors">
+              <stat.icon size={22} className="text-[#1f1f1f]" />
             </div>
-            <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-            <div className="text-sm text-gray-500">{stat.label}</div>
-          </Card>
+            <div className="text-[32px] font-normal text-[#1f1f1f] leading-none mb-2 tracking-tight">{stat.value}</div>
+            <div className="text-[13px] font-medium text-[#444746]">{stat.label}</div>
+          </div>
         ))}
       </div>
 
       {/* Appearance */}
-      <Card className="border border-indigo-100/70 shadow-sm bg-white/90">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-              <Moon size={18} />
+      <Card noPadding className="border border-[#e1e5ea] shadow-none bg-white rounded-[28px] mt-8 overflow-hidden">
+        <div className="p-6 sm:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 rounded-full bg-[#f0f4f9] text-[#1f1f1f] flex items-center justify-center shrink-0">
+              <Moon size={24} />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Appearance
-              </h3>
-              <p className="text-sm text-gray-500">
-                Choose light, dark, or follow system preference
-              </p>
+              <h3 className="text-[18px] font-medium text-[#1f1f1f] tracking-tight">Appearance</h3>
+              <p className="text-[14px] text-[#444746] mt-1 font-normal">Choose light, dark, or follow system preference</p>
             </div>
           </div>
           <div>
             <select
               value={theme}
               onChange={(e) => setTheme(e.target.value)}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-700 hover:border-indigo-300 focus:outline-none focus:ring-2 focus:ring-indigo-200 theme-dark:bg-gray-800 theme-dark:text-gray-100 theme-dark:border-gray-700"
+              className="text-[15px] font-medium border-none rounded-full px-6 py-3.5 bg-[#f0f4f9] text-[#1f1f1f] focus:outline-none focus:ring-2 focus:ring-[#3846e6]/20 cursor-pointer appearance-none min-w-[160px] text-center"
             >
               <option value="light">Light</option>
               <option value="dark">Dark</option>
@@ -181,91 +178,92 @@ export default function UserProfile({ onLogout }) {
       </Card>
 
       {/* Notifications Settings */}
-      <Card>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Bell size={20} className="text-indigo-600" />
-          Notification Preferences
-        </h3>
-        <div className="space-y-3">
-          {[
-            {
-              key: "email",
-              label: "Email Notifications",
-              desc: "Receive updates via email",
-            },
-            {
-              key: "push",
-              label: "Push Notifications",
-              desc: "Browser notifications",
-            },
-            { key: "jobAlerts", label: "Job Alerts", desc: "New job matches" },
-            {
-              key: "weeklyDigest",
-              label: "Weekly Digest",
-              desc: "Weekly summary email",
-            },
-          ].map((item) => (
-            <div
-              key={item.key}
-              className="flex items-center justify-between p-3 bg-transparent rounded-xl"
-            >
-              <div>
-                <h4 className="font-medium text-gray-900">{item.label}</h4>
-                <p className="text-sm text-gray-500">{item.desc}</p>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={notifications[item.key]}
-                onClick={() => toggleNotification(item.key)}
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  notifications[item.key] ? "bg-[#3442FF]" : "bg-gray-200"
-                }`}
-              >
-                <span
-                  aria-hidden="true"
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    notifications[item.key] ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </button>
+      <Card noPadding className="border border-[#e1e5ea] shadow-none bg-white rounded-[28px] mt-6 overflow-hidden">
+        <div className="p-6 sm:p-8">
+          <h3 className="text-[18px] font-medium text-[#1f1f1f] mb-6 flex items-center gap-4 tracking-tight">
+            <div className="w-14 h-14 rounded-full bg-[#f0f4f9] text-[#1f1f1f] flex items-center justify-center shrink-0">
+              <Bell size={24} />
             </div>
-          ))}
+            Notification Preferences
+          </h3>
+          <div className="space-y-1">
+            {[
+              {
+                key: "email",
+                label: "Email Notifications",
+                desc: "Receive updates via email",
+              },
+              {
+                key: "push",
+                label: "Push Notifications",
+                desc: "Browser notifications",
+              },
+              { key: "jobAlerts", label: "Job Alerts", desc: "New job matches" },
+              {
+                key: "weeklyDigest",
+                label: "Weekly Digest",
+                desc: "Weekly summary email",
+              },
+            ].map((item) => (
+              <div
+                key={item.key}
+                className="flex items-center justify-between p-4 rounded-[20px] transition-colors hover:bg-[#f0f4f9]"
+              >
+                <div>
+                  <h4 className="font-medium text-[#1f1f1f] text-[15px]">{item.label}</h4>
+                  <p className="text-[13px] text-[#444746] mt-0.5">{item.desc}</p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={notifications[item.key]}
+                  onClick={() => toggleNotification(item.key)}
+                  className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out border-none ${
+                    notifications[item.key] ? "bg-[#3846e6]" : "bg-[#c4c7c5]"
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out mt-1 ${
+                      notifications[item.key] ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       </Card>
 
       {/* Menu Items */}
-      <Card noPadding>
-        <div className="divide-y divide-gray-100">
+      <Card noPadding className="border border-[#e1e5ea] shadow-none bg-white rounded-[28px] mt-6 overflow-hidden">
+        <div className="flex flex-col p-2">
           {menuItems.map((item) => (
             <button
               key={item.label}
-              className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors text-left theme-dark:hover:bg-gray-800"
+              className="w-full flex items-center gap-5 p-4 sm:p-5 rounded-[20px] transition-colors hover:bg-[#f0f4f9] text-left group"
             >
-              <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
-                <item.icon
-                  size={20}
-                  className="text-gray-600 theme-dark:text-gray-200"
-                />
+              <div className="w-12 h-12 rounded-full bg-[#f0f4f9] group-hover:bg-white flex items-center justify-center shrink-0 transition-colors">
+                <item.icon size={22} className="text-[#1f1f1f]" />
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-medium text-gray-900 theme-dark:text-gray-100">
+                <div className="flex items-center gap-3">
+                  <h4 className="font-medium text-[#1f1f1f] text-[15px]">
                     {item.label}
                   </h4>
                   {item.badge && (
-                    <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-full theme-dark:bg-indigo-900/40 theme-dark:text-indigo-200">
+                    <span className="px-3 py-1 bg-[#e8f0fe] text-[#3846e6] text-[11px] font-bold uppercase tracking-widest rounded-full">
                       {item.badge}
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-500 theme-dark:text-gray-400">
+                <p className="text-[13px] text-[#444746] mt-0.5 font-normal">
                   {item.description}
                 </p>
               </div>
               <ChevronRight
                 size={20}
-                className="text-gray-400 theme-dark:text-gray-300"
+                className="text-[#c4c7c5] group-hover:text-[#444746] transition-colors mr-2"
               />
             </button>
           ))}
@@ -273,13 +271,19 @@ export default function UserProfile({ onLogout }) {
       </Card>
 
       {/* Danger Zone */}
-      <Card className="border-red-100 bg-red-50/30">
-        <h3 className="text-lg font-semibold text-red-900 mb-2">Danger Zone</h3>
-        <p className="text-sm text-red-600 mb-4">
-          Once you delete your account, there is no going back. All your data
-          will be permanently removed.
-        </p>
-        <Button variant="danger">Delete Account</Button>
+      <Card noPadding className="border-none bg-[#fce8e6]/50 rounded-[28px] mt-6 p-6 sm:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div>
+            <h3 className="text-[18px] font-medium text-[#d93025] mb-1.5 tracking-tight flex items-center gap-2">Danger Zone</h3>
+            <p className="text-[14px] text-[#d93025]/80 font-normal">
+              Once you delete your account, there is no going back. All data
+              will be permanently removed.
+            </p>
+          </div>
+          <button className="whitespace-nowrap px-6 py-3 bg-[#d93025] hover:bg-[#c5221f] text-white text-[14px] font-semibold tracking-wide rounded-full transition-colors border-none shadow-none">
+            Delete Account
+          </button>
+        </div>
       </Card>
     </div>
   );
