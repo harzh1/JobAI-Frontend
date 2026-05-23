@@ -8,14 +8,14 @@ const NavItem = ({ icon, label, id, view, setView, collapsed = false }) => {
     <button
       onClick={() => setView(id)}
       title={collapsed ? label : undefined}
-      className={`relative w-full flex items-center transition-all duration-200 group border-l-[3px] ${
+      className={`relative w-full flex items-center transition-all duration-200 group mx-2 rounded-full ${
         collapsed
-          ? "justify-center h-11"
-          : "gap-3 pl-3 pr-2 h-11"
+          ? "justify-center h-10 w-10 mx-auto"
+          : "gap-3 pl-4 pr-3 h-[40px] w-[calc(100%-16px)]"
       } ${
         isActive
-          ? "bg-gray-100 text-gray-900 border-[#3442FF]"
-          : "text-gray-500 border-transparent hover:bg-gray-50 hover:text-gray-900"
+          ? "bg-[#dde3ea] text-[#1f1f1f] theme-dark:bg-[#333538] theme-dark:text-[#e3e3e3]"
+          : "text-[#444746] hover:bg-black/5 theme-dark:hover:bg-white/5 hover:text-[#1f1f1f] theme-dark:hover:text-[#e3e3e3]"
       }`}
     >
       <span className="flex items-center justify-center">
@@ -25,7 +25,7 @@ const NavItem = ({ icon, label, id, view, setView, collapsed = false }) => {
         })}
       </span>
       {!collapsed && (
-        <span className="flex-1 min-w-0 text-left text-[14px] font-medium leading-none">
+        <span className={`flex-1 min-w-0 text-left text-[14px] leading-[1.2] ${isActive ? "font-semibold" : "font-medium"}`}>
           <span className="block truncate">{label}</span>
         </span>
       )}

@@ -42,8 +42,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['"Inter"', "sans-serif"],
-        heading: ['"Plus Jakarta Sans"', "sans-serif"],
+        sans: ['"Google Sans"', "sans-serif"],
+        heading: ['"Google Sans"', "sans-serif"],
       },
       animation: {
         spin: "spin 1s linear infinite",

@@ -17,17 +17,17 @@ export const Button = ({
   ...props
 }) => {
   const baseStyle =
-    "px-6 py-3 rounded-md font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed";
+    "px-6 py-3 rounded-full font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed";
   const variants = {
     primary:
-      "bg-[#3442FF] text-white font-medium hover:bg-blue-700 transition-colors shadow-sm",
+      "bg-[var(--primary-blue)] text-white hover:brightness-95 transition-colors shadow-none",
     secondary:
-      "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm",
+      "bg-transparent border border-[var(--surface-border)] text-gray-700 hover:bg-black/5 shadow-none",
     copilot:
-      "bg-gradient-to-r from-violet-600 to-[#3442FF] text-white shadow-sm hover:shadow-md",
+      "gemini-bg-gradient text-white shadow-sm hover:shadow-md",
     ghost:
-      "text-gray-500 hover:bg-gray-50 hover:text-gray-900",
-    danger: "bg-white text-red-600 hover:bg-red-50 border border-red-200 shadow-sm",
+      "text-gray-500 hover:bg-black/5 hover:text-gray-900 border-none",
+    danger: "bg-transparent text-red-600 hover:bg-red-50 border border-red-200 shadow-none",
   };
 
   return (
@@ -41,7 +41,7 @@ export const Button = ({
       {...props}
     >
       {Icon && (
-        <Icon size={16} className={variant === "ghost" ? "opacity-70" : ""} />
+        <Icon size={18} className={variant === "ghost" ? "opacity-70" : ""} />
       )}
       {children}
     </button>
@@ -50,8 +50,8 @@ export const Button = ({
 
 export const Card = ({ children, className = "", noPadding = false }) => (
   <div
-    className={`bg-white rounded-xl border border-gray-200 shadow-sm ${
-      noPadding ? "" : "p-2"
+    className={`bg-[var(--surface-bg)] rounded-[1.5rem] shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] transition-all duration-300 overflow-hidden ${
+      noPadding ? "" : "p-5"
     } ${className}`}
   >
     {children}
@@ -60,16 +60,16 @@ export const Card = ({ children, className = "", noPadding = false }) => (
 
 export const Badge = ({ children, color = "blue" }) => {
   const colors = {
-    blue: "bg-blue-50 text-blue-700 border-blue-100",
-    purple: "bg-purple-50 text-purple-700 border-purple-100",
-    green: "bg-emerald-50 text-emerald-700 border-emerald-100",
-    gray: "bg-gray-100 text-gray-600 border-gray-200",
-    orange: "bg-orange-50 text-orange-700 border-orange-100",
-    red: "bg-red-50 text-red-700 border-red-100",
+    blue: "bg-blue-50 text-blue-700 border-none",
+    purple: "bg-purple-50 text-purple-700 border-none",
+    green: "bg-emerald-50 text-emerald-700 border-none",
+    gray: "bg-gray-100 text-gray-600 border-none",
+    orange: "bg-orange-50 text-orange-700 border-none",
+    red: "bg-red-50 text-red-700 border-none",
   };
   return (
     <span
-      className={`px-2.5 py-1 rounded-sm text-[11px] font-bold border ${
+      className={`gemini-pill text-[11px] font-medium tracking-wide ${
         colors[color] || colors.blue
       }`}
     >

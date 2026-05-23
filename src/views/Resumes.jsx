@@ -200,13 +200,6 @@ export default function Resumes() {
           <p className="text-gray-500 text-sm mb-4">
             Upload your first resume to get started
           </p>
-          <Button
-            variant="primary"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Upload size={16} className="mr-2" />
-            Upload Resume
-          </Button>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

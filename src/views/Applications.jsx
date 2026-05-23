@@ -77,10 +77,10 @@ function formatResumeOptionDate(dateValue) {
 
 // --- UI Components ---
 const Button = ({ children, onClick, variant = "primary", disabled, className = "", icon: Icon, type = "button" }) => {
-  const baseStyle = "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+  const baseStyle = "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
   const variants = {
-    primary: "bg-[#3846e6] text-white hover:bg-[#2834b3] focus:ring-[#3846e6] py-2 px-4 shadow-sm",
-    outline: "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 focus:ring-gray-200 py-2 px-4",
+    primary: "bg-[#dde3ea] theme-dark:bg-[#333538] text-[#1f1f1f] theme-dark:text-[#e3e3e3] hover:bg-[#c9d3e0] py-2 px-4 shadow-none border-none",
+    outline: "bg-transparent hover:bg-black/5 py-2 px-4 border-none shadow-none text-gray-700",
   };
   return (
     <button type={type} onClick={onClick} disabled={disabled} className={`${baseStyle} ${variants[variant]} ${className}`}>
@@ -242,23 +242,18 @@ export default function Applications({ setView, setSelectedJobId }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search applications..."
-              className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] outline-none shadow-sm transition-all"
+              className="w-full pl-10 pr-4 py-2 bg-[var(--surface-bg)] rounded-full text-sm focus:outline-none transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] border-transparent"
             />
           </div>
-          <button
-            type="button"
-            onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800 shadow-sm shrink-0"
-          >
-            <Plus size={16} />
+          <Button variant="primary" onClick={() => setShowAddModal(true)} icon={Plus}>
             Add
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -664,7 +659,7 @@ function AppDetailsModal({ app, isOpen, onClose, onStatusChange, onEdit, onViewJ
 
         {/* Action Buttons Footer */}
         <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" icon={ExternalLink} onClick={() => onViewJob?.()} disabled={!jobId && !sourceUrl} className="p-2 text-gray-700" title="View Job" />
+          <Button variant="outline" icon={ExternalLink} onClick={() => onViewJob?.()} disabled={!jobId && !sourceUrl} className="p-2 text-gray-700" title="View Job" >View Job</Button>
           <Button variant="outline" icon={Edit3} onClick={onEdit} className="py-2 text-gray-700">
             Edit
           </Button>

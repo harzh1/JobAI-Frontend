@@ -70,55 +70,55 @@ export default function Dashboard({ setShowAIModal, setView }) {
   return (
     <div className="flex flex-col lg:flex-row gap-8">
       {/* Left Main Column */}
-      <div className="flex-1 space-y-8">
+      <div className="flex-1 min-w-0 space-y-8">
         {/* Stats Row */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card className="flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+              <div className="p-2.5 bg-blue-50 text-blue-600 rounded-full">
                 <Briefcase size={20} />
               </div>
               {activeApplications.length > 0 && (
-                <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-medium text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
                   Active
                 </span>
               )}
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-3xl font-medium text-gray-900 theme-dark:text-gray-100 tracking-tight">
                 {activeApplications.length}
               </div>
-              <div className="text-sm text-gray-500 font-medium">
+              <div className="text-sm text-gray-500 theme-dark:text-gray-400 font-medium">
                 Active Applications
               </div>
             </div>
           </Card>
           <Card className="flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl">
+              <div className="p-2.5 bg-purple-50 text-purple-600 rounded-full">
                 <TrendingUp size={20} />
               </div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-3xl font-medium text-gray-900 theme-dark:text-gray-100 tracking-tight">
                 {responseRate}%
               </div>
-              <div className="text-sm text-gray-500 font-medium">
+              <div className="text-sm text-gray-500 theme-dark:text-gray-400 font-medium">
                 Response Rate
               </div>
             </div>
           </Card>
           <Card className="flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start mb-4">
-              <div className="p-2.5 bg-orange-50 text-orange-600 rounded-xl">
+              <div className="p-2.5 bg-orange-50 text-orange-600 rounded-full">
                 <FileText size={20} />
               </div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-3xl font-medium text-gray-900 theme-dark:text-gray-100 tracking-tight">
                 {stats.resumeCount || 0}
               </div>
-              <div className="text-sm text-gray-500 font-medium">
+              <div className="text-sm text-gray-500 theme-dark:text-gray-400 font-medium">
                 Resumes Uploaded
               </div>
             </div>
@@ -128,20 +128,20 @@ export default function Dashboard({ setShowAIModal, setView }) {
         {/* Recent Activity Section */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-gray-900">
+            <h3 className="text-lg font-medium text-gray-900 theme-dark:text-gray-100 tracking-tight">
               Recent Applications
             </h3>
             <Button
               variant="ghost"
-              className="text-indigo-600 text-sm"
+              className="text-[var(--primary-blue)] text-sm font-medium"
               onClick={() => setView?.("applications")}
             >
               View All
             </Button>
           </div>
-          <Card noPadding className="overflow-hidden">
+          <Card noPadding className="overflow-hidden border-none shadow-sm">
             <table className="w-full text-left border-collapse">
-              <thead className="bg-gray-50/50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <thead className="bg-[#f0f4f9] theme-dark:bg-[#131314] text-xs font-semibold text-gray-500 theme-dark:text-gray-400 uppercase tracking-wider">
                 <tr>
                   <th className="px-6 py-4">Company</th>
                   <th className="px-6 py-4">Role</th>
@@ -178,7 +178,7 @@ export default function Dashboard({ setShowAIModal, setView }) {
                     return (
                       <tr
                         key={app.id}
-                        className="hover:bg-gray-50/50 transition-colors"
+                        className="hover:bg-gray-50 border-b border-[var(--surface-border)] border-opacity-30 transition-colors"
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -247,37 +247,43 @@ export default function Dashboard({ setShowAIModal, setView }) {
       </div>
 
       {/* Right Rail */}
-      <div className="w-full lg:w-80 space-y-6">
-        <Card className="border border-gray-200 bg-white text-gray-900 shadow-md theme-dark:border-gray-700 theme-dark:bg-gradient-to-br theme-dark:from-indigo-600 theme-dark:to-violet-700 theme-dark:text-white">
-          <div className="flex items-start gap-3 mb-4">
-            <div className="p-2 bg-indigo-50 rounded-lg theme-dark:bg-white/20">
-              <Sparkles size={18} className="text-indigo-600 theme-dark:text-white" />
+      <div className="w-full lg:w-80 shrink-0 space-y-6">
+        <Card className="relative overflow-hidden group">
+          <div className="absolute inset-0 bg-[var(--surface-bg)] z-0"></div>
+          {/* Subtle gemini gradient block behind */}
+          <div className="absolute top-0 left-0 right-0 h-1 gemini-bg-gradient z-0"></div>
+          <div className="relative z-10">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="p-2 bg-[var(--page-bg)] rounded-full text-[var(--primary-blue)]">
+                <div className="gemini-text-gradient"><Sparkles size={18} /></div>
+              </div>
+              <div>
+                <h3 className="font-medium text-base text-gray-900 theme-dark:text-gray-100">Copilot Insight</h3>
+                <p className="text-sm text-gray-500 theme-dark:text-gray-400 mt-1 leading-relaxed">
+                  Your profile matches 95% with the new
+                  <strong className="text-gray-900 theme-dark:text-gray-100 font-medium"> Senior Frontend </strong>
+                  role at Nebula AI.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-bold text-base">Copilot Insight</h3>
-              <p className="text-sm text-gray-700 mt-1 leading-relaxed theme-dark:text-indigo-50">
-                Your profile matches 95% with the new
-                <strong className="text-indigo-700 theme-dark:text-white"> Senior Frontend </strong>
-                role at Nebula AI.
-              </p>
-            </div>
+            <Button
+              onClick={() => setShowAIModal?.(true)}
+              variant="copilot"
+              className="w-full text-sm py-2.5"
+            >
+              <div className="gemini-text-gradient brightness-200 contrast-150 font-medium">View Opportunity</div>
+            </Button>
           </div>
-          <Button
-            onClick={() => setShowAIModal?.(true)}
-            className="w-full bg-[var(--primary-blue)] text-white hover:opacity-90 text-sm py-2 shadow-none border-0 theme-dark:bg-white theme-dark:text-indigo-700"
-          >
-            View Opportunity
-          </Button>
         </Card>
 
         <Card>
-          <h3 className="text-sm font-bold text-gray-900 mb-4">
+          <h3 className="text-sm font-medium text-gray-900 theme-dark:text-gray-100 mb-4 tracking-tight">
             Recommended Actions
           </h3>
           <ul className="space-y-4">
             {/* List items... */}
             <li className="flex gap-3 items-start">
-              <div className="w-5 h-5 rounded-full border-2 border-gray-200 flex-shrink-0 mt-0.5 hover:border-indigo-500 cursor-pointer transition-colors" />
+              <div className="w-5 h-5 rounded-full border-2 border-[var(--surface-border)] flex-shrink-0 mt-0.5 hover:border-[var(--primary-blue)] cursor-pointer transition-colors" />
               <div>
                 <p className="text-sm font-medium text-gray-800">
                   Review resume for "Backend" roles

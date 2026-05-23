@@ -133,7 +133,7 @@ function AppContent() {
         user={user}
       />
 
-      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
+      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative gemini-canvas-gradient">
         <Header
           view={view}
           isMobileSidebarOpen={isMobileSidebarOpen}
@@ -204,7 +204,11 @@ export default function App() {
 }
 
 function AuthenticatedApp() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return null;
+  }
 
   if (!user) {
     return <AuthPage />;

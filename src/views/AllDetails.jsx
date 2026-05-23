@@ -214,12 +214,9 @@ export default function AllDetails() {
             <FileText size={24} />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-1">No details added yet</h3>
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="text-sm text-gray-500">
             Add your personal information to auto-fill job applications.
           </p>
-          <Button variant="primary" icon={Plus} onClick={handleAddNew}>
-            Add Your First Detail
-          </Button>
         </Card>
       )}
     </div>

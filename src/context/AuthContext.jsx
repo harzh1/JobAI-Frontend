@@ -21,13 +21,9 @@ const AuthContext = createContext({});
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  // Check localStorage for cached auth state to avoid loading flash
-  const [user, setUser] = useState(() => {
-    const cached = localStorage.getItem("authUser");
-    return cached ? JSON.parse(cached) : null;
-  });
+  const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
-  const [loading, setLoading] = useState(false); // Start with false - no blocking!
+  const [loading, setLoading] = useState(true);
 
   const ensureUserDoc = async (firebaseUser) => {
     const userRef = doc(db, "users", firebaseUser.uid);
@@ -82,6 +78,7 @@ export const AuthProvider = ({ children }) => {
       email,
       password
     );
+    await ensureUserDoc(userCredential.user);
     return userCredential.user;
   };
 
@@ -171,8 +168,9 @@ export const AuthProvider = ({ children }) => {
       auth,
       async (currentUser) => {
         setUser(currentUser);
-        // Cache auth state in localStorage
+
         if (currentUser) {
+          await ensureUserDoc(currentUser);
           localStorage.setItem(
             "authUser",
             JSON.stringify({
@@ -185,7 +183,9 @@ export const AuthProvider = ({ children }) => {
           fetchUserProfile(currentUser.uid).catch(console.error);
         } else {
           localStorage.removeItem("authUser");
+          setUserProfile(null);
         }
+
         setLoading(false);
       },
       (error) => {
