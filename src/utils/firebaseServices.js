@@ -365,8 +365,18 @@ export const createCampaign = async (campaignData) => {
 export const getCampaigns = async () => {
   return await apiRequest("GET", "/campaigns");
 };
+export const getCampaign = async (campaignId) => {
+  return await apiRequest("GET", `/campaigns/${campaignId}`);
+};
+export const updateCampaign = async (campaignId, campaignData) => {
+  return await apiRequest("PUT", `/campaigns/${campaignId}`, campaignData);
+};
 export const updateCampaignStatus = async (campaignId, status) => {
   return await apiRequest("PUT", `/campaigns/${campaignId}/status`, { status });
+};
+export const resendCampaign = async (campaignId, accountId = null) => {
+  const data = accountId ? { accountId } : {};
+  return await apiRequest("POST", `/campaigns/${campaignId}/resend`, data);
 };
 export const deleteCampaign = async (campaignId) => {
   return await apiRequest("DELETE", `/campaigns/${campaignId}`);
@@ -391,8 +401,17 @@ export const connectAccount = async (accountData) => {
 export const getAccounts = async () => {
   return await apiRequest("GET", "/accounts");
 };
+export const updateAccount = async (accountId, accountData) => {
+  return await apiRequest("PUT", `/accounts/${accountId}`, accountData);
+};
 export const deleteAccount = async (accountId) => {
   return await apiRequest("DELETE", `/accounts/${accountId}`);
+};
+export const getGoogleAuthUrl = async () => {
+  return await apiRequest("GET", "/accounts/google/auth");
+};
+export const getMicrosoftAuthUrl = async () => {
+  return await apiRequest("GET", "/accounts/microsoft/auth");
 };
 
 // ============================================

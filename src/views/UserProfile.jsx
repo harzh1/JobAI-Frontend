@@ -81,11 +81,11 @@ export default function UserProfile({ onLogout }) {
         {/* Left Column - Profile & Stats */}
         <div className="lg:col-span-4 space-y-6">
           {/* Profile Card */}
-          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] ring-1 ring-[#e1e5ea] overflow-hidden">
+          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] overflow-hidden">
             <div className="p-6 relative">
               <div className="flex flex-col items-center text-center">
                 <div className="relative mb-4">
-                  <div className="w-20 h-20 rounded-full bg-[#f0f4f9] flex items-center justify-center text-[#3442FF] text-2xl font-bold shadow-inner border-2 border-white ring-1 ring-[#e1e5ea]">
+                  <div className="w-20 h-20 rounded-full bg-[#f0f4f9] flex items-center justify-center text-[#3442FF] text-2xl font-bold shadow-inner border-2 border-white">
                     {user?.displayName?.charAt(0)?.toUpperCase() ||
                       user?.email?.charAt(0)?.toUpperCase() ||
                       "U"}
@@ -123,7 +123,7 @@ export default function UserProfile({ onLogout }) {
               { label: "Interviews", value: "-", icon: User },
               { label: "Resumes", value: profileStats.resumeCount ?? 0, icon: FileText },
             ].map((stat) => (
-              <div key={stat.label} className="bg-white border-none rounded-[24px] p-5 transition-all hover:bg-black/5 hover:shadow-md group shadow-sm ring-1 ring-[#e1e5ea]/50">
+              <div key={stat.label} className="bg-white border-none rounded-[24px] p-5 transition-all hover:bg-black/5 hover:shadow-md group shadow-sm">
                 <div className="flex items-start justify-between mb-2">
                   <div className="w-8 h-8 rounded-lg bg-[#f0f4f9] group-hover:bg-[#e8f0fe] group-hover:text-[#3442FF] flex items-center justify-center transition-colors text-[#444746]">
                     <stat.icon size={16} />
@@ -140,7 +140,7 @@ export default function UserProfile({ onLogout }) {
         <div className="lg:col-span-8 space-y-6">
           
           {/* Appearance */}
-          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] ring-1 ring-[#e1e5ea] overflow-hidden">
+          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] overflow-hidden">
             <div className="p-5 flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-[#f0f4f9] text-[#1f1f1f] flex items-center justify-center shrink-0">
@@ -156,7 +156,7 @@ export default function UserProfile({ onLogout }) {
                   onClick={() => setTheme("light")}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
                     theme === "light"
-                      ? "bg-white text-[#3442FF] shadow-sm ring-1 ring-[#e1e5ea]"
+                      ? "bg-white text-[#3442FF] shadow-sm"
                       : "text-[#444746] hover:text-[#1f1f1f] hover:bg-black/5"
                   }`}
                 >
@@ -167,7 +167,7 @@ export default function UserProfile({ onLogout }) {
                   onClick={() => setTheme("system")}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
                     theme === "system"
-                      ? "bg-white text-[#3442FF] shadow-sm ring-1 ring-[#e1e5ea]"
+                      ? "bg-white text-[#3442FF] shadow-sm"
                       : "text-[#444746] hover:text-[#1f1f1f] hover:bg-black/5"
                   }`}
                 >
@@ -178,7 +178,7 @@ export default function UserProfile({ onLogout }) {
                   onClick={() => setTheme("dark")}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
                     theme === "dark"
-                      ? "bg-white text-[#3442FF] shadow-sm ring-1 ring-[#e1e5ea]"
+                      ? "bg-white text-[#3442FF] shadow-sm"
                       : "text-[#444746] hover:text-[#1f1f1f] hover:bg-black/5"
                   }`}
                 >
@@ -190,7 +190,7 @@ export default function UserProfile({ onLogout }) {
           </Card>
 
           {/* Notifications Settings */}
-          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] ring-1 ring-[#e1e5ea] overflow-hidden">
+          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] overflow-hidden">
             <div className="p-5 border-b border-[#e1e5ea] flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-[#f0f4f9] text-[#1f1f1f] flex items-center justify-center shrink-0">
                 <Bell size={16} />
@@ -205,7 +205,7 @@ export default function UserProfile({ onLogout }) {
                   { key: "jobAlerts", label: "Job Alerts", desc: "New job matches" },
                   { key: "weeklyDigest", label: "Weekly Digest", desc: "Weekly summary email" },
                 ].map((item) => (
-                  <div key={item.key} className="flex items-center justify-between p-4 border-none ring-1 ring-[#e1e5ea] rounded-[20px] hover:ring-[#3442FF]/30 transition-all bg-white shadow-sm hover:shadow-md">
+                  <div key={item.key} className="flex items-center justify-between p-4 border-none rounded-[20px] transition-all bg-white shadow-sm hover:shadow-md">
                     <div>
                       <h4 className="font-semibold text-[#1f1f1f] text-sm">{item.label}</h4>
                       <p className="text-xs text-[#444746] mt-0.5">{item.desc}</p>
@@ -233,7 +233,7 @@ export default function UserProfile({ onLogout }) {
           </Card>
 
           {/* Menu Items */}
-          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] ring-1 ring-[#e1e5ea] overflow-hidden">
+          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] overflow-hidden">
             <div className="flex flex-col">
               {menuItems.map((item, idx) => (
                 <button
@@ -265,7 +265,7 @@ export default function UserProfile({ onLogout }) {
           </Card>
 
           {/* Danger Zone */}
-          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] ring-1 ring-[#fce8e6] overflow-hidden">
+          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] overflow-hidden">
             <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-[#fce8e6]/30 to-transparent">
               <div>
                 <h3 className="text-sm font-bold text-[#d93025] mb-1">Delete Account</h3>

@@ -17,6 +17,8 @@ import {
   AlertCircle,
   MapPin,
   Sparkles,
+  FileText,
+  Shield,
 } from "../components/ui/AppIcons";
 import { Card, Button } from "../components/ui/UIComponents";
 import { parseJobUrl } from "../utils/firebaseServices";
