@@ -12,8 +12,7 @@ import {
   AlertCircle,
   Check,
 } from "../components/ui/AppIcons";
-// import { Logo } from "../components/ui/Logo";
-import logo from "../assets/logo.svg";
+import { Logo } from "../components/ui/Logo";
 
 export default function Signup({ onSwitchToLogin }) {
   const { signup, signInWithGoogle } = useAuth();
@@ -104,25 +103,20 @@ export default function Signup({ onSwitchToLogin }) {
   const inputBase =
     "w-full rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all";
   const inputLight =
-    "bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-indigo-500";
+    "bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:ring-[#3442FF]";
   const inputDark =
-    "bg-[#1c1d24] border border-[#2f3040] text-gray-100 placeholder-gray-500 focus:ring-indigo-400";
+    "bg-[#1c1d24] border border-[#2f3040] text-gray-100 placeholder-gray-500 focus:ring-[#3442FF]";
 
   return (
     <div
-      className={`min-h-screen w-full flex flex-col items-center justify-center p-4 ${
-        isDark
-          ? "bg-[var(--page-bg)] text-white"
-          : "bg-[var(--page-bg)] text-[var(--text-primary)]"
-      }
-      `}
+      className={`min-h-screen w-full flex flex-col items-center justify-center p-4 gemini-canvas-gradient`}
     >
-      <div className="w-40 flex items-center justify-center text-[var(--icon-color)]">
-          <img src={logo} alt="JobBot Logo" className="w-full h-auto" />
+      <div className="w-32 flex items-center justify-center text-[var(--text-primary)] mb-2">
+          <Logo className="w-full h-auto" />
         </div>
 
-      <div className={`w-full max-w-md  p-8 md:p-8 card relative z-10 `}>
-        <div className="mb-8 text-center mt-2">
+      <div className={`w-full max-w-md  p-8 md:p-8 card !border-transparent relative z-10 `}>
+        <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold font-heading mb-2">Create your account</h1>
           <p className={`${isDark ? "text-gray-400" : "text-gray-500"} text-sm font-medium`}>
             Start your free trial - no credit card required
@@ -152,11 +146,7 @@ export default function Signup({ onSwitchToLogin }) {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 required
-                className={`w-full pl-10 pr-3 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark
-                    ? "bg-[#1c1d24] border-[#2f3040]"
-                    : "bg-white border-gray-200"
-                }`}
+                className="auth-input w-full pl-10 pr-3 py-3 rounded-full border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3442FF] transition-all"
               />
             </div>
           </div>
@@ -170,11 +160,7 @@ export default function Signup({ onSwitchToLogin }) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className={`w-full pl-10 pr-3 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark
-                    ? "bg-[#1c1d24] border-[#2f3040]"
-                    : "bg-white border-gray-200"
-                }`}
+                className="auth-input w-full pl-10 pr-3 py-3 rounded-full border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3442FF] transition-all"
               />
             </div>
           </div>
@@ -188,11 +174,7 @@ export default function Signup({ onSwitchToLogin }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className={`w-full pl-10 pr-10 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isDark
-                    ? "bg-[#1c1d24] border-[#2f3040]"
-                    : "bg-white border-gray-200"
-                }`}
+                className="auth-input w-full pl-10 pr-10 py-3 rounded-full border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3442FF] transition-all"
               />
               <button
                 type="button"
@@ -209,7 +191,7 @@ export default function Signup({ onSwitchToLogin }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50 mt-6"
+            className="primary w-full py-3 flex items-center justify-center gap-2 disabled:opacity-50 mt-4"
           >
             {loading ? (
               <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
@@ -231,11 +213,7 @@ export default function Signup({ onSwitchToLogin }) {
         <button
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className={`w-full py-3 rounded-xl border text-sm transition-colors flex items-center justify-center gap-3 ${
-            isDark
-              ? "bg-[#1c1d24] border-[#2f3040] hover:bg-[#232633]"
-              : "bg-white border-gray-200 hover:bg-gray-50"
-          }`}
+          className="auth-button w-full py-3 rounded-full border border-gray-200 bg-white text-sm font-medium transition-colors flex items-center justify-center gap-3 hover:bg-gray-50"
           aria-label="Continue with Google"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
@@ -249,7 +227,7 @@ export default function Signup({ onSwitchToLogin }) {
 
         <p className={`mt-6 text-center text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>
           Already have an account?{' '}
-          <button onClick={onSwitchToLogin} className="text-indigo-400 hover:text-indigo-300 font-medium">
+          <button onClick={onSwitchToLogin} className="text-[#3442FF] font-medium">
             Sign in
           </button>
         </p>

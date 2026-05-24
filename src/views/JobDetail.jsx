@@ -143,7 +143,7 @@ export default function JobDetail({ jobId, job: jobProp, onBack }) {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <Loader2 className="animate-spin text-indigo-500 mb-4" size={32} />
+        <Loader2 className="animate-spin text-[#3442FF] mb-4" size={32} />
         <p className="text-gray-600">Loading job details...</p>
       </div>
     );
@@ -294,7 +294,7 @@ export default function JobDetail({ jobId, job: jobProp, onBack }) {
                 {loadingResumes ? (
                   <div className="flex items-center justify-center py-8">
                     <Loader2
-                      className="animate-spin text-indigo-500"
+                      className="animate-spin text-[#3442FF]"
                       size={24}
                     />
                   </div>
@@ -316,7 +316,7 @@ export default function JobDetail({ jobId, job: jobProp, onBack }) {
                         key={resume.id}
                         className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
                           selectedResume === resume.id
-                            ? "border-indigo-500 bg-indigo-50"
+                            ? "border-[#3442FF] bg-indigo-50"
                             : "border-gray-200 hover:border-gray-300"
                         }`}
                       >
@@ -326,7 +326,7 @@ export default function JobDetail({ jobId, job: jobProp, onBack }) {
                           value={resume.id}
                           checked={selectedResume === resume.id}
                           onChange={() => setSelectedResume(resume.id)}
-                          className="w-4 h-4 text-indigo-600"
+                          className="w-4 h-4 text-[#3442FF]"
                         />
                         <FileText size={20} className="text-gray-500" />
                         <div className="flex-1 min-w-0">
@@ -334,7 +334,7 @@ export default function JobDetail({ jobId, job: jobProp, onBack }) {
                             {resume.name}
                           </p>
                           {resume.isPrimary && (
-                            <span className="text-xs text-indigo-600 font-medium">
+                            <span className="text-xs text-[#3442FF] font-medium">
                               Primary
                             </span>
                           )}
@@ -460,7 +460,7 @@ export default function JobDetail({ jobId, job: jobProp, onBack }) {
                   key={req}
                   className="flex items-start gap-2 text-sm text-gray-700"
                 >
-                  <CheckCircle2 size={16} className="text-indigo-500 mt-0.5" />
+                  <CheckCircle2 size={16} className="text-[#3442FF] mt-0.5" />
                   <span>{req}</span>
                 </li>
               ))}

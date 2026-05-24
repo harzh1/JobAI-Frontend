@@ -61,7 +61,7 @@ export default function Dashboard({ setShowAIModal, setView }) {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <Loader2 className="animate-spin text-indigo-500 mb-4" size={32} />
+        <Loader2 className="animate-spin text-[#3442FF] mb-4" size={32} />
         <p className="text-gray-600">Loading dashboard...</p>
       </div>
     );
@@ -85,10 +85,10 @@ export default function Dashboard({ setShowAIModal, setView }) {
               )}
             </div>
             <div>
-              <div className="text-3xl font-medium text-gray-900 theme-dark:text-gray-100 tracking-tight">
+              <div className="text-3xl font-medium text-gray-900 dark:text-gray-100 tracking-tight">
                 {activeApplications.length}
               </div>
-              <div className="text-sm text-gray-500 theme-dark:text-gray-400 font-medium">
+              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
                 Active Applications
               </div>
             </div>
@@ -100,10 +100,10 @@ export default function Dashboard({ setShowAIModal, setView }) {
               </div>
             </div>
             <div>
-              <div className="text-3xl font-medium text-gray-900 theme-dark:text-gray-100 tracking-tight">
+              <div className="text-3xl font-medium text-gray-900 dark:text-gray-100 tracking-tight">
                 {responseRate}%
               </div>
-              <div className="text-sm text-gray-500 theme-dark:text-gray-400 font-medium">
+              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
                 Response Rate
               </div>
             </div>
@@ -115,133 +115,105 @@ export default function Dashboard({ setShowAIModal, setView }) {
               </div>
             </div>
             <div>
-              <div className="text-3xl font-medium text-gray-900 theme-dark:text-gray-100 tracking-tight">
+              <div className="text-3xl font-medium text-gray-900 dark:text-gray-100 tracking-tight">
                 {stats.resumeCount || 0}
               </div>
-              <div className="text-sm text-gray-500 theme-dark:text-gray-400 font-medium">
+              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
                 Resumes Uploaded
               </div>
             </div>
           </Card>
         </div>
 
-        {/* Recent Activity Section */}
+
+
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900 theme-dark:text-gray-100 tracking-tight">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 tracking-tight">
               Recent Applications
             </h3>
             <Button
               variant="ghost"
-              className="text-[var(--primary-blue)] text-sm font-medium"
+              className="text-[#3442FF] text-sm font-bold hover:bg-[#3442FF]/10 px-4 py-2 rounded-full"
               onClick={() => setView?.("applications")}
             >
               View All
             </Button>
           </div>
-          <Card noPadding className="overflow-hidden border-none shadow-sm">
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-[#f0f4f9] theme-dark:bg-[#131314] text-xs font-semibold text-gray-500 theme-dark:text-gray-400 uppercase tracking-wider">
-                <tr>
-                  <th className="px-6 py-4">Company</th>
-                  <th className="px-6 py-4">Role</th>
-                  <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {applications.length === 0 ? (
+          <Card noPadding className="overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.04)] ring-1 ring-[#e1e5ea] dark:ring-[#333538]/50 border-none rounded-[32px]">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[600px]">
+                <thead className="bg-[#f0f4f9]/50 dark:bg-[#1e1f20]/50 text-[11px] font-bold text-[var(--muted)] uppercase tracking-widest border-b border-[#e1e5ea] dark:border-[#333538]/50">
                   <tr>
-                    <td
-                      colSpan="4"
-                      className="px-6 py-8 text-center text-gray-400 text-sm"
-                    >
-                      No applications yet. Start exploring jobs!
-                    </td>
+                    <th className="px-6 py-5">Company</th>
+                    <th className="px-6 py-5">Role</th>
+                    <th className="px-6 py-5">Date</th>
+                    <th className="px-6 py-5">Status</th>
                   </tr>
-                ) : (
-                  applications.slice(0, 5).map((app) => {
-                    const job = app.jobSnapshot || {};
-                    const companyDomain =
-                      job.companyWebsite ||
-                      (() => {
+                </thead>
+                <tbody className="divide-y divide-[#e1e5ea] dark:divide-[#333538]/50">
+                  {applications.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className="px-6 py-12 text-center text-[var(--muted)] font-medium">
+                        No applications yet. Start exploring jobs!
+                      </td>
+                    </tr>
+                  ) : (
+                    applications.slice(0, 5).map((app) => {
+                      const job = app.jobSnapshot || {};
+                      const companyDomain = job.companyWebsite || (() => {
                         const url = job.applyUrl || job.sourceUrl;
                         if (!url) return null;
                         try {
-                          const hostname = new URL(url).hostname;
-                          return hostname.replace(/^www\./, "");
+                          return new URL(url).hostname.replace(/^www\./, "");
                         } catch {
                           return null;
                         }
                       })();
 
-                    return (
-                      <tr
-                        key={app.id}
-                        className="hover:bg-gray-50 border-b border-[var(--surface-border)] border-opacity-30 transition-colors"
-                      >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div
-                              className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm border overflow-hidden ${
-                                job.color ||
-                                "bg-gray-100 border-gray-200 text-gray-600"
-                              }`}
-                            >
-                              {companyDomain ? (
-                                <img
-                                  src={`https://www.google.com/s2/favicons?domain=${companyDomain}&sz=128`}
-                                  alt={job.company || "Company"}
-                                  className="w-6 h-6 object-contain"
-                                  onError={(e) => {
-                                    e.target.style.display = "none";
-                                    e.target.nextSibling.style.display = "flex";
-                                  }}
-                                />
-                              ) : null}
-                              <span
-                                style={{
-                                  display: companyDomain ? "none" : "flex",
-                                }}
-                                className="w-full h-full items-center justify-center"
-                              >
-                                {job.logo || "??"}
+                      return (
+                        <tr key={app.id} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors group cursor-pointer">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-4">
+                              <div className={`w-10 h-10 rounded-[14px] flex items-center justify-center text-sm ring-1 ring-black/5 dark:ring-white/10 overflow-hidden bg-white dark:bg-[#282a2c] shadow-sm`}>
+                                {companyDomain ? (
+                                  <img
+                                    src={`https://www.google.com/s2/favicons?domain=${companyDomain}&sz=128`}
+                                    alt={job.company || "Company"}
+                                    className="w-6 h-6 object-contain drop-shadow-sm group-hover:scale-110 transition-transform duration-300"
+                                    onError={(e) => {
+                                      e.target.style.display = "none";
+                                      e.target.nextSibling.style.display = "flex";
+                                    }}
+                                  />
+                                ) : null}
+                                <span style={{ display: companyDomain ? "none" : "flex" }} className="w-full h-full items-center justify-center font-bold text-[var(--muted)]">
+                                  {job.logo || "??"}
+                                </span>
+                              </div>
+                              <span className="font-bold text-[var(--text-primary)] text-[15px]">
+                                {job.company || "Unknown Company"}
                               </span>
                             </div>
-                            <span className="font-semibold text-gray-900 text-sm">
-                              {job.company || "Unknown Company"}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-600 font-medium">
-                          {job.title || "Unknown Role"}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
-                          {app.appliedAt?.toDate
-                            ? app.appliedAt.toDate().toLocaleDateString()
-                            : new Date().toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4">
-                          <Badge
-                            color={
-                              app.status === "applied" ? "blue" :
-                              app.status === "interviewing" ? "purple" :
-                              app.status === "offer" ? "green" :
-                              app.status === "accepted" ? "green" :
-                              app.status === "rejected" ? "red" :
-                              app.status === "withdrawn" ? "gray" :
-                              "blue"
-                            }
-                          >
-                            {app.status}
-                          </Badge>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+                          </td>
+                          <td className="px-6 py-4 text-[15px] text-[var(--muted)] font-medium">
+                            {job.title || "Unknown Role"}
+                          </td>
+                          <td className="px-6 py-4 text-[14px] text-[var(--muted)] font-medium">
+                            {app.appliedAt?.toDate ? app.appliedAt.toDate().toLocaleDateString() : new Date().toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4">
+                            <Badge color={app.status === "applied" ? "blue" : app.status === "interviewing" ? "purple" : app.status === "offer" ? "green" : app.status === "accepted" ? "green" : app.status === "rejected" ? "red" : app.status === "withdrawn" ? "gray" : "blue"}>
+                              {app.status}
+                            </Badge>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </Card>
         </div>
       </div>
@@ -254,14 +226,14 @@ export default function Dashboard({ setShowAIModal, setView }) {
           <div className="absolute top-0 left-0 right-0 h-1 gemini-bg-gradient z-0"></div>
           <div className="relative z-10">
             <div className="flex items-start gap-3 mb-4">
-              <div className="p-2 bg-[var(--page-bg)] rounded-full text-[var(--primary-blue)]">
+              <div className="p-2 bg-[#f0f4f9] dark:bg-[#1e1f20] rounded-full text-[#3442FF]">
                 <div className="gemini-text-gradient"><Sparkles size={18} /></div>
               </div>
               <div>
-                <h3 className="font-medium text-base text-gray-900 theme-dark:text-gray-100">Copilot Insight</h3>
-                <p className="text-sm text-gray-500 theme-dark:text-gray-400 mt-1 leading-relaxed">
+                <h3 className="font-bold text-[15px] text-[var(--text-primary)]">Copilot Insight</h3>
+                <p className="text-sm text-[var(--muted)] mt-1.5 leading-relaxed font-medium">
                   Your profile matches 95% with the new
-                  <strong className="text-gray-900 theme-dark:text-gray-100 font-medium"> Senior Frontend </strong>
+                  <strong className="text-[var(--text-primary)] font-bold"> Senior Frontend </strong>
                   role at Nebula AI.
                 </p>
               </div>
@@ -269,26 +241,26 @@ export default function Dashboard({ setShowAIModal, setView }) {
             <Button
               onClick={() => setShowAIModal?.(true)}
               variant="copilot"
-              className="w-full text-sm py-2.5"
+              className="w-full text-sm py-2.5 rounded-full"
             >
-              <div className="gemini-text-gradient brightness-200 contrast-150 font-medium">View Opportunity</div>
+              <div className="gemini-text-gradient brightness-200 contrast-150 font-bold">View Opportunity</div>
             </Button>
           </div>
         </Card>
 
         <Card>
-          <h3 className="text-sm font-medium text-gray-900 theme-dark:text-gray-100 mb-4 tracking-tight">
+          <h3 className="text-[15px] font-bold text-[var(--text-primary)] mb-4 tracking-tight">
             Recommended Actions
           </h3>
           <ul className="space-y-4">
             {/* List items... */}
             <li className="flex gap-3 items-start">
-              <div className="w-5 h-5 rounded-full border-2 border-[var(--surface-border)] flex-shrink-0 mt-0.5 hover:border-[var(--primary-blue)] cursor-pointer transition-colors" />
+              <div className="w-5 h-5 rounded-full border-2 border-[#e1e5ea] dark:border-[#333538] flex-shrink-0 mt-0.5 hover:border-[#3442FF] cursor-pointer transition-colors" />
               <div>
-                <p className="text-sm font-medium text-gray-800">
+                <p className="text-[14px] font-bold text-[var(--text-primary)]">
                   Review resume for "Backend" roles
                 </p>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-[13px] text-[var(--muted)] mt-1 font-medium">
                   Increase match score by 15%
                 </p>
               </div>

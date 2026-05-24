@@ -12,8 +12,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import NavItem from "../ui/NavItem";
-// import { Logo } from "../ui/Logo";
-import logo from "../../assets/logo.svg";
+import { Logo } from "../ui/Logo";
 
 export default function Sidebar({
   view,
@@ -41,7 +40,7 @@ export default function Sidebar({
           {!isCollapsed && (
             <div className="flex items-center gap-2 min-w-0">
               <div className="w-24 text-[var(--text-primary)]">
-                <img src={logo} alt="JobBot Logo" className="w-full h-auto drop-shadow-sm opacity-80" />
+                <Logo className="w-full h-auto drop-shadow-sm" />
               </div>
             </div>
           )}
@@ -145,13 +144,13 @@ export default function Sidebar({
         <button
           onClick={() => setView("user-profile")}
           title={isCollapsed ? "Profile" : undefined}
-          className={`w-full text-left rounded-full transition-colors hover:bg-black/5 theme-dark:hover:bg-white/5 ${
+          className={`w-full text-left rounded-full transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${
             isCollapsed
               ? "flex items-center justify-center h-11"
               : "flex items-center gap-3 px-3 py-2.5"
           }`}
         >
-          <div className="w-8 h-8 rounded-full bg-[#f0f4f9] group-hover:bg-white flex items-center justify-center border border-[var(--surface-border)] text-[#1f1f1f] text-xs font-semibold theme-dark:bg-[#1e1f20] theme-dark:border-[#333538] theme-dark:text-[#e3e3e3]">
+          <div className="w-8 h-8 rounded-full bg-[#f0f4f9] group-hover:bg-white flex items-center justify-center border border-[var(--surface-border)] text-[#1f1f1f] text-xs font-semibold dark:bg-[#1e1f20] dark:border-[#333538] dark:text-[#e3e3e3]">
             {user && user.displayName ? user.displayName.charAt(0) : "?"}
           </div>
           {!isCollapsed && (
@@ -159,7 +158,7 @@ export default function Sidebar({
               <p className="text-sm font-medium text-[var(--text-primary)] truncate">
                 {user?.displayName ?? "Guest User"}
               </p>
-              <p className="text-xs text-[var(--icon-color)] truncate">Pro Plan</p>
+              <p className="text-xs text-[var(--muted)]">Settings</p>
             </div>
           )}
         </button>

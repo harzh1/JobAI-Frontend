@@ -14,8 +14,8 @@ const NavItem = ({ icon, label, id, view, setView, collapsed = false }) => {
           : "gap-3 pl-4 pr-3 h-[40px] w-[calc(100%-16px)]"
       } ${
         isActive
-          ? "bg-[#dde3ea] text-[#1f1f1f] theme-dark:bg-[#333538] theme-dark:text-[#e3e3e3]"
-          : "text-[#444746] hover:bg-black/5 theme-dark:hover:bg-white/5 hover:text-[#1f1f1f] theme-dark:hover:text-[#e3e3e3]"
+          ? "bg-[#dde3ea] text-[#1f1f1f] dark:bg-[#333538] dark:text-[#e3e3e3]"
+          : "text-[#444746] hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#1f1f1f] dark:hover:text-[#e3e3e3]"
       }`}
     >
       <span className="flex items-center justify-center">

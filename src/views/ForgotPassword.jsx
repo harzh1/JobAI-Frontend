@@ -7,8 +7,7 @@ import {
   AlertCircle,
   CheckCircle,
 } from "../components/ui/AppIcons";
-// import { Logo } from "../components/ui/Logo";
-import logo from "../assets/logo.svg";
+import { Logo } from "../components/ui/Logo";
 
 
 export default function ForgotPassword({ onBackToLogin }) {
@@ -45,15 +44,15 @@ export default function ForgotPassword({ onBackToLogin }) {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--page-bg)] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen gemini-canvas-gradient flex flex-col items-center justify-center p-4">
       {/* Isolated Header Above Card */}
-      <div className="flex flex-col items-center gap-2 mb-8">
-        <div className="w-40 flex items-center justify-center text-[var(--icon-color)]">
-          <img src={logo} alt="JobBot Logo" className="w-full h-auto" />
+      <div className="flex flex-col items-center gap-2 mb-2">
+        <div className="w-32 flex items-center justify-center text-[var(--text-primary)] mb-2">
+          <Logo className="w-full h-auto" />
         </div>
       </div>
 
-      <div className="w-full max-w-md card p-8 md:p-10 relative z-10 bg-white">
+      <div className="w-full max-w-md card !border-transparent p-8 md:p-10 relative z-10">
         <button
           onClick={onBackToLogin}
           className="flex items-center gap-2 text-gray-500 hover:text-gray-700 text-sm mb-6 transition-colors"
@@ -62,8 +61,8 @@ export default function ForgotPassword({ onBackToLogin }) {
           Back to login
         </button>
 
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold font-heading text-gray-900 mb-2 mt-2">
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold font-heading text-gray-900 mb-2">
             Reset your password
           </h1>
           <p className="text-gray-500 text-sm font-medium">
@@ -92,7 +91,7 @@ export default function ForgotPassword({ onBackToLogin }) {
               </p>
               <button
                 onClick={onBackToLogin}
-                className="w-full py-3.5 bg-gray-900 text-white rounded-xl font-semibold hover:bg-black transition-all"
+                className="primary w-full py-3.5"
               >
                 Return to login
               </button>
@@ -100,7 +99,7 @@ export default function ForgotPassword({ onBackToLogin }) {
                 Didn't receive the email?{" "}
                 <button
                   onClick={() => setSuccess(false)}
-                  className="text-indigo-600 hover:underline"
+                  className="text-[#3442FF] hover:underline font-medium"
                 >
                   Try again
                 </button>
@@ -119,7 +118,7 @@ export default function ForgotPassword({ onBackToLogin }) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900 placeholder-gray-400"
+                    className="auth-input w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#3442FF] focus:border-transparent transition-all text-sm"
                     required
                   />
                 </div>
@@ -128,7 +127,7 @@ export default function ForgotPassword({ onBackToLogin }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-gray-900 text-white rounded-xl font-semibold hover:bg-black transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-gray-200"
+                className="primary w-full py-3.5 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

@@ -32,6 +32,7 @@ import {
   MagnifyingGlass,
   MapPin as PhMapPin,
   Moon as PhMoon,
+  Monitor as PhMonitor,
   Note,
   PaperPlaneTilt,
   Pen,
@@ -46,6 +47,7 @@ import {
   Square as PhSquare,
   SquaresFour,
   SuitcaseSimple,
+  Sun as PhSun,
   Trash,
   TrendUp,
   UploadSimple,
@@ -108,6 +110,8 @@ export const LogOut = withDefaultWeight(SignOut);
 export const Bell = withDefaultWeight(PhBell);
 export const Shield = withDefaultWeight(PhShield);
 export const Moon = withDefaultWeight(PhMoon);
+export const Sun = withDefaultWeight(PhSun);
+export const Monitor = withDefaultWeight(PhMonitor);
 export const CreditCard = withDefaultWeight(PhCreditCard);
 export const HelpCircle = withDefaultWeight(Question);
 export const ChevronRight = withDefaultWeight(CaretRight);

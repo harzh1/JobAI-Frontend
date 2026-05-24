@@ -30,7 +30,7 @@ export const MOCK_JOBS = [
       "Comfort collaborating with backend engineers on Node.js or Next.js",
     ],
     logo: "🌌",
-    color: "bg-indigo-50 text-indigo-600 border-indigo-100",
+    color: "bg-indigo-50 text-[#3442FF] border-indigo-100",
     referrals: [
       {
         name: "Sarah Chen",
@@ -171,6 +171,6 @@ export const MOCK_APPLICATIONS = [
     status: "Interviewing",
     date: new Date().toISOString(),
     logo: "🌌",
-    color: "bg-indigo-50 text-indigo-600 border-indigo-100",
+    color: "bg-indigo-50 text-[#3442FF] border-indigo-100",
   },
 ];

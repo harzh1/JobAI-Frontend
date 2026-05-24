@@ -114,7 +114,7 @@ export default function Resumes() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="animate-spin text-indigo-500" size={32} />
+        <Loader2 className="animate-spin text-[#3442FF]" size={32} />
       </div>
     );
   }

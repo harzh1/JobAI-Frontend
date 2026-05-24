@@ -356,6 +356,46 @@ export const deleteResume = async (resumeId) => {
 };
 
 // ============================================
+// Campaigns, Templates & Accounts Services (via Backend API)
+// ============================================
+
+export const createCampaign = async (campaignData) => {
+  return await apiRequest("POST", "/campaigns", campaignData);
+};
+export const getCampaigns = async () => {
+  return await apiRequest("GET", "/campaigns");
+};
+export const updateCampaignStatus = async (campaignId, status) => {
+  return await apiRequest("PUT", `/campaigns/${campaignId}/status`, { status });
+};
+export const deleteCampaign = async (campaignId) => {
+  return await apiRequest("DELETE", `/campaigns/${campaignId}`);
+};
+
+export const createTemplate = async (templateData) => {
+  return await apiRequest("POST", "/templates", templateData);
+};
+export const getTemplates = async () => {
+  return await apiRequest("GET", "/templates");
+};
+export const updateTemplate = async (templateId, templateData) => {
+  return await apiRequest("PUT", `/templates/${templateId}`, templateData);
+};
+export const deleteTemplate = async (templateId) => {
+  return await apiRequest("DELETE", `/templates/${templateId}`);
+};
+
+export const connectAccount = async (accountData) => {
+  return await apiRequest("POST", "/accounts", accountData);
+};
+export const getAccounts = async () => {
+  return await apiRequest("GET", "/accounts");
+};
+export const deleteAccount = async (accountId) => {
+  return await apiRequest("DELETE", `/accounts/${accountId}`);
+};
+
+// ============================================
 // Firestore Data Services
 // ============================================
 

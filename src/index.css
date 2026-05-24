@@ -39,7 +39,7 @@ button {
   --surface-bg: #ffffff;
   --surface-border: #f0f4f9; /* Extra soft border */
   --muted: #444746;
-  --primary-blue: #0b57d0; /* Google primary blue */
+  --primary-blue: #3442FF; /* Google primary blue */
   --icon-color: #444746;
   /* Ensure Tailwind's --font-sans variable resolves to Google Sans */
   --font-sans: "Google Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -47,10 +47,10 @@ button {
 
 .theme-dark {
   --page-bg: #131314; /* Gemini true dark background */
-  --sidebar-bg: transparent;
+  --sidebar-bg: #1e1f20; /* Sleek dark surface */
   --text-primary: #e3e3e3; /* Gemini light text */
   --surface-bg: #1e1f20; /* Gemini dark surface */
-  --surface-border: #333538;
+  --surface-border: rgba(255, 255, 255, 0.08); /* Minimal borders */
   --muted: #8e918f;
   --primary-blue: #a8c7fa; /* Google primary blue for dark mode */
   --icon-color: #c4c7c5;
@@ -313,7 +313,8 @@ button.primary:hover {
   border-color: var(--surface-border) !important;
 }
 .theme-dark .card {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: none !important;
+  border: 1px solid var(--surface-border) !important;
 }
 
 /* Gemini Redesign Hardcoded Color Overrides for Dark Mode */
@@ -334,12 +335,27 @@ button.primary:hover {
 .theme-dark .border-\[\#e1e5ea\] {
   border-color: var(--surface-border) !important;
 }
-.theme-dark .text-\[\#3846e6\] {
+.theme-dark .text-\[\#3442FF\] {
   color: var(--primary-blue) !important;
 }
-.theme-dark .bg-\[\#3846e6\] {
+.theme-dark .bg-\[\#3442FF\] {
   background-color: var(--primary-blue) !important;
   color: #062e6f !important;
+}
+.theme-dark .border-\[\#3442FF\] {
+  border-color: var(--primary-blue) !important;
+}
+.theme-dark .border-\[\#3442FF\]\/40 {
+  border-color: rgba(168, 199, 250, 0.4) !important;
+}
+.theme-dark .border-\[\#3442FF\]\/50 {
+  border-color: rgba(168, 199, 250, 0.5) !important;
+}
+.theme-dark .border-\[\#3442FF\]\/20 {
+  border-color: rgba(168, 199, 250, 0.2) !important;
+}
+.theme-dark .ring-\[\#3442FF\]\/20 {
+  --tw-ring-color: rgba(168, 199, 250, 0.2) !important;
 }
 .theme-dark .bg-\[\#e8f0fe\] {
   background-color: rgba(168, 199, 250, 0.08) !important;
@@ -352,6 +368,9 @@ button.primary:hover {
 }
 .theme-dark .hover\:bg-\[\#f0f4f9\]:hover {
   background-color: #282a2c !important;
+}
+.theme-dark .border-transparent {
+  border-color: transparent !important;
 }
 .theme-dark .ring-\[\#e1e5ea\] {
   --tw-ring-color: #333538 !important;
@@ -368,6 +387,27 @@ button.primary:hover {
 .theme-dark .text-\[\#d93025\] {
   color: #f28b82 !important;
 }
+.theme-dark .text-\[\#d93025\]\/80 {
+  color: rgba(242, 139, 130, 0.8) !important;
+}
+.theme-dark .bg-\[\#d93025\] {
+  background-color: #f28b82 !important;
+  color: #3f0f0a !important;
+}
+.theme-dark .hover\:bg-\[\#c5221f\]:hover {
+  background-color: #e57373 !important;
+}
+.theme-dark .hover\:bg-\[\#fadbd8\]:hover {
+  background-color: rgba(242, 139, 130, 0.25) !important;
+}
+.theme-dark .ring-\[\#fce8e6\] {
+  --tw-ring-color: rgba(242, 139, 130, 0.2) !important;
+}
+.theme-dark .from-\[\#fce8e6\]\/30 {
+  --tw-gradient-from: rgba(242, 139, 130, 0.1) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: transparent var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
 
 /* Utility helpers for theme-aware classes used in JS strings */
 .theme-dark .theme-dark\:bg-gray-800 {
@@ -379,7 +419,7 @@ button.primary:hover {
 .theme-dark .theme-dark\:border-gray-700 {
   border-color: #334155 !important;
 }
-.theme-dark .theme-dark\:bg-indigo-500 {
+.theme-dark .theme-dark\:bg-[#3442FF] {
   background-color: #6366f1 !important;
 }
 .theme-dark .theme-dark\:hover\:bg-indigo-400:hover {
@@ -396,5 +436,36 @@ button.primary:hover {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Chrome, Safari and Opera */
+}
+
+/* More Gemini Overrides */
+.theme-dark .bg-gray-50\/50,
+.theme-dark .bg-gray-100\/50 {
+  background-color: var(--surface-bg) !important;
+}
+
+.theme-dark .shadow-sm,
+.theme-dark .shadow-md,
+.theme-dark .shadow-lg,
+.theme-dark .shadow-2xl {
+  box-shadow: none !important;
+}
+
+.theme-dark .auth-input {
+  background-color: #131314 !important;
+  border-color: #333538 !important;
+  color: var(--text-primary) !important;
+}
+.theme-dark .auth-input::placeholder {
+  color: #8e8e8e !important;
+}
+
+.theme-dark .auth-button {
+  background-color: transparent !important;
+  border-color: #333538 !important;
+  color: var(--text-primary) !important;
+}
+.theme-dark .auth-button:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
 }
 

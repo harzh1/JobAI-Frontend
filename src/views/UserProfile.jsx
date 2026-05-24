@@ -6,6 +6,8 @@ import {
   Shield,
   Mail,
   Moon,
+  Sun,
+  Monitor,
   CreditCard,
   HelpCircle,
   ChevronRight,
@@ -20,7 +22,7 @@ import { useTheme } from "../context/ThemeContext";
 
 export default function UserProfile({ onLogout }) {
   const { user } = useAuth();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] = useState({
     email: true,
     push: true,
@@ -54,15 +56,9 @@ export default function UserProfile({ onLogout }) {
 
   const menuItems = [
     {
-      icon: Bell,
-      label: "Notifications",
-      description: "Manage your notification preferences",
-      action: "notifications",
-    },
-    {
       icon: Shield,
       label: "Privacy & Security",
-      description: "Password, 2FA, and account security",
+      description: "Password and account security",
       action: "security",
     },
     {
@@ -74,217 +70,217 @@ export default function UserProfile({ onLogout }) {
     {
       icon: HelpCircle,
       label: "Help & Support",
-      description: "FAQ, contact support, feedback",
+      description: "FAQ and contact support",
     },
   ];
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-10">
-      {/* Profile Header */}
-      <Card noPadding className="border-none shadow-none bg-[#f0f4f9] rounded-[32px] overflow-hidden relative">
-        {/* Decorative Liquid Glass Header Banner */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none hidden sm:block">
-          <div className="absolute -top-20 -right-10 w-64 h-64 bg-[#e8f0fe] rounded-full mix-blend-multiply opacity-50 blur-3xl"></div>
-          <div className="absolute bottom-10 -left-10 w-40 h-40 bg-[#e8f0fe] rounded-full mix-blend-multiply opacity-50 blur-3xl"></div>
-        </div>
+    <div className="max-w-6xl mx-auto pb-10">
 
-        <div className="p-8 sm:p-10 relative z-10">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-            <div className="relative shrink-0">
-              <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center text-[#1f1f1f] text-3xl font-semibold shadow-sm border border-[#e1e5ea]">
-                {user?.displayName?.charAt(0)?.toUpperCase() ||
-                  user?.email?.charAt(0)?.toUpperCase() ||
-                  "U"}
-              </div>
-              <button className="absolute bottom-0 right-0 w-8 h-8 bg-[#3846e6] rounded-full shadow-sm flex items-center justify-center hover:bg-[#3846e6]/90 transition-colors border-2 border-[#f0f4f9] text-white">
-                <Camera size={14} />
-              </button>
-            </div>
-            <div className="flex-1 space-y-1.5 text-center sm:text-left mt-2">
-              <h2 className="text-[26px] font-normal text-[#1f1f1f] tracking-tight leading-none mb-2">
-                {user?.displayName || "User"}
-              </h2>
-              <p className="text-[#444746] text-[15px] font-medium">{user?.email}</p>
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3 pt-1">
-                <span className="px-3.5 py-1.5 bg-white text-[#1f1f1f] text-[12px] font-bold tracking-widest uppercase rounded-full shadow-sm border border-[#e1e5ea]/50">
-                  Free Plan
-                </span>
-                <span className="text-[#444746] text-[13px] font-medium ml-1">
-                  Joined {new Date().getFullYear()}
-                </span>
-              </div>
-            </div>
-            <button onClick={onLogout} className="mt-4 sm:mt-0 flex items-center gap-2 px-6 py-3 bg-white hover:bg-[#e1e5ea]/80 text-[#1f1f1f] font-semibold text-[14px] tracking-wide rounded-full transition-colors shrink-0 shadow-sm border-none">
-              <LogOut size={16} /> Sign Out
-            </button>
-          </div>
-        </div>
-      </Card>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-        {[
-          {
-            label: "Applications",
-            value: profileStats.totalApplications ?? 0,
-            icon: Briefcase,
-          },
-          { label: "Interviews", value: "-", icon: User },
-          {
-            label: "Saved Jobs",
-            value: profileStats.savedJobs ?? 0,
-            icon: Mail,
-          },
-          {
-            label: "Resumes",
-            value: profileStats.resumeCount ?? 0,
-            icon: FileText,
-          },
-        ].map((stat) => (
-          <div key={stat.label} className="bg-white border border-[#e1e5ea] rounded-[24px] p-6 text-center transition-all hover:bg-[#f0f4f9] hover:border-transparent group">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-[#f0f4f9] group-hover:bg-white flex items-center justify-center transition-colors">
-              <stat.icon size={22} className="text-[#1f1f1f]" />
-            </div>
-            <div className="text-[32px] font-normal text-[#1f1f1f] leading-none mb-2 tracking-tight">{stat.value}</div>
-            <div className="text-[13px] font-medium text-[#444746]">{stat.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Appearance */}
-      <Card noPadding className="border border-[#e1e5ea] shadow-none bg-white rounded-[28px] mt-8 overflow-hidden">
-        <div className="p-6 sm:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <div className="w-14 h-14 rounded-full bg-[#f0f4f9] text-[#1f1f1f] flex items-center justify-center shrink-0">
-              <Moon size={24} />
-            </div>
-            <div>
-              <h3 className="text-[18px] font-medium text-[#1f1f1f] tracking-tight">Appearance</h3>
-              <p className="text-[14px] text-[#444746] mt-1 font-normal">Choose light, dark, or follow system preference</p>
-            </div>
-          </div>
-          <div>
-            <select
-              value={theme}
-              onChange={(e) => setTheme(e.target.value)}
-              className="text-[15px] font-medium border-none rounded-full px-6 py-3.5 bg-[#f0f4f9] text-[#1f1f1f] focus:outline-none focus:ring-2 focus:ring-[#3846e6]/20 cursor-pointer appearance-none min-w-[160px] text-center"
-            >
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-              <option value="system">System</option>
-            </select>
-          </div>
-        </div>
-      </Card>
-
-      {/* Notifications Settings */}
-      <Card noPadding className="border border-[#e1e5ea] shadow-none bg-white rounded-[28px] mt-6 overflow-hidden">
-        <div className="p-6 sm:p-8">
-          <h3 className="text-[18px] font-medium text-[#1f1f1f] mb-6 flex items-center gap-4 tracking-tight">
-            <div className="w-14 h-14 rounded-full bg-[#f0f4f9] text-[#1f1f1f] flex items-center justify-center shrink-0">
-              <Bell size={24} />
-            </div>
-            Notification Preferences
-          </h3>
-          <div className="space-y-1">
-            {[
-              {
-                key: "email",
-                label: "Email Notifications",
-                desc: "Receive updates via email",
-              },
-              {
-                key: "push",
-                label: "Push Notifications",
-                desc: "Browser notifications",
-              },
-              { key: "jobAlerts", label: "Job Alerts", desc: "New job matches" },
-              {
-                key: "weeklyDigest",
-                label: "Weekly Digest",
-                desc: "Weekly summary email",
-              },
-            ].map((item) => (
-              <div
-                key={item.key}
-                className="flex items-center justify-between p-4 rounded-[20px] transition-colors hover:bg-[#f0f4f9]"
-              >
-                <div>
-                  <h4 className="font-medium text-[#1f1f1f] text-[15px]">{item.label}</h4>
-                  <p className="text-[13px] text-[#444746] mt-0.5">{item.desc}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column - Profile & Stats */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Profile Card */}
+          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] ring-1 ring-[#e1e5ea] overflow-hidden">
+            <div className="p-6 relative">
+              <div className="flex flex-col items-center text-center">
+                <div className="relative mb-4">
+                  <div className="w-20 h-20 rounded-full bg-[#f0f4f9] flex items-center justify-center text-[#3442FF] text-2xl font-bold shadow-inner border-2 border-white ring-1 ring-[#e1e5ea]">
+                    {user?.displayName?.charAt(0)?.toUpperCase() ||
+                      user?.email?.charAt(0)?.toUpperCase() ||
+                      "U"}
+                  </div>
+                  <button className="absolute bottom-0 right-0 w-7 h-7 bg-[#3442FF] rounded-full shadow-sm flex items-center justify-center hover:bg-[#3442FF]/90 transition-colors border-2 border-white text-white">
+                    <Camera size={12} />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={notifications[item.key]}
-                  onClick={() => toggleNotification(item.key)}
-                  className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out border-none ${
-                    notifications[item.key] ? "bg-[#3846e6]" : "bg-[#c4c7c5]"
-                  }`}
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out mt-1 ${
-                      notifications[item.key] ? "translate-x-6" : "translate-x-1"
-                    }`}
-                  />
+                <h2 className="text-xl font-bold text-[#1f1f1f] tracking-tight leading-tight">
+                  {user?.displayName || "User"}
+                </h2>
+                <p className="text-[#444746] text-sm mt-1 mb-4">{user?.email}</p>
+                
+                <div className="flex items-center gap-2 mb-6">
+                  <span className="px-3 py-1 bg-[#e8f0fe] text-[#3442FF] text-xs font-bold tracking-widest uppercase rounded-md">
+                    Free Plan
+                  </span>
+                  <span className="text-[#444746] text-xs font-medium bg-[#f0f4f9] px-3 py-1 rounded-md">
+                    Joined {new Date().getFullYear()}
+                  </span>
+                </div>
+
+                <button onClick={onLogout} className="w-full flex justify-center items-center gap-2 px-4 py-3 bg-[#fce8e6] hover:bg-[#fadbd8] text-[#d93025] font-bold text-sm rounded-full transition-all duration-200 active:scale-95 border-none shadow-none group">
+                  <LogOut size={16} className="transition-transform group-hover:-translate-x-1" /> Sign Out
                 </button>
+              </div>
+            </div>
+          </Card>
+
+          {/* Quick Stats Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { label: "Applications", value: profileStats.totalApplications ?? 0, icon: Briefcase },
+              { label: "Saved Jobs", value: profileStats.savedJobs ?? 0, icon: Mail },
+              { label: "Interviews", value: "-", icon: User },
+              { label: "Resumes", value: profileStats.resumeCount ?? 0, icon: FileText },
+            ].map((stat) => (
+              <div key={stat.label} className="bg-white border-none rounded-[24px] p-5 transition-all hover:bg-black/5 hover:shadow-md group shadow-sm ring-1 ring-[#e1e5ea]/50">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="w-8 h-8 rounded-lg bg-[#f0f4f9] group-hover:bg-[#e8f0fe] group-hover:text-[#3442FF] flex items-center justify-center transition-colors text-[#444746]">
+                    <stat.icon size={16} />
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-[#1f1f1f] tracking-tight">{stat.value}</div>
+                <div className="text-xs font-medium text-[#444746] mt-0.5">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
-      </Card>
 
-      {/* Menu Items */}
-      <Card noPadding className="border border-[#e1e5ea] shadow-none bg-white rounded-[28px] mt-6 overflow-hidden">
-        <div className="flex flex-col p-2">
-          {menuItems.map((item) => (
-            <button
-              key={item.label}
-              className="w-full flex items-center gap-5 p-4 sm:p-5 rounded-[20px] transition-colors hover:bg-[#f0f4f9] text-left group"
-            >
-              <div className="w-12 h-12 rounded-full bg-[#f0f4f9] group-hover:bg-white flex items-center justify-center shrink-0 transition-colors">
-                <item.icon size={22} className="text-[#1f1f1f]" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-3">
-                  <h4 className="font-medium text-[#1f1f1f] text-[15px]">
-                    {item.label}
-                  </h4>
-                  {item.badge && (
-                    <span className="px-3 py-1 bg-[#e8f0fe] text-[#3846e6] text-[11px] font-bold uppercase tracking-widest rounded-full">
-                      {item.badge}
-                    </span>
-                  )}
+        {/* Right Column - Settings */}
+        <div className="lg:col-span-8 space-y-6">
+          
+          {/* Appearance */}
+          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] ring-1 ring-[#e1e5ea] overflow-hidden">
+            <div className="p-5 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-xl bg-[#f0f4f9] text-[#1f1f1f] flex items-center justify-center shrink-0">
+                  <Moon size={18} />
                 </div>
-                <p className="text-[13px] text-[#444746] mt-0.5 font-normal">
-                  {item.description}
+                <div>
+                  <h3 className="text-base font-bold text-[#1f1f1f] tracking-tight">Appearance</h3>
+                  <p className="text-sm text-[#444746]">Customize your interface theme</p>
+                </div>
+              </div>
+              <div className="flex items-center p-1 bg-[#f0f4f9] rounded-2xl border border-[#e1e5ea]/50 shadow-inner">
+                <button
+                  onClick={() => setTheme("light")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
+                    theme === "light"
+                      ? "bg-white text-[#3442FF] shadow-sm ring-1 ring-[#e1e5ea]"
+                      : "text-[#444746] hover:text-[#1f1f1f] hover:bg-black/5"
+                  }`}
+                >
+                  <Sun size={16} weight={theme === "light" ? "bold" : "regular"} />
+                  Light
+                </button>
+                <button
+                  onClick={() => setTheme("system")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
+                    theme === "system"
+                      ? "bg-white text-[#3442FF] shadow-sm ring-1 ring-[#e1e5ea]"
+                      : "text-[#444746] hover:text-[#1f1f1f] hover:bg-black/5"
+                  }`}
+                >
+                  <Monitor size={16} weight={theme === "system" ? "bold" : "regular"} />
+                  System
+                </button>
+                <button
+                  onClick={() => setTheme("dark")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
+                    theme === "dark"
+                      ? "bg-white text-[#3442FF] shadow-sm ring-1 ring-[#e1e5ea]"
+                      : "text-[#444746] hover:text-[#1f1f1f] hover:bg-black/5"
+                  }`}
+                >
+                  <Moon size={16} weight={theme === "dark" ? "bold" : "regular"} />
+                  Dark
+                </button>
+              </div>
+            </div>
+          </Card>
+
+          {/* Notifications Settings */}
+          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] ring-1 ring-[#e1e5ea] overflow-hidden">
+            <div className="p-5 border-b border-[#e1e5ea] flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-[#f0f4f9] text-[#1f1f1f] flex items-center justify-center shrink-0">
+                <Bell size={16} />
+              </div>
+              <h3 className="text-base font-bold text-[#1f1f1f] tracking-tight">Notification Preferences</h3>
+            </div>
+            <div className="p-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { key: "email", label: "Email Notifications", desc: "Receive updates via email" },
+                  { key: "push", label: "Push Notifications", desc: "Browser notifications" },
+                  { key: "jobAlerts", label: "Job Alerts", desc: "New job matches" },
+                  { key: "weeklyDigest", label: "Weekly Digest", desc: "Weekly summary email" },
+                ].map((item) => (
+                  <div key={item.key} className="flex items-center justify-between p-4 border-none ring-1 ring-[#e1e5ea] rounded-[20px] hover:ring-[#3442FF]/30 transition-all bg-white shadow-sm hover:shadow-md">
+                    <div>
+                      <h4 className="font-semibold text-[#1f1f1f] text-sm">{item.label}</h4>
+                      <p className="text-xs text-[#444746] mt-0.5">{item.desc}</p>
+                    </div>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={notifications[item.key]}
+                      onClick={() => toggleNotification(item.key)}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out border-none ${
+                        notifications[item.key] ? "bg-[#3442FF]" : "bg-[#c4c7c5]"
+                      }`}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out mt-1 ${
+                          notifications[item.key] ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+
+          {/* Menu Items */}
+          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] ring-1 ring-[#e1e5ea] overflow-hidden">
+            <div className="flex flex-col">
+              {menuItems.map((item, idx) => (
+                <button
+                  key={item.label}
+                  className={`w-full flex items-center gap-4 p-4 transition-colors hover:bg-[#f0f4f9] text-left group ${idx !== menuItems.length - 1 ? 'border-b border-[#e1e5ea]' : ''}`}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-[#f0f4f9] group-hover:bg-white flex items-center justify-center shrink-0 transition-colors border border-transparent group-hover:border-[#e1e5ea]">
+                    <item.icon size={18} className="text-[#444746] group-hover:text-[#1f1f1f]" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold text-[#1f1f1f] text-sm">
+                        {item.label}
+                      </h4>
+                      {item.badge && (
+                        <span className="px-2 py-0.5 bg-[#e8f0fe] text-[#3442FF] text-[10px] font-bold uppercase tracking-widest rounded-md">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#444746] mt-0.5">
+                      {item.description}
+                    </p>
+                  </div>
+                  <ChevronRight size={18} className="text-[#c4c7c5] group-hover:text-[#3442FF] transition-colors" />
+                </button>
+              ))}
+            </div>
+          </Card>
+
+          {/* Danger Zone */}
+          <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] ring-1 ring-[#fce8e6] overflow-hidden">
+            <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-[#fce8e6]/30 to-transparent">
+              <div>
+                <h3 className="text-sm font-bold text-[#d93025] mb-1">Delete Account</h3>
+                <p className="text-xs text-[#d93025]/80 font-medium max-w-md">
+                  Permanently remove your account and all data. This action cannot be undone.
                 </p>
               </div>
-              <ChevronRight
-                size={20}
-                className="text-[#c4c7c5] group-hover:text-[#444746] transition-colors mr-2"
-              />
-            </button>
-          ))}
-        </div>
-      </Card>
+              <button className="shrink-0 px-4 py-2.5 bg-[#d93025] hover:bg-[#c5221f] text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
+                Delete Account
+              </button>
+            </div>
+          </Card>
 
-      {/* Danger Zone */}
-      <Card noPadding className="border-none bg-[#fce8e6]/50 rounded-[28px] mt-6 p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div>
-            <h3 className="text-[18px] font-medium text-[#d93025] mb-1.5 tracking-tight flex items-center gap-2">Danger Zone</h3>
-            <p className="text-[14px] text-[#d93025]/80 font-normal">
-              Once you delete your account, there is no going back. All data
-              will be permanently removed.
-            </p>
-          </div>
-          <button className="whitespace-nowrap px-6 py-3 bg-[#d93025] hover:bg-[#c5221f] text-white text-[14px] font-semibold tracking-wide rounded-full transition-colors border-none shadow-none">
-            Delete Account
-          </button>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 import { resumeService } from "../services/database";
+import { getCampaigns, createCampaign, updateCampaignStatus, deleteCampaign, getTemplates, createTemplate, updateTemplate, deleteTemplate, getAccounts, connectAccount, deleteAccount } from "../utils/firebaseServices";
 import {
   ArrowRight,
   Clock,
@@ -61,8 +62,8 @@ const LocalCard = ({ children, className = "", noPadding = false, onClick }) => 
 const LocalButton = ({ children, onClick, variant = "primary", disabled, className = "", icon: Icon, type = "button" }) => {
   const baseStyle = "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
   const variants = {
-    primary: "bg-[#dde3ea] theme-dark:bg-[#333538] text-[#1f1f1f] theme-dark:text-[#e3e3e3] hover:bg-[#c9d3e0] py-2 px-4 shadow-none border-none",
-    secondary: "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 focus:ring-indigo-500 border border-indigo-100 py-2 px-4",
+    primary: "bg-[#dde3ea] dark:bg-[#333538] text-[#1f1f1f] dark:text-[#e3e3e3] hover:bg-[#c9d3e0] py-2 px-4 shadow-none border-none",
+    secondary: "bg-indigo-50 text-[#3442FF] hover:bg-indigo-100 focus:ring-[#3442FF] border border-indigo-100 py-2 px-4",
     ghost: "bg-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:ring-gray-500 py-1.5 px-3",
     outline: "bg-transparent hover:bg-black/5 py-2 px-4 border-none shadow-none text-gray-700",
     danger: "bg-red-50 text-red-700 hover:bg-red-100 focus:ring-red-500 py-2 px-4 border-none",
@@ -98,10 +99,7 @@ const Modal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md", hideHe
 };
 
 // --- Dummy Data (Since Templates & Accounts aren't in Firestore yet) ---
-const INITIAL_TEMPLATES = [
-  { id: "t1", name: "Frontend Initial Outreach", folder: "Initial Outreach", subject: "Experienced Frontend Developer for {{company}}", body: "Hi Team,\n\nI saw you are hiring for a Frontend Developer and wanted to share my profile. I have extensive experience building scalable web apps.\n\nBest,\nHarsh Raj", resumeId: "" },
-  { id: "t2", name: "Follow up", folder: "Follow Up", subject: "Checking in: Frontend Developer role", body: "Hi again,\n\nJust bubbling this up in case it got lost in your inbox. Let me know if you need any more details!\n\nBest,\nHarsh Raj", resumeId: "" }
-];
+
 
 const INITIAL_ACCOUNTS = [
   { id: "acc1", email: "raj.harsh2001@gmail.com", name: "Harsh Raj", provider: "Google", status: "Connected", dailyLimit: 500, usedToday: 45 },
@@ -112,8 +110,9 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
   const [resumes, setResumes] = useState([]);
   const [isLoadingResumes, setIsLoadingResumes] = useState(false);
   
-  const [templates, setTemplates] = useState(INITIAL_TEMPLATES);
-  const [accounts, setAccounts] = useState(INITIAL_ACCOUNTS);
+  const [templates, setTemplates] = useState([]);
+  const [accounts, setAccounts] = useState([]);
+  const [isLoadingCampaignData, setIsLoadingCampaignData] = useState(false);
   
   // Navigation
   const [viewState, setViewState] = useState(isNewView ? "new-campaign" : "campaigns"); 
@@ -142,6 +141,25 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
       }
     };
     loadResumes();
+
+    const loadCampaignData = async () => {
+      setIsLoadingCampaignData(true);
+      try {
+        const [campsData, templatesData, accountsData] = await Promise.all([
+          getCampaigns(),
+          getTemplates(),
+          getAccounts()
+        ]);
+        setCampaigns(campsData);
+        setTemplates(templatesData);
+        setAccounts(accountsData);
+      } catch (error) {
+        console.error("Error loading campaign data:", error);
+      } finally {
+        setIsLoadingCampaignData(false);
+      }
+    };
+    loadCampaignData();
   }, [user]);
 
   // Keep internal tab sync'd with external isNewView prop changes
@@ -149,17 +167,26 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
     if (isNewView) setViewState("new-campaign");
   }, [isNewView]);
 
-  const toggleCampaignStatus = (id) => {
-    setCampaigns(prev => prev.map(c => {
-      if (c.id === id && c.status !== 'Completed') {
+  const toggleCampaignStatus = async (id) => {
+    try {
+      const c = campaigns.find(camp => camp.id === id);
+      if (c && c.status !== 'Completed') {
         const newStatus = c.status === 'Active' ? 'Paused' : 'Active';
-        if (selectedCampaign && selectedCampaign.id === id) {
-           setSelectedCampaign({ ...c, status: newStatus });
-        }
-        return { ...c, status: newStatus };
+        await updateCampaignStatus(id, newStatus);
+        
+        setCampaigns(prev => prev.map(camp => {
+          if (camp.id === id) {
+            if (selectedCampaign && selectedCampaign.id === id) {
+               setSelectedCampaign({ ...camp, status: newStatus });
+            }
+            return { ...camp, status: newStatus };
+          }
+          return camp;
+        }));
       }
-      return c;
-    }));
+    } catch (error) {
+      console.error("Failed to toggle campaign status", error);
+    }
   };
 
   const filteredCampaigns = useMemo(() => {
@@ -209,13 +236,17 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
         template={editingTemplate}
         resumes={resumes}
         onCancel={() => setViewState("templates")}
-        onSave={(data) => {
-          if (data.id) {
-            setTemplates(templates.map(t => t.id === data.id ? data : t));
-          } else {
-            setTemplates([{ ...data, id: `t-${Date.now()}` }, ...templates]);
-          }
-          setViewState("templates");
+        onSave={async (data) => {
+          try {
+            if (data.id) {
+              const res = await updateTemplate(data.id, data);
+              setTemplates(templates.map(t => t.id === data.id ? res : t));
+            } else {
+              const res = await createTemplate(data);
+              setTemplates([res, ...templates]);
+            }
+            setViewState("templates");
+          } catch (e) { console.error(e); }
         }}
       />
     );
@@ -231,18 +262,13 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
             setViewState("campaigns");
             if(setView) setView("campaigns"); // reset parent view if needed
         }}
-        onSend={(data) => {
-          setCampaigns([{ 
-            ...data, 
-            id: `camp-${Date.now()}`, 
-            sent: data.recipientCount || 0, 
-            opens: 0, 
-            replies: 0, 
-            status: "Active", 
-            createdAt: Date.now() 
-          }, ...campaigns]);
-          setViewState("campaigns");
-          if(setView) setView("campaigns");
+        onSend={async (data) => {
+          try {
+            const res = await createCampaign(data);
+            setCampaigns([res, ...campaigns]);
+            setViewState("campaigns");
+            if(setView) setView("campaigns");
+          } catch (e) { console.error(e); }
         }}
       />
     );
@@ -254,19 +280,19 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
       <div className="flex items-center gap-6 border-b border-gray-200 mb-6 px-2">
         <button 
           onClick={() => setViewState("campaigns")} 
-          className={`pb-3 text-sm font-bold border-b-2 transition-all ${viewState === 'campaigns' ? 'border-[#3846e6] text-[#3846e6]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+          className={`pb-3 text-sm font-bold border-b-2 transition-all ${viewState === 'campaigns' ? 'border-[#3442FF] text-[#3442FF]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
         >
           Active Campaigns
         </button>
         <button 
           onClick={() => setViewState("templates")} 
-          className={`pb-3 text-sm font-bold border-b-2 transition-all ${viewState === 'templates' ? 'border-[#3846e6] text-[#3846e6]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+          className={`pb-3 text-sm font-bold border-b-2 transition-all ${viewState === 'templates' ? 'border-[#3442FF] text-[#3442FF]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
         >
           Email Templates
         </button>
         <button 
           onClick={() => setViewState("accounts")} 
-          className={`pb-3 text-sm font-bold border-b-2 transition-all ${viewState === 'accounts' ? 'border-[#3846e6] text-[#3846e6]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
+          className={`pb-3 text-sm font-bold border-b-2 transition-all ${viewState === 'accounts' ? 'border-[#3442FF] text-[#3442FF]' : 'border-transparent text-gray-500 hover:text-gray-800'}`}
         >
           Sender Accounts
         </button>
@@ -314,10 +340,10 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
               const title = camp.title || camp.name || "Untitled Campaign";
 
               return (
-              <LocalCard key={camp.id} onClick={() => { setSelectedCampaign(camp); setViewState("campaign-details"); }} className="flex flex-col hover:shadow-lg hover:border-[#3846e6]/40 transition-all duration-300 cursor-pointer group">
+              <LocalCard key={camp.id} onClick={() => { setSelectedCampaign(camp); setViewState("campaign-details"); }} className="flex flex-col hover:shadow-lg hover:border-[#3442FF]/40 transition-all duration-300 cursor-pointer group">
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex-1 min-w-0 pr-3">
-                    <h3 className="text-[17px] font-extrabold text-gray-900 truncate tracking-tight group-hover:text-[#3846e6] transition-colors" title={title}>{title}</h3>
+                    <h3 className="text-[17px] font-extrabold text-gray-900 truncate tracking-tight group-hover:text-[#3442FF] transition-colors" title={title}>{title}</h3>
                     <p className="text-[12px] text-gray-500 mt-1 font-medium flex items-center gap-1.5">
                       <Calendar size={12} className="text-gray-400"/> Started {formatDate(camp.createdAt || camp.date)}
                     </p>
@@ -337,9 +363,9 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                     <span className="text-gray-400 font-normal">Subj:</span> {firstTemplate?.subject || camp.subject || "No subject"}
                   </p>
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] font-bold text-gray-500">
-                    <span className="flex items-center gap-1 bg-white px-1.5 py-0.5 rounded border border-gray-200 shadow-sm"><ListTree size={12} className="text-[#3846e6]"/> {camp.sequence?.length || 1} Steps</span>
+                    <span className="flex items-center gap-1 bg-white px-1.5 py-0.5 rounded border border-gray-200 shadow-sm"><ListTree size={12} className="text-[#3442FF]"/> {camp.sequence?.length || 1} Steps</span>
                     {camp.dailyLimit > 0 && <span className="flex items-center gap-1 bg-white px-1.5 py-0.5 rounded border border-gray-200 shadow-sm"><Flame size={12} className="text-orange-500"/> {camp.dailyLimit}/day</span>}
-                    {(firstTemplate?.resumeId || camp.resumeId) && <span className="flex items-center gap-1 bg-white px-1.5 py-0.5 rounded border border-gray-200 shadow-sm text-[#3846e6]"><Paperclip size={12}/> Attached</span>}
+                    {(firstTemplate?.resumeId || camp.resumeId) && <span className="flex items-center gap-1 bg-white px-1.5 py-0.5 rounded border border-gray-200 shadow-sm text-[#3442FF]"><Paperclip size={12}/> Attached</span>}
                   </div>
                 </div>
 
@@ -353,10 +379,10 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                      <div>
                        <div className="flex justify-between items-end mb-1.5">
                          <span className="text-[12px] text-gray-500 font-bold uppercase tracking-wider">Opens</span>
-                         <span className="text-[14px] font-extrabold text-[#3846e6]">{openRate}%</span>
+                         <span className="text-[14px] font-extrabold text-[#3442FF]">{openRate}%</span>
                        </div>
                        <div className="w-full bg-indigo-50 border border-indigo-100/50 rounded-full h-1.5 overflow-hidden">
-                         <div className="bg-[#3846e6] h-1.5 rounded-full transition-all duration-500" style={{ width: `${openRate}%` }}></div>
+                         <div className="bg-[#3442FF] h-1.5 rounded-full transition-all duration-500" style={{ width: `${openRate}%` }}></div>
                        </div>
                        <p className="text-[11px] text-gray-500 mt-1.5 font-medium">{camp.opens || 0} opened</p>
                      </div>
@@ -431,18 +457,18 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
               ).sort(([a], [b]) => a === "Uncategorized" ? 1 : b === "Uncategorized" ? -1 : a.localeCompare(b)).map(([folderName, folderTemplates]) => (
                 <div key={folderName} className="space-y-4">
                   <div className="flex items-center gap-3 border-b border-gray-200 pb-2">
-                    <Folder size={18} className={folderName === "Uncategorized" ? "text-gray-400" : "text-[#3846e6]"} />
+                    <Folder size={18} className={folderName === "Uncategorized" ? "text-gray-400" : "text-[#3442FF]"} />
                     <h3 className="text-[15px] font-bold text-gray-800">{folderName}</h3>
                     <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{folderTemplates.length}</span>
                   </div>
                   
                   <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                     {folderTemplates.map(template => (
-                      <LocalCard key={template.id} noPadding className="flex flex-col hover:border-[#3846e6]/50 transition-all duration-200 group">
+                      <LocalCard key={template.id} noPadding className="flex flex-col hover:border-[#3442FF]/50 transition-all duration-200 group">
                         <div className="p-5 flex-1 flex flex-col cursor-pointer" onClick={() => { setEditingTemplate(template); setViewState("builder"); }}>
                           <div className="flex justify-between items-start mb-4">
                             <div className="flex items-center gap-2">
-                              <FileText size={16} className="text-[#3846e6]" />
+                              <FileText size={16} className="text-[#3442FF]" />
                               <h3 className="font-bold text-gray-900 truncate" title={template.name}>{template.name}</h3>
                             </div>
                           </div>
@@ -453,7 +479,7 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                           <span className="text-xs font-medium text-gray-500">Click to edit</span>
                           <div className="flex items-center gap-2">
                             <button 
-                              onClick={(e) => { e.stopPropagation(); setTemplates(templates.filter(t => t.id !== template.id)); }} 
+                              onClick={async (e) => { e.stopPropagation(); await deleteTemplate(template.id); setTemplates(templates.filter(t => t.id !== template.id)); }} 
                               className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
                               title="Delete"
                             >
@@ -488,7 +514,7 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
               <LocalCard key={acc.id} className="flex flex-col relative group border border-gray-200 hover:shadow-md transition-all duration-300 p-6 w-full md:w-[min(100%,26rem)]">
                 <div className="flex items-start justify-between mb-5 gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-base shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-[#3442FF] font-bold text-base shrink-0">
                       {acc.name.charAt(0)}
                     </div>
                     <div>
@@ -524,7 +550,7 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                       <span className="text-[12px] font-bold text-gray-700">{acc.usedToday} / {acc.dailyLimit}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                      <div className="bg-[#3846e6] h-2 rounded-full" style={{ width: `${(acc.usedToday / acc.dailyLimit) * 100}%` }}></div>
+                      <div className="bg-[#3442FF] h-2 rounded-full" style={{ width: `${(acc.usedToday / acc.dailyLimit) * 100}%` }}></div>
                     </div>
                   </div>
                 </div>
@@ -533,7 +559,7 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                   <LocalButton variant="outline" className="w-full text-[13px] py-2.5 h-11 text-gray-600 hover:text-gray-900 border-gray-200 rounded-full">
                     <Settings2 size={14} className="mr-1"/> Settings
                   </LocalButton>
-                  <LocalButton variant="outline" onClick={() => setAccounts(accounts.filter(a => a.id !== acc.id))} className="w-full text-[13px] py-2.5 h-11 text-red-600 hover:text-red-700 hover:bg-red-50 border-gray-200 hover:border-red-200 rounded-full">
+                  <LocalButton variant="outline" onClick={async () => { await deleteAccount(acc.id); setAccounts(accounts.filter(a => a.id !== acc.id)); }} className="w-full text-[13px] py-2.5 h-11 text-red-600 hover:text-red-700 hover:bg-red-50 border-gray-200 hover:border-red-200 rounded-full">
                     <LogOut size={14} className="mr-1"/> Disconnect
                   </LocalButton>
                 </div>
@@ -544,9 +570,12 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
           <ConnectAccountModal 
             isOpen={isConnectModalOpen} 
             onClose={() => setIsConnectModalOpen(false)} 
-            onConnect={(newAcc) => {
-              setAccounts([...accounts, { ...newAcc, id: `acc-${Date.now()}`, status: "Connected", usedToday: 0 }]);
-              setIsConnectModalOpen(false);
+            onConnect={async (newAcc) => {
+              try {
+                const res = await connectAccount(newAcc);
+                setAccounts([...accounts, res]);
+                setIsConnectModalOpen(false);
+              } catch (e) { console.error(e); }
             }} 
           />
         </>
@@ -592,7 +621,7 @@ function ConnectAccountModal({ isOpen, onClose, onConnect }) {
               <p className="text-xs text-gray-500">Connect via Google OAuth</p>
             </div>
           </div>
-          {connecting === 'Google' ? <Loader2 size={18} className="animate-spin text-gray-400" /> : <ArrowRight size={18} className="text-gray-300 group-hover:text-indigo-500" />}
+          {connecting === 'Google' ? <Loader2 size={18} className="animate-spin text-gray-400" /> : <ArrowRight size={18} className="text-gray-300 group-hover:text-[#3442FF]" />}
         </button>
 
         <button 
@@ -609,7 +638,7 @@ function ConnectAccountModal({ isOpen, onClose, onConnect }) {
               <p className="text-xs text-gray-500">Connect via Microsoft OAuth</p>
             </div>
           </div>
-          {connecting === 'Microsoft' ? <Loader2 size={18} className="animate-spin text-gray-400" /> : <ArrowRight size={18} className="text-gray-300 group-hover:text-indigo-500" />}
+          {connecting === 'Microsoft' ? <Loader2 size={18} className="animate-spin text-gray-400" /> : <ArrowRight size={18} className="text-gray-300 group-hover:text-[#3442FF]" />}
         </button>
       </div>
     </Modal>
@@ -742,14 +771,14 @@ function NewCampaignBuilder({ onCancel, onSend, templates, accounts, resumes }) 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Campaign Name <span className="text-red-500">*</span></label>
-                <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-[14px] text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] outline-none transition-all" placeholder="e.g. Q3 Startup Outreach" />
+                <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-[14px] text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3442FF]/20 focus:border-[#3442FF] outline-none transition-all" placeholder="e.g. Q3 Startup Outreach" />
               </div>
 
               <div>
                 <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Sender Account <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                  <select required value={formData.accountId} onChange={e => setFormData({...formData, accountId: e.target.value})} className="w-full pl-10 pr-10 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-[14px] text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] appearance-none outline-none transition-all cursor-pointer truncate">
+                  <select required value={formData.accountId} onChange={e => setFormData({...formData, accountId: e.target.value})} className="w-full pl-10 pr-10 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-[14px] text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3442FF]/20 focus:border-[#3442FF] appearance-none outline-none transition-all cursor-pointer truncate">
                     <option value="" disabled>Select sender...</option>
                     {accounts.map(acc => (
                       <option key={acc.id} value={acc.id}>{acc.name} ({acc.email})</option>
@@ -765,7 +794,7 @@ function NewCampaignBuilder({ onCancel, onSend, templates, accounts, resumes }) 
                 <label className="block text-[13px] font-bold text-gray-700 mb-1.5 flex items-center gap-1.5">Daily Send Limit <Flame size={14} className="text-orange-500"/></label>
                 <div className="relative">
                   <Zap className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                  <input required type="number" min="1" max="1000" value={formData.dailyLimit} onChange={e => setFormData({...formData, dailyLimit: parseInt(e.target.value) || 0})} className="w-full pl-10 pr-4 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-[14px] text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] outline-none transition-all" />
+                  <input required type="number" min="1" max="1000" value={formData.dailyLimit} onChange={e => setFormData({...formData, dailyLimit: parseInt(e.target.value) || 0})} className="w-full pl-10 pr-4 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-[14px] text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3442FF]/20 focus:border-[#3442FF] outline-none transition-all" />
                 </div>
               </div>
             </div>
@@ -792,7 +821,7 @@ function NewCampaignBuilder({ onCancel, onSend, templates, accounts, resumes }) 
                 <div key={step.id} className="relative bg-gray-50/50 border border-gray-200 rounded-xl p-4 transition-all focus-within:border-indigo-300">
                   <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-3">
                     <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-indigo-100 text-[#3846e6] text-xs font-bold flex items-center justify-center shrink-0">{index + 1}</span>
+                      <span className="w-6 h-6 rounded-full bg-indigo-100 text-[#3442FF] text-xs font-bold flex items-center justify-center shrink-0">{index + 1}</span>
                       <span className="text-[13px] font-bold text-gray-800">{index === 0 ? "Initial Email" : "Follow-up Email"}</span>
                     </div>
                     {index > 0 && (
@@ -806,8 +835,8 @@ function NewCampaignBuilder({ onCancel, onSend, templates, accounts, resumes }) 
                     <div className="flex items-center gap-2 mb-4 bg-white p-2 rounded-lg border border-gray-100 shadow-sm w-fit flex-wrap">
                       <Clock size={14} className="text-gray-400 ml-1"/>
                       <span className="text-[13px] text-gray-600 font-medium">Wait</span>
-                      <input type="number" min="1" value={step.delayValue} onChange={(e) => updateSequenceStep(step.id, "delayValue", parseInt(e.target.value) || 1)} className="w-16 px-2 py-1 bg-gray-50 border border-gray-200 rounded text-[13px] text-center outline-none focus:border-indigo-400" />
-                      <select value={step.delayUnit} onChange={(e) => updateSequenceStep(step.id, "delayUnit", e.target.value)} className="px-2 py-1 bg-gray-50 border border-gray-200 rounded text-[13px] outline-none focus:border-indigo-400 appearance-none cursor-pointer">
+                      <input type="number" min="1" value={step.delayValue} onChange={(e) => updateSequenceStep(step.id, "delayValue", parseInt(e.target.value) || 1)} className="w-16 px-2 py-1 bg-gray-50 border border-gray-200 rounded text-[13px] text-center outline-none focus:border-[#3442FF]" />
+                      <select value={step.delayUnit} onChange={(e) => updateSequenceStep(step.id, "delayUnit", e.target.value)} className="px-2 py-1 bg-gray-50 border border-gray-200 rounded text-[13px] outline-none focus:border-[#3442FF] appearance-none cursor-pointer">
                         <option value="days">Days</option>
                         <option value="hours">Hours</option>
                       </select>
@@ -817,7 +846,7 @@ function NewCampaignBuilder({ onCancel, onSend, templates, accounts, resumes }) 
 
                   <div className="relative">
                     <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                    <select required value={step.templateId} onChange={e => updateSequenceStep(step.id, "templateId", e.target.value)} className="w-full pl-10 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-[14px] text-gray-900 focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] appearance-none outline-none transition-all cursor-pointer shadow-sm">
+                    <select required value={step.templateId} onChange={e => updateSequenceStep(step.id, "templateId", e.target.value)} className="w-full pl-10 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-[14px] text-gray-900 focus:ring-2 focus:ring-[#3442FF]/20 focus:border-[#3442FF] appearance-none outline-none transition-all cursor-pointer shadow-sm">
                       <option value="" disabled>Select a template...</option>
                       {templates.map(t => (
                         <option key={t.id} value={t.id}>{t.name} (Subj: {t.subject})</option>
@@ -829,7 +858,7 @@ function NewCampaignBuilder({ onCancel, onSend, templates, accounts, resumes }) 
               ))}
             </div>
 
-            <button type="button" onClick={addSequenceStep} className="mt-4 flex items-center gap-1.5 text-[13px] font-bold text-[#3846e6] hover:text-[#2834b3] bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-colors border border-indigo-100">
+            <button type="button" onClick={addSequenceStep} className="mt-4 flex items-center gap-1.5 text-[13px] font-bold text-[#3442FF] hover:text-[#2834b3] bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-colors border border-indigo-100">
               <Plus size={16} /> Add Follow-up Step
             </button>
           </div>
@@ -838,8 +867,8 @@ function NewCampaignBuilder({ onCancel, onSend, templates, accounts, resumes }) 
             <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-5">
               <h3 className="text-[15px] font-extrabold text-gray-900">3. Audience / Recipients <span className="text-red-500">*</span></h3>
               <div className="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
-                <button type="button" onClick={() => setRecipientMode("manual")} className={`px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all ${recipientMode === "manual" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500 hover:text-gray-900"}`}>Manual</button>
-                <button type="button" onClick={() => setRecipientMode("upload")} className={`px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all ${recipientMode === "upload" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500 hover:text-gray-900"}`}>Upload CSV/Excel</button>
+                <button type="button" onClick={() => setRecipientMode("manual")} className={`px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all ${recipientMode === "manual" ? "bg-white text-[#3442FF] shadow-sm" : "text-gray-500 hover:text-gray-900"}`}>Manual</button>
+                <button type="button" onClick={() => setRecipientMode("upload")} className={`px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all ${recipientMode === "upload" ? "bg-white text-[#3442FF] shadow-sm" : "text-gray-500 hover:text-gray-900"}`}>Upload CSV/Excel</button>
               </div>
             </div>
 
@@ -854,13 +883,13 @@ function NewCampaignBuilder({ onCancel, onSend, templates, accounts, resumes }) 
                 {manualRecipients.map((rec) => (
                   <div key={rec.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 animate-in fade-in slide-in-from-top-1 min-w-[500px]">
                     <div className="w-full sm:w-2/5">
-                      <input required type="email" placeholder="Email address *" value={rec.email} onChange={(e) => setManualRecipients(manualRecipients.map(r => r.id === rec.id ? { ...r, email: e.target.value } : r))} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] text-gray-900 focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] outline-none transition-all shadow-sm" />
+                      <input required type="email" placeholder="Email address *" value={rec.email} onChange={(e) => setManualRecipients(manualRecipients.map(r => r.id === rec.id ? { ...r, email: e.target.value } : r))} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] text-gray-900 focus:ring-2 focus:ring-[#3442FF]/20 focus:border-[#3442FF] outline-none transition-all shadow-sm" />
                     </div>
                     <div className="w-[calc(50%-0.5rem)] sm:w-1/4">
-                      <input type="text" placeholder="Name" value={rec.name} onChange={(e) => setManualRecipients(manualRecipients.map(r => r.id === rec.id ? { ...r, name: e.target.value } : r))} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] text-gray-900 focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] outline-none transition-all shadow-sm" />
+                      <input type="text" placeholder="Name" value={rec.name} onChange={(e) => setManualRecipients(manualRecipients.map(r => r.id === rec.id ? { ...r, name: e.target.value } : r))} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] text-gray-900 focus:ring-2 focus:ring-[#3442FF]/20 focus:border-[#3442FF] outline-none transition-all shadow-sm" />
                     </div>
                     <div className="w-[calc(50%-0.5rem)] sm:w-1/4">
-                      <input type="text" placeholder="Company" value={rec.company} onChange={(e) => setManualRecipients(manualRecipients.map(r => r.id === rec.id ? { ...r, company: e.target.value } : r))} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] text-gray-900 focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] outline-none transition-all shadow-sm" />
+                      <input type="text" placeholder="Company" value={rec.company} onChange={(e) => setManualRecipients(manualRecipients.map(r => r.id === rec.id ? { ...r, company: e.target.value } : r))} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-[13px] text-gray-900 focus:ring-2 focus:ring-[#3442FF]/20 focus:border-[#3442FF] outline-none transition-all shadow-sm" />
                     </div>
                     <button type="button" onClick={() => setManualRecipients(manualRecipients.filter(r => r.id !== rec.id))} disabled={manualRecipients.length === 1} className="w-8 h-[38px] flex items-center justify-center shrink-0 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400 mt-2 sm:mt-0">
                       <Trash2 size={16} />
@@ -868,18 +897,18 @@ function NewCampaignBuilder({ onCancel, onSend, templates, accounts, resumes }) 
                   </div>
                 ))}
                 
-                <button type="button" onClick={() => setManualRecipients([...manualRecipients, { id: Date.now(), email: "", name: "", company: "" }])} className="text-[12px] font-bold text-[#3846e6] hover:text-[#2834b3] flex items-center gap-1.5 mt-4 px-3 py-2 border border-indigo-100 hover:bg-indigo-50 bg-white shadow-sm rounded-lg transition-colors w-max">
+                <button type="button" onClick={() => setManualRecipients([...manualRecipients, { id: Date.now(), email: "", name: "", company: "" }])} className="text-[12px] font-bold text-[#3442FF] hover:text-[#2834b3] flex items-center gap-1.5 mt-4 px-3 py-2 border border-indigo-100 hover:bg-indigo-50 bg-white shadow-sm rounded-lg transition-colors w-max">
                   <Plus size={14} /> Add Another Recipient
                 </button>
               </div>
             ) : (
-              <div className={`border-2 border-dashed rounded-xl p-8 transition-all text-center ${uploadedFile ? 'border-indigo-300 bg-indigo-50/50' : 'border-gray-200 hover:border-indigo-400 bg-gray-50/50 hover:bg-indigo-50/30'}`}>
+              <div className={`border-2 border-dashed rounded-xl p-8 transition-all text-center ${uploadedFile ? 'border-indigo-300 bg-indigo-50/50' : 'border-gray-200 hover:border-[#3442FF] bg-gray-50/50 hover:bg-indigo-50/30'}`}>
                 {!uploadedFile ? (
                   <>
                     <UploadCloud className="mx-auto text-indigo-400 mb-3" size={36} />
                     <p className="text-[14px] font-semibold text-gray-800 mb-1">Click to upload Excel (.xls, .xlsx) or CSV</p>
                     <p className="text-[12px] text-gray-500 mb-2 max-w-sm mx-auto">Upload a list of recipients. Must contain <span className="font-bold">Email</span>, <span className="font-bold">Name</span>, and <span className="font-bold">Company Name</span> headers for variable substitution.</p>
-                    <button type="button" onClick={handleDownloadSample} className="text-[12px] text-[#3846e6] hover:text-[#2834b3] font-semibold mb-4 inline-flex items-center gap-1.5 hover:underline transition-colors"><Download size={12}/> Download Sample File (CSV)</button>
+                    <button type="button" onClick={handleDownloadSample} className="text-[12px] text-[#3442FF] hover:text-[#2834b3] font-semibold mb-4 inline-flex items-center gap-1.5 hover:underline transition-colors"><Download size={12}/> Download Sample File (CSV)</button>
                     <div className="w-full"></div>
                     <label className="cursor-pointer inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-5 py-2.5 rounded-lg text-[13px] font-bold shadow-sm hover:bg-gray-50 transition-all">
                       Browse Files
@@ -890,7 +919,7 @@ function NewCampaignBuilder({ onCancel, onSend, templates, accounts, resumes }) 
                   <div className="flex flex-col items-center justify-center py-4">
                     {isParsing ? (
                       <>
-                        <Loader2 size={32} className="animate-spin text-indigo-600 mx-auto mb-4" />
+                        <Loader2 size={32} className="animate-spin text-[#3442FF] mx-auto mb-4" />
                         <p className="text-[14px] font-bold text-gray-700">Analyzing columns and extracting contacts...</p>
                       </>
                     ) : (
@@ -913,7 +942,7 @@ function NewCampaignBuilder({ onCancel, onSend, templates, accounts, resumes }) 
         {/* RIGHT PANE: Live Sequence Preview */}
         <div className="w-full lg:w-2/5 bg-gray-50 overflow-y-auto p-6 flex flex-col border-t lg:border-t-0 lg:border-l border-gray-200">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-[14px] font-bold text-gray-800 flex items-center gap-2"><ListTree size={16} className="text-[#3846e6]"/> Sequence Preview</h3>
+            <h3 className="text-[14px] font-bold text-gray-800 flex items-center gap-2"><ListTree size={16} className="text-[#3442FF]"/> Sequence Preview</h3>
             <span className="text-xs text-gray-500 font-medium bg-white px-2 py-1 rounded-md border border-gray-200 shadow-sm hidden sm:inline-block">Sample Data Applied</span>
           </div>
           
@@ -943,7 +972,7 @@ function NewCampaignBuilder({ onCancel, onSend, templates, accounts, resumes }) 
                 <div key={step.id} className="relative">
                   {idx > 0 && (
                     <div className="absolute -top-6 left-6 w-0.5 h-6 bg-indigo-200 flex flex-col items-center justify-center z-0">
-                      <div className="absolute top-1/2 -translate-y-1/2 bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap shadow-sm">
+                      <div className="absolute top-1/2 -translate-y-1/2 bg-indigo-50 border border-indigo-200 text-[#3442FF] text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap shadow-sm">
                         Wait {step.delayValue} {step.delayUnit}
                       </div>
                     </div>
@@ -961,7 +990,7 @@ function NewCampaignBuilder({ onCancel, onSend, templates, accounts, resumes }) 
                         <p className="flex items-start gap-2"><span className="font-semibold text-gray-400 w-12 shrink-0">From:</span> <span className="text-gray-900 truncate">Harsh Raj &lt;raj.harsh2001@gmail.com&gt;</span></p>
                         <p className="flex items-start gap-2">
                           <span className="font-semibold text-gray-400 w-12 shrink-0">To:</span> 
-                          <span className="text-gray-900 font-medium bg-indigo-50 text-indigo-700 px-2 rounded-md truncate">
+                          <span className="text-gray-900 font-medium bg-indigo-50 text-[#3442FF] px-2 rounded-md truncate">
                             {recipientMode === 'manual' && manualRecipients[0].email 
                               ? `${manualRecipients[0].name ? `${manualRecipients[0].name} ` : ''}<${manualRecipients[0].email}>${manualRecipients.length > 1 ? ` (+${manualRecipients.length - 1} more)` : ''}`
                               : '[Recipient List]'}
@@ -1050,10 +1079,10 @@ function CampaignDetailsView({ campaign, templates, resumes, onBack, onToggleSta
             <div className="text-3xl font-extrabold text-gray-900">{campaign.sent || campaign.count || 0}</div>
           </LocalCard>
           <LocalCard className="!p-5 bg-white border-gray-200 shadow-sm">
-            <div className="flex items-center gap-3 text-[#3846e6] mb-2 font-medium text-sm"><Eye size={16} /> Opened</div>
+            <div className="flex items-center gap-3 text-[#3442FF] mb-2 font-medium text-sm"><Eye size={16} /> Opened</div>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl font-extrabold text-gray-900">{campaign.opens || 0}</span>
-              <span className="text-sm font-bold text-[#3846e6]">{openRate}% rate</span>
+              <span className="text-sm font-bold text-[#3442FF]">{openRate}% rate</span>
             </div>
           </LocalCard>
           <LocalCard className="!p-5 bg-white border-gray-200 shadow-sm">
@@ -1072,7 +1101,7 @@ function CampaignDetailsView({ campaign, templates, resumes, onBack, onToggleSta
               <div className="space-y-5 text-sm">
                 <div>
                   <span className="flex items-center gap-1.5 text-gray-500 font-medium text-xs uppercase tracking-wider mb-1.5"><ListTree size={14}/> Sequence Overview</span>
-                  <span className="text-gray-900 font-bold bg-indigo-50 text-indigo-700 px-2 py-1 rounded inline-block">{campaign.sequence?.length || 1} Steps configured</span>
+                  <span className="text-gray-900 font-bold bg-indigo-50 text-[#3442FF] px-2 py-1 rounded inline-block">{campaign.sequence?.length || 1} Steps configured</span>
                 </div>
                 <div>
                   <span className="block text-gray-500 font-medium text-xs uppercase tracking-wider mb-1">Subject (Step 1)</span>
@@ -1081,7 +1110,7 @@ function CampaignDetailsView({ campaign, templates, resumes, onBack, onToggleSta
                 {resumeDisplayName && (
                   <div>
                     <span className="block text-gray-500 font-medium text-xs uppercase tracking-wider mb-1">Attachment (Step 1)</span>
-                    <span className="inline-flex items-center gap-1.5 text-[#3846e6] bg-indigo-50 px-2 py-1 rounded font-medium border border-indigo-100 mt-0.5 truncate max-w-full">
+                    <span className="inline-flex items-center gap-1.5 text-[#3442FF] bg-indigo-50 px-2 py-1 rounded font-medium border border-indigo-100 mt-0.5 truncate max-w-full">
                       <Paperclip size={14} className="shrink-0" /> <span className="truncate">{resumeDisplayName}</span>
                     </span>
                   </div>
@@ -1106,7 +1135,7 @@ function CampaignDetailsView({ campaign, templates, resumes, onBack, onToggleSta
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                 <h3 className="text-[14px] font-bold text-gray-900">Recent Recipient Activity</h3>
-                <LocalButton variant="ghost" className="text-[12px] text-[#3846e6] hover:bg-indigo-50 px-3 py-1.5 border border-transparent hover:border-indigo-100">View All</LocalButton>
+                <LocalButton variant="ghost" className="text-[12px] text-[#3442FF] hover:bg-indigo-50 px-3 py-1.5 border border-transparent hover:border-indigo-100">View All</LocalButton>
               </div>
               <div className="divide-y divide-gray-100">
                 {mockActivity.map((log, i) => (
@@ -1114,7 +1143,7 @@ function CampaignDetailsView({ campaign, templates, resumes, onBack, onToggleSta
                     <div className="flex items-center gap-3 overflow-hidden">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                         log.status === 'Replied' ? 'bg-emerald-100 text-emerald-600' : 
-                        log.status === 'Opened' ? 'bg-indigo-100 text-[#3846e6]' : 
+                        log.status === 'Opened' ? 'bg-indigo-100 text-[#3442FF]' : 
                         'bg-gray-100 text-gray-500'
                       }`}>
                         {log.status === 'Replied' ? <CheckCircle size={14} /> : 
@@ -1128,7 +1157,7 @@ function CampaignDetailsView({ campaign, templates, resumes, onBack, onToggleSta
                     </div>
                     <span className={`text-[12px] font-bold px-2.5 py-1 rounded-md shrink-0 ml-2 ${
                       log.status === 'Replied' ? 'text-emerald-700 bg-emerald-50 border border-emerald-200' : 
-                      log.status === 'Opened' ? 'text-indigo-700 bg-indigo-50 border border-indigo-200' : 
+                      log.status === 'Opened' ? 'text-[#3442FF] bg-indigo-50 border border-indigo-200' : 
                       'text-gray-600 bg-gray-50 border border-gray-200'
                     }`}>
                       {log.status}
@@ -1194,8 +1223,8 @@ function EmailTemplateBuilder({ template, resumes, onCancel, onSave }) {
         const attachmentDropdown = document.getElementById("resume-select");
         if (attachmentDropdown) {
           attachmentDropdown.focus();
-          attachmentDropdown.classList.add("ring-4", "ring-[#3846e6]/20", "border-[#3846e6]");
-          setTimeout(() => attachmentDropdown.classList.remove("ring-4", "ring-[#3846e6]/20", "border-[#3846e6]"), 1000);
+          attachmentDropdown.classList.add("ring-4", "ring-[#3442FF]/20", "border-[#3442FF]");
+          setTimeout(() => attachmentDropdown.classList.remove("ring-4", "ring-[#3442FF]/20", "border-[#3442FF]"), 1000);
         }
         break;
       case "Source Code": insertTextAtCursor("```\n", "\n```"); break;
@@ -1233,14 +1262,14 @@ function EmailTemplateBuilder({ template, resumes, onCancel, onSave }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Template Name <span className="text-red-500">*</span></label>
-              <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] outline-none transition-all" placeholder="e.g. Initial Outreach" />
+              <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3442FF]/20 focus:border-[#3442FF] outline-none transition-all" placeholder="e.g. Initial Outreach" />
             </div>
 
             <div>
               <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Template Folder</label>
               <div className="relative">
                 <Folder className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                <select value={formData.folder} onChange={e => setFormData({...formData, folder: e.target.value})} className="w-full pl-10 pr-10 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] appearance-none outline-none transition-all cursor-pointer">
+                <select value={formData.folder} onChange={e => setFormData({...formData, folder: e.target.value})} className="w-full pl-10 pr-10 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3442FF]/20 focus:border-[#3442FF] appearance-none outline-none transition-all cursor-pointer">
                   <option value="">No Folder (Uncategorized)</option>
                   <option value="Initial Outreach">Initial Outreach</option>
                   <option value="Follow Up">Follow Up</option>
@@ -1252,14 +1281,14 @@ function EmailTemplateBuilder({ template, resumes, onCancel, onSave }) {
 
             <div className="md:col-span-2 lg:col-span-1">
               <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Subject <span className="text-red-500">*</span></label>
-              <input type="text" value={formData.subject} onChange={e => setFormData({...formData, subject: e.target.value})} className="w-full px-4 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] outline-none transition-all" placeholder="e.g. Exploring Frontend Roles at {{company}}" />
+              <input type="text" value={formData.subject} onChange={e => setFormData({...formData, subject: e.target.value})} className="w-full px-4 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3442FF]/20 focus:border-[#3442FF] outline-none transition-all" placeholder="e.g. Exploring Frontend Roles at {{company}}" />
             </div>
 
             <div className="md:col-span-2 lg:col-span-1">
               <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Attachment (Resume)</label>
               <div className="relative">
                 <Paperclip className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                <select id="resume-select" value={formData.resumeId || ""} onChange={e => setFormData({...formData, resumeId: e.target.value})} className="w-full pl-10 pr-10 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-[14px] text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3846e6]/20 focus:border-[#3846e6] appearance-none outline-none transition-all cursor-pointer">
+                <select id="resume-select" value={formData.resumeId || ""} onChange={e => setFormData({...formData, resumeId: e.target.value})} className="w-full pl-10 pr-10 py-2 bg-gray-50/50 border border-gray-200 rounded-lg text-[14px] text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#3442FF]/20 focus:border-[#3442FF] appearance-none outline-none transition-all cursor-pointer">
                   <option value="">No attachment</option>
                   {resumes.map(r => (
                     <option key={r.id} value={r.id}>{r.fileName || r.name || 'Resume'}</option>
@@ -1275,7 +1304,7 @@ function EmailTemplateBuilder({ template, resumes, onCancel, onSave }) {
               <label className="block text-[13px] font-bold text-gray-700">Email Body <span className="text-red-500">*</span></label>
               <span className="text-[11px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">Use {'{{company}}'} or {'{{name}}'}</span>
             </div>
-            <div className="border border-gray-200 rounded-xl flex flex-col flex-1 overflow-hidden focus-within:border-[#3846e6] focus-within:ring-4 focus-within:ring-[#3846e6]/10 transition-shadow bg-gray-50/30">
+            <div className="border border-gray-200 rounded-xl flex flex-col flex-1 overflow-hidden focus-within:border-[#3442FF] focus-within:ring-4 focus-within:ring-[#3442FF]/10 transition-shadow bg-gray-50/30">
               <div className="bg-white border-b border-gray-200 px-3 py-2 flex flex-wrap gap-1 items-center shrink-0">
                 {[{ icon: Type, label: "Text Format" }, { icon: Link2, label: "Link" }, { icon: ImageIcon, label: "Image" }, { icon: Paperclip, label: "Attachment" }, { icon: Code, label: "Source Code" }, { icon: Bot, label: "Variables" }, { text: "{}", label: "Snippets" }, { icon: Scissors, label: "Cut" }, { icon: Calendar, label: "Meeting Link" }].map((tool, idx) => (
                   <button key={idx} type="button" title={tool.label} onClick={() => handleToolbarAction(tool.label)} className="w-8 h-8 flex items-center justify-center rounded-lg border border-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">
@@ -1296,7 +1325,7 @@ function EmailTemplateBuilder({ template, resumes, onCancel, onSave }) {
 
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm mb-6 flex-1 max-h-[500px] overflow-y-auto">
             <div className="space-y-1.5 mb-5 pb-5 border-b border-gray-100 text-[14px] overflow-hidden">
-              <p className="flex items-start gap-2"><span className="font-semibold text-gray-500 w-16 shrink-0">To:</span> <span className="text-gray-900 font-medium bg-indigo-50 text-indigo-700 px-2 rounded-md truncate">Example Recruiter &lt;hiring@google.com&gt;</span></p>
+              <p className="flex items-start gap-2"><span className="font-semibold text-gray-500 w-16 shrink-0">To:</span> <span className="text-gray-900 font-medium bg-indigo-50 text-[#3442FF] px-2 rounded-md truncate">Example Recruiter &lt;hiring@google.com&gt;</span></p>
               <p className="flex items-start gap-2"><span className="font-semibold text-gray-500 w-16 shrink-0">Subject:</span> <span className="text-gray-900 font-medium truncate">{formData.subject || <span className="text-gray-400 italic font-normal">No subject</span>}</span></p>
               {resumeDisplayName && (
                 <p className="flex items-center gap-2 mt-2 pt-2"><Paperclip size={14} className="text-gray-400 shrink-0"/> <span className="text-[12px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded font-medium border border-gray-200 truncate">{resumeDisplayName}</span></p>

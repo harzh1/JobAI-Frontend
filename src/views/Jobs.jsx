@@ -237,7 +237,7 @@ export default function Jobs({ setView, setSelectedJobId }) {
   if (isLoadingData) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <Loader2 className="animate-spin text-indigo-500 mb-4" size={32} />
+        <Loader2 className="animate-spin text-[#3442FF] mb-4" size={32} />
         <p className="text-gray-600">Loading your saved jobs...</p>
       </div>
     );
@@ -245,274 +245,265 @@ export default function Jobs({ setView, setSelectedJobId }) {
 
   return (
     <div className="flex flex-col gap-6">
-      
-      {/* --- AI Smart Omnibar --- */}
+        {/* --- AI Smart Omnibar --- */}
       {!parseResult ? (
-        <div className={isLoading ? "gemini-processing-ring" : ""}>
-          <Card
-            noPadding={true}
-            className="overflow-visible relative z-20"
-          >
-            <div className="p-2 sm:p-3">
-              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 sm:gap-4">
-                
-                <div className="flex items-center gap-3 px-2 md:w-1/4 lg:w-1/5 shrink-0">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-50/80 backdrop-blur-sm border border-indigo-100 flex items-center justify-center shrink-0 text-indigo-600">
-                    <Sparkles size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-[15px] font-bold text-gray-900 tracking-tight">AI Smart Add</h3>
-                    <p className="text-[12px] text-gray-500 font-medium">Auto-extract details</p>
-                  </div>
-                </div>
-
-                <div className="flex-1 relative">
-                  <div className="surface-control flex items-center gap-2 p-1.5">
-                    <div className="pl-3 shrink-0 text-gray-400">
-                      <Link2 size={18} />
-                    </div>
-                    <input
-                      type="url"
-                      value={linkInput}
-                      onChange={(e) => setLinkInput(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && !isLoading && addJobByLink()}
-                      placeholder="Paste URL from LinkedIn, Indeed, or company site..."
-                      disabled={isLoading}
-                      className="flex-1 bg-transparent outline-none text-sm px-1 py-2 text-gray-800 placeholder-gray-400 disabled:opacity-50"
-                    />
-                    <Button
-                      onClick={addJobByLink}
-                      disabled={!linkInput.trim() || isLoading}
-                      className="shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white transition-all px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 disabled:opacity-50 disabled:hover:bg-indigo-600 shadow-sm"
-                    >
-                      {isLoading ? (
-                        <><Loader2 size={16} className="animate-spin" /> <span className="hidden sm:inline">Parsing</span></>
-                      ) : (
-                        <>Extract <ArrowRight size={16} className="hidden sm:inline" /></>
-                      )}
-                    </Button>
-                  </div>
-
-                  {parseError && (
-                    <div className="absolute top-full left-0 mt-2 z-30 text-[13px] text-red-700 flex items-center gap-1.5 font-medium bg-red-50/90 backdrop-blur-md px-4 py-2 rounded-xl border border-red-200 shadow-lg animate-in fade-in slide-in-from-top-2">
-                      <AlertCircle size={16} className="text-red-500 shrink-0" /> 
-                      {parseError}
-                      <button onClick={() => setParseError(null)} className="ml-2 text-red-400 hover:text-red-700 transition-colors">
-                        <X size={14} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-
+        <div className={`relative group w-full z-20 ${isLoading ? "gemini-processing-ring" : ""}`}>
+          {/* Glowing background effect */}
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#3442FF]/40 via-[#a8c7fa]/40 to-[#3442FF]/40 rounded-[36px] blur opacity-40 group-hover:opacity-75 transition duration-500"></div>
+          
+          {/* Main Input Container */}
+          <div className="relative flex flex-col md:flex-row items-stretch md:items-center bg-[var(--surface-bg)] rounded-[32px] p-2 pl-4 md:pl-6 shadow-[0_8px_32px_rgba(0,0,0,0.08)] border-transparent ring-1 ring-[#e1e5ea] dark:ring-[#333538]/50">
+            
+            {/* Branding Section */}
+            <div className="flex items-center gap-3 pr-4 border-b md:border-b-0 md:border-r border-[#e1e5ea]/50 dark:border-[#333538]/50 py-2 md:py-0">
+              <div className="text-[#3442FF] animate-pulse">
+                <Sparkles size={24} weight="fill" />
+              </div>
+              <div className="flex flex-col">
+                <h3 className="text-[15px] font-bold text-[var(--text-primary)] leading-tight">AI Smart Add</h3>
+                <p className="text-[11px] text-[var(--muted)] font-semibold uppercase tracking-wider">Auto-Extract</p>
               </div>
             </div>
-          </Card>
+
+            {/* Input Section */}
+            <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center pl-2 md:pl-4 pr-2 py-2 md:py-0 gap-2 sm:gap-0">
+              <div className="flex items-center flex-1">
+                <Link2 size={18} className="text-gray-400 shrink-0 ml-2 sm:ml-0" />
+                <input
+                  type="url"
+                  value={linkInput}
+                  onChange={(e) => setLinkInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && !isLoading && addJobByLink()}
+                  placeholder="Paste URL from LinkedIn, Indeed, or company site..."
+                  disabled={isLoading}
+                  className="w-full bg-transparent outline-none text-[15px] px-3 py-3 text-[var(--text-primary)] placeholder-gray-400 disabled:opacity-50"
+                />
+              </div>
+              
+              <button
+                onClick={addJobByLink}
+                disabled={!linkInput.trim() || isLoading}
+                className="shrink-0 bg-[#3442FF] hover:bg-[#3442FF]/90 text-white rounded-[24px] px-6 py-3 sm:py-2.5 text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:bg-[#3442FF] active:scale-95 ml-auto w-full sm:w-auto"
+              >
+                {isLoading ? (
+                  <><Loader2 size={16} className="animate-spin" /> <span>Parsing...</span></>
+                ) : (
+                  <>Extract <ArrowRight size={16} /></>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Error Message */}
+          {parseError && (
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 z-30 text-[13px] text-red-700 flex items-center gap-1.5 font-bold bg-[#fce8e6] px-5 py-2.5 rounded-full border border-red-200/50 shadow-lg animate-in fade-in slide-in-from-top-2 dark:bg-[#f28b82] dark:text-[#3f0f0a] dark:border-transparent">
+              <AlertCircle size={16} className="shrink-0" /> 
+              {parseError}
+              <button onClick={() => setParseError(null)} className="ml-3 opacity-70 hover:opacity-100 transition-opacity">
+                <X size={14} />
+              </button>
+            </div>
+          )}
         </div>
       ) : (
-        /* --- Enterprise Ticket Parse Result Card --- */
-        <Card noPadding={true} className="overflow-hidden relative z-20 animate-in fade-in zoom-in-95 duration-200">
-          <div className="px-6 py-4 bg-gray-50/80 backdrop-blur-sm border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-              </span>
-              <span className="font-bold text-sm text-gray-900 uppercase tracking-wide">Data Extraction Complete</span>
+        /* --- Parse Result Module --- */
+        <div className="relative z-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="bg-[var(--surface-bg)] rounded-[32px] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.08)] ring-1 ring-[#e1e5ea] dark:ring-[#333538]/50 flex flex-col">
+            
+            {/* Header */}
+            <div className="px-6 md:px-8 py-5 border-b border-[#e1e5ea]/60 dark:border-[#333538]/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-[#e8f0fe] to-transparent dark:from-[#a8c7fa]/10">
+              <div className="flex items-center gap-3">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span className="font-extrabold text-[13px] text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Data Extracted Successfully</span>
+              </div>
+              {parseResult.sourceUrl && (
+                <a href={parseResult.sourceUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-[var(--muted)] hover:text-[#3442FF] flex items-center gap-1.5 transition-colors bg-[#f0f4f9] dark:bg-[#1e1f20] ring-1 ring-[#e1e5ea] dark:ring-[#333538] px-4 py-2 rounded-full hover:shadow-sm">
+                  View original source <ExternalLink size={12} />
+                </a>
+              )}
             </div>
-            {parseResult.sourceUrl && (
-              <a href={parseResult.sourceUrl} target="_blank" rel="noreferrer" className="text-xs font-medium text-gray-500 hover:text-indigo-600 flex items-center gap-1.5 transition-colors">
-                View original source <ExternalLink size={12} />
-              </a>
-            )}
-          </div>
 
-          <div className="p-6 sm:p-8">
-            <div className="flex flex-col lg:flex-row gap-8 justify-between">
-              <div className="flex-1 w-full min-w-0">
-                <h4 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight mb-2">
-                  {parseResult.title || "Unknown Title"}
-                </h4>
-                <div className="text-lg text-gray-600 font-medium flex items-center gap-2 mb-8">
-                  <Building2 size={20} className="text-gray-400 shrink-0" />
-                  <span className="truncate">{parseResult.company || "Unknown Company"}</span>
-                </div>
+            {/* Body */}
+            <div className="p-6 md:p-8">
+              <div className="flex flex-col lg:flex-row gap-8 justify-between">
+                <div className="flex-1 w-full min-w-0">
+                  <h4 className="text-2xl md:text-3xl font-extrabold text-[var(--text-primary)] tracking-tight mb-3 leading-tight">
+                    {parseResult.title || "Unknown Title"}
+                  </h4>
+                  <div className="text-lg text-[var(--muted)] font-bold flex items-center gap-2 mb-8">
+                    <Building2 size={20} className="shrink-0" />
+                    <span className="truncate">{parseResult.company || "Unknown Company"}</span>
+                  </div>
 
-                <div className="flex flex-wrap gap-y-6 gap-x-8 sm:gap-x-12 mb-8">
-                  <div>
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Location</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-1.5">
-                      <MapPin size={14} className="text-gray-400 shrink-0"/> {parseResult.location || "Remote"}
-                    </p>
-                  </div>
-                  <div className="hidden sm:block w-px bg-gray-100 self-stretch"></div>
-                  
-                  <div>
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Salary</p>
-                    <p className="font-bold text-emerald-600 text-sm sm:text-base flex items-center gap-1.5">
-                      <DollarSign size={14} className="text-emerald-500 shrink-0"/> {parseResult.salary || "Not specified"}
-                    </p>
-                  </div>
-                  <div className="hidden sm:block w-px bg-gray-100 self-stretch"></div>
-                  
-                  <div>
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Job Type</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-1.5">
-                      <Briefcase size={14} className="text-gray-400 shrink-0"/> {parseResult.type || "Full-time"}
-                    </p>
-                  </div>
-                  <div className="hidden sm:block w-px bg-gray-100 self-stretch"></div>
-                  
-                  <div>
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Experience</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-1.5">
-                      <Clock size={14} className="text-gray-400 shrink-0"/> {parseResult.experience || "Not specified"}
-                    </p>
-                  </div>
-                  <div className="hidden sm:block w-px bg-gray-100 self-stretch"></div>
-
-                  <div>
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Apply By</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-1.5">
-                      <Clock size={14} className="text-gray-400 shrink-0"/> {parseResult.applyBy || "Not specified"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="border-t border-gray-100 pt-6 mt-2 max-h-[320px] overflow-y-auto pr-4 space-y-8">
-                  {parseResult.description && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-8">
                     <div>
-                      <h5 className="text-sm font-bold text-gray-900 mb-2">Description</h5>
-                      <p className="text-[14px] text-gray-600 leading-relaxed whitespace-pre-line">
-                        {parseResult.description}
+                      <p className="text-[11px] font-bold text-[var(--muted)] uppercase tracking-widest mb-2 opacity-80">Location</p>
+                      <p className="font-bold text-[var(--text-primary)] text-sm md:text-base flex items-start gap-1.5">
+                        <MapPin size={16} className="text-[#3442FF] shrink-0 mt-0.5"/> 
+                        <span className="leading-snug">{parseResult.location || "Remote"}</span>
                       </p>
                     </div>
-                  )}
-
-                  {parseResult.responsibilities && parseResult.responsibilities.length > 0 && (
                     <div>
-                      <h5 className="text-sm font-bold text-gray-900 mb-3">Responsibilities</h5>
-                      <ul className="space-y-2">
-                        {parseResult.responsibilities.map((item, i) => (
-                          <li key={i} className="text-[14px] text-gray-600 flex items-start gap-2">
-                            <span className="text-indigo-400 mt-1 shrink-0">•</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      <p className="text-[11px] font-bold text-[var(--muted)] uppercase tracking-widest mb-2 opacity-80">Salary</p>
+                      <p className="font-bold text-emerald-600 dark:text-emerald-400 text-sm md:text-base flex items-start gap-1.5">
+                        <DollarSign size={16} className="shrink-0 mt-0.5"/> 
+                        <span className="leading-snug">{parseResult.salary || "Not specified"}</span>
+                      </p>
                     </div>
-                  )}
-
-                  {parseResult.requirements && parseResult.requirements.length > 0 && (
                     <div>
-                      <h5 className="text-sm font-bold text-gray-900 mb-3">Requirements</h5>
-                      <ul className="space-y-2">
-                        {parseResult.requirements.map((item, i) => (
-                          <li key={i} className="text-[14px] text-gray-600 flex items-start gap-2">
-                            <span className="text-indigo-400 mt-1 shrink-0">•</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      <p className="text-[11px] font-bold text-[var(--muted)] uppercase tracking-widest mb-2 opacity-80">Job Type</p>
+                      <p className="font-bold text-[var(--text-primary)] text-sm md:text-base flex items-start gap-1.5">
+                        <Briefcase size={16} className="text-[#3442FF] shrink-0 mt-0.5"/> 
+                        <span className="leading-snug">{parseResult.type || "Full-time"}</span>
+                      </p>
                     </div>
-                  )}
-
-                  {parseResult.skills && parseResult.skills.length > 0 && (
                     <div>
-                      <h5 className="text-sm font-bold text-gray-900 mb-3">Skills</h5>
-                      <div className="flex flex-wrap gap-2">
-                        {parseResult.skills.map((skill, i) => (
-                          <span key={i} className="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-md text-[13px] font-medium border border-indigo-100/50">
-                            {skill}
-                          </span>
-                        ))}
+                      <p className="text-[11px] font-bold text-[var(--muted)] uppercase tracking-widest mb-2 opacity-80">Experience</p>
+                      <p className="font-bold text-[var(--text-primary)] text-sm md:text-base flex items-start gap-1.5">
+                        <Clock size={16} className="text-[#3442FF] shrink-0 mt-0.5"/> 
+                        <span className="leading-snug">{parseResult.experience || "Not specified"}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-[#e1e5ea]/60 dark:border-[#333538]/60 pt-6 mt-4 max-h-[360px] overflow-y-auto pr-4 space-y-8 custom-scrollbar">
+                    {parseResult.description && (
+                      <div>
+                        <h5 className="text-[15px] font-extrabold text-[var(--text-primary)] mb-3 flex items-center gap-2"><FileText size={18} className="text-[#3442FF]"/> Description</h5>
+                        <p className="text-[15px] text-[var(--muted)] leading-relaxed whitespace-pre-line font-medium">
+                          {parseResult.description}
+                        </p>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {parseResult.benefits && parseResult.benefits.length > 0 && (
-                    <div>
-                      <h5 className="text-sm font-bold text-gray-900 mb-3">Benefits</h5>
-                      <ul className="space-y-2">
-                        {parseResult.benefits.map((item, i) => (
-                          <li key={i} className="text-[14px] text-gray-600 flex items-start gap-2">
-                            <span className="text-emerald-500 mt-1 shrink-0">✓</span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                    {parseResult.responsibilities && parseResult.responsibilities.length > 0 && (
+                      <div>
+                        <h5 className="text-[15px] font-extrabold text-[var(--text-primary)] mb-4 flex items-center gap-2"><CheckCircle size={18} className="text-emerald-500"/> Responsibilities</h5>
+                        <ul className="space-y-3">
+                          {parseResult.responsibilities.map((item, i) => (
+                            <li key={i} className="text-[15px] text-[var(--muted)] font-medium flex items-start gap-3">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#3442FF] mt-2 shrink-0"></span>
+                              <span className="leading-relaxed">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {parseResult.requirements && parseResult.requirements.length > 0 && (
+                      <div>
+                        <h5 className="text-[15px] font-extrabold text-[var(--text-primary)] mb-4 flex items-center gap-2"><Shield size={18} className="text-rose-500"/> Requirements</h5>
+                        <ul className="space-y-3">
+                          {parseResult.requirements.map((item, i) => (
+                            <li key={i} className="text-[15px] text-[var(--muted)] font-medium flex items-start gap-3">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0"></span>
+                              <span className="leading-relaxed">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {parseResult.skills && parseResult.skills.length > 0 && (
+                      <div>
+                        <h5 className="text-[15px] font-extrabold text-[var(--text-primary)] mb-4 flex items-center gap-2"><Sparkles size={18} className="text-[#3442FF]"/> Skills</h5>
+                        <div className="flex flex-wrap gap-2.5">
+                          {parseResult.skills.map((skill, i) => (
+                            <span key={i} className="px-4 py-1.5 bg-[#3442FF]/10 text-[#3442FF] rounded-xl text-[14px] font-bold border border-transparent dark:bg-[#3442FF]/20">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {parseResult.benefits && parseResult.benefits.length > 0 && (
+                      <div>
+                        <h5 className="text-[15px] font-extrabold text-[var(--text-primary)] mb-4 flex items-center gap-2"><Sparkles size={18} className="text-emerald-500"/> Benefits</h5>
+                        <ul className="space-y-3">
+                          {parseResult.benefits.map((item, i) => (
+                            <li key={i} className="text-[15px] text-[var(--muted)] font-medium flex items-start gap-3">
+                              <span className="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                              <span className="leading-relaxed">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="bg-gray-50/80 backdrop-blur-sm px-6 py-4 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-gray-100">
-            <Button variant="ghost" onClick={() => setParseResult(null)} className="w-full sm:w-auto text-gray-500 hover:text-gray-900 py-2">
-              Discard
-            </Button>
-            <Button variant="primary" onClick={handleSaveJob} className="w-full sm:w-auto px-8 py-2">
-              Save
-            </Button>
-          </div>
-        </Card>
-      )}
-
-      {/* --- Toolbar: Search & Filter --- */}
-      <Card noPadding={true} className="overflow-hidden bg-white">
-        <div className="p-4 flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between bg-gray-50/30">
-          <div className="flex items-center gap-3 w-full lg:w-auto">
-            <div className="relative w-full sm:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-              <input
-                type="text"
-                placeholder="Search your jobs..."
-                className="surface-control pl-9 pr-4 py-2.5 text-sm w-full outline-none text-gray-800 placeholder-gray-400"
-              />
-            </div>
-          </div>
-          
-          <div className="flex-1 flex flex-wrap gap-2 items-center w-full lg:w-auto justify-start lg:justify-end">
-            <div className="flex items-center gap-2 text-gray-500 font-medium text-sm mr-1">
-              <Filter size={16} />
-              <span>Skills:</span>
-            </div>
-            {interestedRoles.map((role) => (
-              <span
-                key={role}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold border border-indigo-100 shadow-sm"
-              >
-                {role}
-                <button
-                  onClick={() => removeRole(role)}
-                  className="hover:text-indigo-900 p-0.5 rounded-md hover:bg-indigo-100 transition-colors"
-                >
-                  <X size={12} />
-                </button>
-              </span>
-            ))}
-            <div className="flex items-center relative min-w-[160px]">
-              <input
-                type="text"
-                value={roleInput}
-                onChange={(e) => setRoleInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addRole()}
-                placeholder="Add skill filter..."
-                className="surface-control w-full pl-3 pr-8 py-2 text-sm outline-none"
-              />
-              <button
-                onClick={addRole}
-                disabled={!roleInput.trim()}
-                className="absolute right-1 p-1 text-indigo-600 hover:bg-indigo-50 rounded-md disabled:opacity-50 transition-colors"
-              >
-                <Plus size={16} />
+            {/* Footer Actions */}
+            <div className="px-6 md:px-8 py-4 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-[#e1e5ea]/60 dark:border-[#333538]/60 bg-[#f0f4f9]/30 dark:bg-transparent">
+              <button onClick={() => setParseResult(null)} className="w-full sm:w-auto text-[var(--muted)] hover:text-[var(--text-primary)] hover:bg-[#e1e5ea]/30 dark:hover:bg-[#333538]/50 px-6 py-2.5 rounded-full font-bold transition-all text-sm">
+                Discard
+              </button>
+              <button onClick={handleSaveJob} className="w-full sm:w-auto px-8 py-2.5 bg-[#3442FF] hover:bg-[#3442FF]/90 text-white rounded-full font-bold text-sm transition-all shadow-md active:scale-95 flex items-center justify-center gap-2">
+                <CheckCircle size={16} /> Save Job
               </button>
             </div>
           </div>
         </div>
-      </Card>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_500px] gap-6 items-start mt-2">
+      {/* --- Toolbar: Search & Filter --- */}
+      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between px-2">
+        <div className="flex items-center gap-3 w-full lg:w-auto">
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <input
+              type="text"
+              placeholder="Search your jobs..."
+              className="w-full pl-10 pr-4 py-2.5 bg-[var(--surface-bg)] rounded-full text-sm focus:outline-none transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] border-transparent text-[var(--text-primary)]"
+            />
+          </div>
+        </div>
+        
+        <div className="flex-1 flex flex-wrap gap-2 items-center w-full lg:w-auto justify-start lg:justify-end">
+          <div className="flex items-center gap-2 text-[var(--muted)] font-medium text-sm mr-1">
+            <Filter size={16} />
+            <span>Skills:</span>
+          </div>
+          {interestedRoles.map((role) => (
+            <span
+              key={role}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#3442FF]/10 text-[#3442FF] rounded-lg text-xs font-bold border border-transparent shadow-sm dark:bg-[#3442FF]/20"
+            >
+              {role}
+              <button
+                onClick={() => removeRole(role)}
+                className="hover:bg-[#3442FF]/20 p-0.5 rounded-md transition-colors"
+              >
+                <X size={12} />
+              </button>
+            </span>
+          ))}
+          <div className="flex items-center relative min-w-[160px]">
+            <input
+              type="text"
+              value={roleInput}
+              onChange={(e) => setRoleInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addRole()}
+              placeholder="Add skill filter..."
+              className="w-full pl-4 pr-10 py-2.5 bg-[var(--surface-bg)] rounded-full text-sm focus:outline-none transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] border-transparent text-[var(--text-primary)]"
+            />
+            <button
+              onClick={addRole}
+              disabled={!roleInput.trim()}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-[#3442FF] hover:bg-[#3442FF]/10 rounded-full disabled:opacity-50 transition-colors"
+            >
+              <Plus size={16} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_500px] gap-6 items-start">
         
         {/* --- Job List --- */}
         <div className="space-y-4">
@@ -542,7 +533,7 @@ export default function Jobs({ setView, setSelectedJobId }) {
                     isSelected ? "bg-[#f0f4f9] shadow-sm" : "bg-white border border-[#e1e5ea]"
                   }`}
                 >
-                  {isSelected && <div className="absolute left-0 top-0 bottom-0 w-[5px] bg-[#3846e6] rounded-r-full z-10 opacity-80" />}
+                  {isSelected && <div className="absolute left-0 top-0 bottom-0 w-[5px] bg-[#3442FF] rounded-r-full z-10 opacity-80" />}
                   <button
                     type="button"
                     onClick={() => setSelectedJobIdLocal(job.id)}
@@ -640,7 +631,7 @@ export default function Jobs({ setView, setSelectedJobId }) {
                       <h3 className="text-[24px] font-normal text-[#1f1f1f] leading-snug tracking-tight">
                         {selectedJob.title}
                       </h3>
-                      <p className="text-[15px] text-[#3846e6] font-medium mt-1 tracking-wide">{selectedJob.company}</p>
+                      <p className="text-[15px] text-[#3442FF] font-medium mt-1 tracking-wide">{selectedJob.company}</p>
                     </div>
                   </div>
 
@@ -680,7 +671,7 @@ export default function Jobs({ setView, setSelectedJobId }) {
                   )}
 
                   <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-[#e1e5ea] border-opacity-60">
-                    <button onClick={() => handleApply(selectedJob)} className="w-full sm:flex-1 py-3 px-6 flex items-center justify-center gap-2 bg-[#3846e6] hover:bg-[#3846e6]/90 text-white rounded-full font-medium transition-all text-[14px] tracking-wide border-none shadow-none">
+                    <button onClick={() => handleApply(selectedJob)} className="w-full sm:flex-1 py-3 px-6 flex items-center justify-center gap-2 bg-[#3442FF] hover:bg-[#3442FF]/90 text-white rounded-full font-medium transition-all text-[14px] tracking-wide border-none shadow-none">
                       <ExternalLink size={16} /> Apply Now
                     </button>
                     <button
@@ -688,7 +679,7 @@ export default function Jobs({ setView, setSelectedJobId }) {
                         setSelectedJobId(selectedJob.id);
                         setView("job-detail");
                       }}
-                      className="w-full sm:flex-1 py-3 px-6 flex items-center justify-center gap-2 bg-[#3846e6] hover:bg-[#3846e6]/90 text-white rounded-full font-medium transition-all text-[14px] tracking-wide border-none shadow-none"
+                      className="w-full sm:flex-1 py-3 px-6 flex items-center justify-center gap-2 bg-[#3442FF] hover:bg-[#3442FF]/90 text-white rounded-full font-medium transition-all text-[14px] tracking-wide border-none shadow-none"
                     >
                       View full details
                     </button>

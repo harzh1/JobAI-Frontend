@@ -79,7 +79,7 @@ function formatResumeOptionDate(dateValue) {
 const Button = ({ children, onClick, variant = "primary", disabled, className = "", icon: Icon, type = "button" }) => {
   const baseStyle = "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
   const variants = {
-    primary: "bg-[#dde3ea] theme-dark:bg-[#333538] text-[#1f1f1f] theme-dark:text-[#e3e3e3] hover:bg-[#c9d3e0] py-2 px-4 shadow-none border-none",
+    primary: "bg-[#dde3ea] dark:bg-[#333538] text-[#1f1f1f] dark:text-[#e3e3e3] hover:bg-[#c9d3e0] py-2 px-4 shadow-none border-none",
     outline: "bg-gray-100/80 hover:bg-gray-200/80 py-2 px-4 border-none shadow-none text-gray-700",
   };
   return (
@@ -284,7 +284,7 @@ export default function Applications({ setView, setSelectedJobId }) {
 
                 {/* Column Dropzone / Cards Area without backgrounds */}
                 <div 
-                  className={`flex-1 overflow-y-auto flex flex-col gap-3 min-h-[150px] transition-all p-1 pb-4 rounded-xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${dragOverCol === column.key ? 'bg-[#3846e6]/5 border border-[#3846e6]/30' : ''}`}
+                  className={`flex-1 overflow-y-auto flex flex-col gap-3 min-h-[150px] transition-all p-1 pb-4 rounded-xl [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${dragOverCol === column.key ? 'bg-[#3442FF]/5 border border-[#3442FF]/30' : ''}`}
                   onDragOver={(e) => {
                     e.preventDefault();
                     setDragOverCol(column.key);
@@ -713,7 +713,7 @@ function ApplicationFormModal({ title, submitLabel, initialData, onClose, onSubm
           <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Job Title <span className="text-red-500">*</span></label>
           <div className="relative">
             <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input required type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full pl-11 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:bg-white focus:ring-4 focus:ring-[#3846e6]/10 focus:border-[#3846e6] transition-all outline-none" placeholder="e.g. Senior Product Designer" />
+            <input required type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full pl-11 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:bg-white focus:ring-4 focus:ring-[#3442FF]/10 focus:border-[#3442FF] transition-all outline-none" placeholder="e.g. Senior Product Designer" />
           </div>
         </div>
         
@@ -722,14 +722,14 @@ function ApplicationFormModal({ title, submitLabel, initialData, onClose, onSubm
             <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Company Name <span className="text-red-500">*</span></label>
             <div className="relative">
               <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input required type="text" value={formData.company} onChange={e => setFormData({...formData, company: e.target.value})} className="w-full pl-11 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:bg-white focus:ring-4 focus:ring-[#3846e6]/10 focus:border-[#3846e6] transition-all outline-none" placeholder="e.g. Google" />
+              <input required type="text" value={formData.company} onChange={e => setFormData({...formData, company: e.target.value})} className="w-full pl-11 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:bg-white focus:ring-4 focus:ring-[#3442FF]/10 focus:border-[#3442FF] transition-all outline-none" placeholder="e.g. Google" />
             </div>
           </div>
           <div>
             <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Company Website</label>
             <div className="relative">
               <Link2 className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input type="text" value={formData.companyWebsite || ""} onChange={e => setFormData({...formData, companyWebsite: e.target.value})} className="w-full pl-11 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:bg-white focus:ring-4 focus:ring-[#3846e6]/10 focus:border-[#3846e6] transition-all outline-none" placeholder="google.com" />
+              <input type="text" value={formData.companyWebsite || ""} onChange={e => setFormData({...formData, companyWebsite: e.target.value})} className="w-full pl-11 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:bg-white focus:ring-4 focus:ring-[#3442FF]/10 focus:border-[#3442FF] transition-all outline-none" placeholder="google.com" />
             </div>
           </div>
         </div>
@@ -739,14 +739,14 @@ function ApplicationFormModal({ title, submitLabel, initialData, onClose, onSubm
             <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Location</label>
             <div className="relative">
               <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input type="text" value={formData.location || ""} onChange={e => setFormData({...formData, location: e.target.value})} className="w-full pl-11 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:bg-white focus:ring-4 focus:ring-[#3846e6]/10 focus:border-[#3846e6] transition-all outline-none" placeholder="Remote, NYC..." />
+              <input type="text" value={formData.location || ""} onChange={e => setFormData({...formData, location: e.target.value})} className="w-full pl-11 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:bg-white focus:ring-4 focus:ring-[#3442FF]/10 focus:border-[#3442FF] transition-all outline-none" placeholder="Remote, NYC..." />
             </div>
           </div>
           <div>
             <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Salary / Compensation</label>
             <div className="relative">
               <DollarSign className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <input type="text" value={formData.salary || ""} onChange={e => setFormData({...formData, salary: e.target.value})} className="w-full pl-11 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:bg-white focus:ring-4 focus:ring-[#3846e6]/10 focus:border-[#3846e6] transition-all outline-none" placeholder="$120k - $150k" />
+              <input type="text" value={formData.salary || ""} onChange={e => setFormData({...formData, salary: e.target.value})} className="w-full pl-11 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:bg-white focus:ring-4 focus:ring-[#3442FF]/10 focus:border-[#3442FF] transition-all outline-none" placeholder="$120k - $150k" />
             </div>
           </div>
         </div>
@@ -755,7 +755,7 @@ function ApplicationFormModal({ title, submitLabel, initialData, onClose, onSubm
           <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Job Posting URL</label>
           <div className="relative">
             <ExternalLink className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input type="url" value={formData.sourceUrl || ""} onChange={e => setFormData({...formData, sourceUrl: e.target.value})} className="w-full pl-11 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:bg-white focus:ring-4 focus:ring-[#3846e6]/10 focus:border-[#3846e6] transition-all outline-none" placeholder="https://..." />
+            <input type="url" value={formData.sourceUrl || ""} onChange={e => setFormData({...formData, sourceUrl: e.target.value})} className="w-full pl-11 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:bg-white focus:ring-4 focus:ring-[#3442FF]/10 focus:border-[#3442FF] transition-all outline-none" placeholder="https://..." />
           </div>
         </div>
 
@@ -764,7 +764,7 @@ function ApplicationFormModal({ title, submitLabel, initialData, onClose, onSubm
             <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Resume Used</label>
             <div className="relative">
               <FileText className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-              <select value={formData.resumeId || ""} onChange={e => setFormData({...formData, resumeId: e.target.value})} className="w-full pl-11 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:ring-4 focus:ring-[#3846e6]/10 focus:border-[#3846e6] appearance-none transition-all outline-none shadow-sm cursor-pointer">
+              <select value={formData.resumeId || ""} onChange={e => setFormData({...formData, resumeId: e.target.value})} className="w-full pl-11 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-[14px] text-gray-900 focus:ring-4 focus:ring-[#3442FF]/10 focus:border-[#3442FF] appearance-none transition-all outline-none shadow-sm cursor-pointer">
                 <option value="">Select a resume...</option>
                 {resumes.map((resume) => {
                   const uploadDate = formatResumeOptionDate(resume.uploadedAt || resume.createdAt);
@@ -782,7 +782,7 @@ function ApplicationFormModal({ title, submitLabel, initialData, onClose, onSubm
           <div>
             <label className="block text-[13px] font-bold text-gray-700 mb-1.5">Current Status</label>
             <div className="relative">
-              <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-[14px] font-medium text-gray-900 focus:ring-4 focus:ring-[#3846e6]/10 focus:border-[#3846e6] appearance-none transition-all outline-none shadow-sm cursor-pointer">
+              <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-[14px] font-medium text-gray-900 focus:ring-4 focus:ring-[#3442FF]/10 focus:border-[#3442FF] appearance-none transition-all outline-none shadow-sm cursor-pointer">
                 {BOARD_COLUMNS.map(col => <option key={col.key} value={col.key}>{col.label}</option>)}
               </select>
               <ChevronDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -792,7 +792,7 @@ function ApplicationFormModal({ title, submitLabel, initialData, onClose, onSubm
 
         <div className="pt-2 flex gap-3 mt-4">
           <Button variant="ghost" onClick={onClose} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-bold">Cancel</Button>
-          <Button type="submit" variant="primary" disabled={loading} className="flex-1 bg-[#3846e6] hover:bg-[#2834b3] text-white py-3 rounded-xl font-bold shadow-md shadow-[#3846e6]/20 disabled:opacity-70">
+          <Button type="submit" variant="primary" disabled={loading} className="flex-1 bg-[#3442FF] hover:bg-[#2834b3] text-white py-3 rounded-xl font-bold shadow-md shadow-[#3442FF]/20 disabled:opacity-70">
             {loading ? <Loader2 size={16} className="animate-spin mx-auto" /> : submitLabel}
           </Button>
         </div>
