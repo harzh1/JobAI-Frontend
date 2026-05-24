@@ -85,10 +85,10 @@ export default function Dashboard({ setShowAIModal, setView }) {
               )}
             </div>
             <div>
-              <div className="text-3xl font-medium text-gray-900 dark:text-gray-100 tracking-tight">
+              <div className="text-3xl font-medium text-[var(--text-primary)] tracking-tight">
                 {activeApplications.length}
               </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+              <div className="text-sm text-[var(--muted)] font-medium">
                 Active Applications
               </div>
             </div>
@@ -100,10 +100,10 @@ export default function Dashboard({ setShowAIModal, setView }) {
               </div>
             </div>
             <div>
-              <div className="text-3xl font-medium text-gray-900 dark:text-gray-100 tracking-tight">
+              <div className="text-3xl font-medium text-[var(--text-primary)] tracking-tight">
                 {responseRate}%
               </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+              <div className="text-sm text-[var(--muted)] font-medium">
                 Response Rate
               </div>
             </div>
@@ -115,10 +115,10 @@ export default function Dashboard({ setShowAIModal, setView }) {
               </div>
             </div>
             <div>
-              <div className="text-3xl font-medium text-gray-900 dark:text-gray-100 tracking-tight">
+              <div className="text-3xl font-medium text-[var(--text-primary)] tracking-tight">
                 {stats.resumeCount || 0}
               </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+              <div className="text-sm text-[var(--muted)] font-medium">
                 Resumes Uploaded
               </div>
             </div>
@@ -129,7 +129,7 @@ export default function Dashboard({ setShowAIModal, setView }) {
 
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 tracking-tight">
+            <h3 className="text-lg font-medium text-[var(--text-primary)] tracking-tight">
               Recent Applications
             </h3>
             <Button
@@ -140,10 +140,10 @@ export default function Dashboard({ setShowAIModal, setView }) {
               View All
             </Button>
           </div>
-          <Card noPadding className="overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.04)] ring-1 ring-[#e1e5ea] dark:ring-[#333538]/50 border-none rounded-[32px]">
+          <Card noPadding className="overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.04)] ring-1 ring-[var(--surface-border)] border-none rounded-[32px]">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[600px]">
-                <thead className="bg-[#f0f4f9]/50 dark:bg-[#1e1f20]/50 text-[11px] font-bold text-[var(--muted)] uppercase tracking-widest border-b border-[#e1e5ea] dark:border-[#333538]/50">
+                <thead className="bg-[var(--surface-border)] text-[11px] font-bold text-[var(--muted)] uppercase tracking-widest border-b border-[var(--surface-border)]">
                   <tr>
                     <th className="px-6 py-5">Company</th>
                     <th className="px-6 py-5">Role</th>
@@ -151,7 +151,7 @@ export default function Dashboard({ setShowAIModal, setView }) {
                     <th className="px-6 py-5">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#e1e5ea] dark:divide-[#333538]/50">
+                <tbody className="divide-y divide-[var(--surface-border)]">
                   {applications.length === 0 ? (
                     <tr>
                       <td colSpan="4" className="px-6 py-12 text-center text-[var(--muted)] font-medium">
@@ -172,10 +172,10 @@ export default function Dashboard({ setShowAIModal, setView }) {
                       })();
 
                       return (
-                        <tr key={app.id} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors group cursor-pointer">
+                        <tr key={app.id} className="hover:bg-[var(--surface-border)] transition-colors group cursor-pointer">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-4">
-                              <div className={`w-10 h-10 rounded-[14px] flex items-center justify-center text-sm ring-1 ring-black/5 dark:ring-white/10 overflow-hidden bg-white dark:bg-[#282a2c] shadow-sm`}>
+                              <div className={`w-10 h-10 rounded-[14px] flex items-center justify-center text-sm ring-1 ring-[var(--surface-border)] overflow-hidden bg-[var(--surface-bg)] shadow-sm`}>
                                 {companyDomain ? (
                                   <img
                                     src={`https://www.google.com/s2/favicons?domain=${companyDomain}&sz=128`}

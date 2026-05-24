@@ -144,13 +144,13 @@ export default function Sidebar({
         <button
           onClick={() => setView("user-profile")}
           title={isCollapsed ? "Profile" : undefined}
-          className={`w-full text-left rounded-full transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${
+          className={`w-full text-left rounded-full transition-colors hover:bg-[var(--surface-border)] ${
             isCollapsed
               ? "flex items-center justify-center h-11"
               : "flex items-center gap-3 px-3 py-2.5"
           }`}
         >
-          <div className="w-8 h-8 rounded-full bg-[#f0f4f9] group-hover:bg-white flex items-center justify-center border border-[var(--surface-border)] text-[#1f1f1f] text-xs font-semibold dark:bg-[#1e1f20] dark:border-[#333538] dark:text-[#e3e3e3]">
+          <div className="w-8 h-8 rounded-full bg-[var(--surface-border)] group-hover:bg-[var(--surface-bg)] flex items-center justify-center border border-[var(--surface-border)] text-[var(--text-primary)] text-xs font-semibold">
             {user && user.displayName ? user.displayName.charAt(0) : "?"}
           </div>
           {!isCollapsed && (

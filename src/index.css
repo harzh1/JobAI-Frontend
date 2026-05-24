@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@theme {
+  --variant-dark: (&:where(.theme-dark, .theme-dark *));
+}
 /* Google Sans is loaded from index.html (Google Fonts) */
 
 *,
@@ -41,6 +44,7 @@ button {
   --muted: #444746;
   --primary-blue: #3442FF; /* Google primary blue */
   --icon-color: #444746;
+  --nav-active-bg: #dde3ea;
   /* Ensure Tailwind's --font-sans variable resolves to Google Sans */
   --font-sans: "Google Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
@@ -54,6 +58,7 @@ button {
   --muted: #8e918f;
   --primary-blue: #a8c7fa; /* Google primary blue for dark mode */
   --icon-color: #c4c7c5;
+  --nav-active-bg: #333538;
 }
 
 body {
