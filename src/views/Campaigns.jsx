@@ -118,7 +118,11 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
   const [isLoadingCampaignData, setIsLoadingCampaignData] = useState(false);
   
   // Navigation
-  const [viewState, setViewState] = useState(isNewView ? "new-campaign" : "campaigns"); 
+  const [viewState, setViewState] = useState(() => {
+    if (isNewView) return "new-campaign";
+    const params = new URLSearchParams(window.location.search);
+    return params.get("tab") || "campaigns";
+  }); 
   const [editingTemplate, setEditingTemplate] = useState(null); 
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
