@@ -115,18 +115,18 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
   const [resumes, setResumes] = useState([]);
   const [isLoadingResumes, setIsLoadingResumes] = useState(false);
   const [connecting, setConnecting] = useState(null);
-  
+
   const [templates, setTemplates] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [isLoadingCampaignData, setIsLoadingCampaignData] = useState(false);
-  
+
   // Navigation
   const [viewState, setViewState] = useState(() => {
     if (isNewView) return "new-campaign";
     const params = new URLSearchParams(window.location.search);
     return params.get("tab") || "campaigns";
-  }); 
-  const [editingTemplate, setEditingTemplate] = useState(null); 
+  });
+  const [editingTemplate, setEditingTemplate] = useState(null);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [selectedAccountForSettings, setSelectedAccountForSettings] = useState(null);
@@ -186,11 +186,11 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
       if (c && (c.status === 'Active' || c.status === 'Paused')) {
         const newStatus = c.status === 'Active' ? 'Paused' : 'Active';
         await updateCampaignStatus(id, newStatus);
-        
+
         if (selectedCampaign && selectedCampaign.id === id) {
-           setSelectedCampaign(prev => ({ ...prev, status: newStatus }));
+          setSelectedCampaign(prev => ({ ...prev, status: newStatus }));
         }
-        
+
         setCampaigns(prev => prev.map(camp => {
           if (camp.id === id) {
             return { ...camp, status: newStatus };
@@ -207,7 +207,7 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
     try {
       setConnecting('Launching...');
       const response = await createCampaign(campaignData);
-      
+
       const newCampaign = {
         id: response.id || `campaign-${Date.now()}`,
         ...campaignData,
@@ -215,11 +215,11 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
         sent: 0,
         createdAt: new Date().toISOString()
       };
-      
+
       setCampaigns(prev => [newCampaign, ...prev]);
       setViewState("campaigns");
       setSelectedCampaign(newCampaign);
-      setViewState("campaign-details");
+      setViewState("campaign-detail");
     } catch (error) {
       console.error("Failed to create campaign", error);
       alert("Failed to create campaign: " + error.message);
@@ -232,16 +232,16 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
     try {
       setConnecting('Saving...');
       await updateCampaign(selectedCampaign.id, campaignData);
-      
+
       setCampaigns(prev => prev.map(camp => {
         if (camp.id === selectedCampaign.id) {
           return { ...camp, ...campaignData };
         }
         return camp;
       }));
-      
+
       setSelectedCampaign(prev => ({ ...prev, ...campaignData }));
-      setViewState("campaign-details");
+      setViewState("campaign-detail");
     } catch (error) {
       console.error("Failed to update campaign", error);
       alert("Failed to update campaign: " + error.message);
@@ -253,11 +253,11 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
   const handleResendCampaign = async (id, accountId = null) => {
     try {
       await resendCampaign(id, accountId);
-      
+
       if (selectedCampaign && selectedCampaign.id === id) {
-         setSelectedCampaign(prev => ({ ...prev, status: 'Active', sent: 0, ...(accountId ? { accountId } : {}) }));
+        setSelectedCampaign(prev => ({ ...prev, status: 'Active', sent: 0, ...(accountId ? { accountId } : {}) }));
       }
-      
+
       setCampaigns(prev => prev.map(camp => {
         if (camp.id === id) {
           return { ...camp, status: 'Active', sent: 0, ...(accountId ? { accountId } : {}) };
@@ -274,7 +274,7 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
     try {
       const campaignsWithHistory = campaigns.filter(c => c.history && c.history.length > 0);
       await Promise.all(campaignsWithHistory.map(c => updateCampaign(c.id, { history: [] })));
-      
+
       setCampaigns(prev => prev.map(c => ({ ...c, history: [] })));
     } catch (error) {
       console.error("Failed to clear history", error);
@@ -290,8 +290,8 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
       const firstTemplate = templates.find(t => t.id === c.sequence?.[0]?.templateId);
       const subject = firstTemplate ? firstTemplate.subject : (c.subject || "");
       const title = c.title || c.name || "";
-      const matchesSearch = title.toLowerCase().includes(campaignSearch.toLowerCase()) || 
-                            subject.toLowerCase().includes(campaignSearch.toLowerCase());
+      const matchesSearch = title.toLowerCase().includes(campaignSearch.toLowerCase()) ||
+        subject.toLowerCase().includes(campaignSearch.toLowerCase());
       const matchesStatus = campaignStatusFilter === "All" || c.status === campaignStatusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -304,8 +304,8 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
 
   const filteredTemplates = useMemo(() => {
     return templates.filter(t => {
-      const matchesSearch = t.name.toLowerCase().includes(templateSearch.toLowerCase()) || 
-                            t.subject.toLowerCase().includes(templateSearch.toLowerCase());
+      const matchesSearch = t.name.toLowerCase().includes(templateSearch.toLowerCase()) ||
+        t.subject.toLowerCase().includes(templateSearch.toLowerCase());
       const folder = t.folder || "Uncategorized";
       const matchesFolder = templateFolderFilter === "All" || folder === templateFolderFilter;
       return matchesSearch && matchesFolder;
@@ -333,13 +333,16 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
   if (viewState === "campaign-detail") {
     return (
       <>
-        <CampaignDetailView 
+        <CampaignDetailsView
           campaign={selectedCampaign}
+          templates={templates}
+          resumes={resumes}
+          accounts={accounts}
           onBack={() => {
             setSelectedCampaign(null);
             setViewState("campaigns");
           }}
-          onStatusChange={async (newStatus) => {
+          onToggleStatus={async (newStatus) => {
             await updateCampaignStatus(selectedCampaign.id, newStatus);
             setSelectedCampaign(prev => ({ ...prev, status: newStatus }));
             setCampaigns(prev => prev.map(c => c.id === selectedCampaign.id ? { ...c, status: newStatus } : c));
@@ -354,7 +357,7 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
           onEdit={() => setViewState("edit-campaign")}
           onDelete={() => setShowDeleteCampaignConfirm(true)}
         />
-        
+
         <ConfirmDialog
           open={showDeleteCampaignConfirm}
           title="Delete campaign?"
@@ -366,7 +369,7 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
               setCampaigns(prev => prev.filter(c => c.id !== selectedCampaign.id));
               setSelectedCampaign(null);
               setViewState("campaigns");
-            } catch(e) {
+            } catch (e) {
               console.error("Failed to delete campaign:", e);
               alert("Failed to delete campaign. Please try again.");
             } finally {
@@ -381,7 +384,7 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
 
   if (viewState === "builder") {
     return (
-      <EmailTemplateBuilder 
+      <EmailTemplateBuilder
         template={editingTemplate}
         resumes={resumes}
         accounts={accounts}
@@ -404,20 +407,20 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
 
   if (viewState === "new-campaign") {
     return (
-      <NewCampaignBuilder 
+      <NewCampaignBuilder
         templates={templates}
         accounts={accounts}
         resumes={resumes}
         onCancel={() => {
-            setViewState("campaigns");
-            if(setView) setView("campaigns"); // reset parent view if needed
+          setViewState("campaigns");
+          if (setView) setView("campaigns"); // reset parent view if needed
         }}
         onSend={async (data) => {
           try {
             const res = await createCampaign(data);
             setCampaigns([res, ...campaigns]);
             setViewState("campaigns");
-            if(setView) setView("campaigns");
+            if (setView) setView("campaigns");
           } catch (e) { console.error(e); }
         }}
       />
@@ -426,13 +429,13 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
 
   if (viewState === "edit-campaign") {
     return (
-      <NewCampaignBuilder 
+      <NewCampaignBuilder
         initialData={selectedCampaign}
         templates={templates}
         accounts={accounts}
         resumes={resumes}
-        onCancel={() => setViewState("campaign-details")} 
-        onSend={handleEditCampaign} 
+        onCancel={() => setViewState("campaign-detail")}
+        onSend={handleEditCampaign}
       />
     );
   }
@@ -447,9 +450,9 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
           { id: 'accounts', label: 'Sender Accounts' },
           { id: 'history', label: 'Activity History' }
         ].map(tab => (
-          <button 
+          <button
             key={tab.id}
-            onClick={() => setViewState(tab.id)} 
+            onClick={() => setViewState(tab.id)}
             className={`relative px-5 py-2.5 rounded-full text-[14px] font-medium transition-colors duration-300 ${viewState === tab.id ? 'text-[#1f1f1f]' : 'text-[#444746] hover:text-[#1f1f1f] hover:bg-black/5'}`}
           >
             {viewState === tab.id && (
@@ -509,81 +512,81 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
               const title = camp.title || camp.name || "Untitled Campaign";
 
               return (
-              <LocalCard key={camp.id} noPadding={true} onClick={() => { setSelectedCampaign(camp); setViewState("campaign-details"); }} className="flex flex-col cursor-pointer group hover:ring-2 hover:ring-[#eaf1fb] transition-all duration-300 p-5">
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex-1 min-w-0 pr-3">
-                    <h3 className="text-base font-bold text-gray-800 truncate tracking-tight group-hover:text-[#4285F4] transition-colors" title={title}>{title}</h3>
-                    <p className="text-[11px] text-gray-500 mt-1 font-medium flex items-center gap-1.5">
-                      <Calendar size={12} className="text-gray-400"/> {formatDate(camp.createdAt || camp.date)}
-                    </p>
-                  </div>
-                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 ${
-                    camp.status === 'Active' ? 'bg-[#eaf1fb] text-[#4285F4]' : 
-                    camp.status === 'Paused' ? 'bg-amber-50 text-amber-600' :
-                    camp.status === 'Failed' ? 'bg-red-50 text-red-600' :
-                    camp.status === 'Stopped' ? 'bg-slate-100 text-slate-600' :
-                    camp.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
-                    'bg-gray-100 text-gray-600'
-                  }`}>
-                    {camp.status === 'Active' && <span className="w-1.5 h-1.5 rounded-full bg-[#4285F4] mr-1.5 animate-pulse"></span>}
-                    {camp.status}
-                  </span>
-                </div>
-                
-                <div className="bg-gray-50/50 rounded-xl p-3 mb-4 mt-1 border border-gray-100/50 group-hover:bg-[#f8fafd] transition-colors">
-                  <p className="text-[13px] text-gray-700 line-clamp-1 mb-2 font-medium" title={firstTemplate?.subject || camp.subject}>
-                    <span className="text-gray-400 font-normal">Subj:</span> {firstTemplate?.subject || camp.subject || "No subject"}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] font-medium text-gray-600">
-                    <span className="flex items-center gap-1"><ListTree size={12} className="text-[#9b72cb]"/> {camp.sequence?.length || 1} Steps</span>
-                    {camp.dailyLimit > 0 && <span className="flex items-center gap-1"><Flame size={12} className="text-orange-400"/> {camp.dailyLimit}/day</span>}
-                    {(firstTemplate?.resumeId || camp.resumeId) && <span className="flex items-center gap-1 text-[#4285F4]"><Paperclip size={12}/> Attached</span>}
-                  </div>
-                </div>
-
-                <div className="mt-auto">
-                  {camp.status === 'Failed' && camp.error && (
-                    <div className="mb-3 text-[11px] text-red-600 bg-red-50 p-2 rounded-lg border border-red-100/50 flex items-start gap-1.5">
-                      <AlertCircle size={12} className="shrink-0 mt-0.5" />
-                      <span>{camp.error}</span>
+                <LocalCard key={camp.id} noPadding={true} onClick={() => { setSelectedCampaign(camp); setViewState("campaign-detail"); }} className="flex flex-col cursor-pointer group hover:ring-2 hover:ring-[#eaf1fb] transition-all duration-300 p-5">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1 min-w-0 pr-3">
+                      <h3 className="text-base font-bold text-gray-800 truncate tracking-tight group-hover:text-[#4285F4] transition-colors" title={title}>{title}</h3>
+                      <p className="text-[11px] text-gray-500 mt-1 font-medium flex items-center gap-1.5">
+                        <Calendar size={12} className="text-gray-400" /> {formatDate(camp.createdAt || camp.date)}
+                      </p>
                     </div>
-                  )}
-                  <div className="flex items-center justify-between text-[13px] mb-4 pb-4 border-b border-gray-100/50">
-                    <div className="flex items-center gap-1.5 text-gray-500 font-medium"><Users size={14}/> Total Sent</div>
-                    <div className="font-bold text-gray-800 text-sm">{camp.sent || camp.count || 0}</div>
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 ${camp.status === 'Active' ? 'bg-[#eaf1fb] text-[#4285F4]' :
+                        camp.status === 'Paused' ? 'bg-amber-50 text-amber-600' :
+                          camp.status === 'Failed' ? 'bg-red-50 text-red-600' :
+                            camp.status === 'Stopped' ? 'bg-slate-100 text-slate-600' :
+                              camp.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
+                                'bg-gray-100 text-gray-600'
+                      }`}>
+                      {camp.status === 'Active' && <span className="w-1.5 h-1.5 rounded-full bg-[#4285F4] mr-1.5 animate-pulse"></span>}
+                      {camp.status}
+                    </span>
                   </div>
-          
-                  <div className="grid grid-cols-2 gap-4">
-                     <div>
-                       <div className="flex justify-between items-end mb-1.5">
-                         <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Opens</span>
-                         <span className="text-[12px] font-bold text-[#4285F4]">{openRate}%</span>
-                       </div>
-                       <div className="w-full bg-blue-50/50 rounded-full h-1 overflow-hidden">
-                         <div className="bg-gradient-to-r from-[#4285F4] to-[#8ab4f8] h-1 rounded-full transition-all duration-500" style={{ width: `${openRate}%` }}></div>
-                       </div>
-                     </div>
-                     
-                     <div>
-                       <div className="flex justify-between items-end mb-1.5">
-                         <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Replies</span>
-                         <span className="text-[12px] font-bold text-[#9b72cb]">{replyRate}%</span>
-                       </div>
-                       <div className="w-full bg-purple-50/50 rounded-full h-1 overflow-hidden">
-                         <div className="bg-gradient-to-r from-[#9b72cb] to-[#c4a9eb] h-1 rounded-full transition-all duration-500" style={{ width: `${replyRate}%` }}></div>
-                       </div>
-                     </div>
+
+                  <div className="bg-gray-50/50 rounded-xl p-3 mb-4 mt-1 border border-gray-100/50 group-hover:bg-[#f8fafd] transition-colors">
+                    <p className="text-[13px] text-gray-700 line-clamp-1 mb-2 font-medium" title={firstTemplate?.subject || camp.subject}>
+                      <span className="text-gray-400 font-normal">Subj:</span> {firstTemplate?.subject || camp.subject || "No subject"}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] font-medium text-gray-600">
+                      <span className="flex items-center gap-1"><ListTree size={12} className="text-[#9b72cb]" /> {camp.sequence?.length || 1} Steps</span>
+                      {camp.dailyLimit > 0 && <span className="flex items-center gap-1"><Flame size={12} className="text-orange-400" /> {camp.dailyLimit}/day</span>}
+                      {(firstTemplate?.resumeId || camp.resumeId) && <span className="flex items-center gap-1 text-[#4285F4]"><Paperclip size={12} /> Attached</span>}
+                    </div>
                   </div>
-                </div>
-              </LocalCard>
-            )})}
-            
+
+                  <div className="mt-auto">
+                    {camp.status === 'Failed' && camp.error && (
+                      <div className="mb-3 text-[11px] text-red-600 bg-red-50 p-2 rounded-lg border border-red-100/50 flex items-start gap-1.5">
+                        <AlertCircle size={12} className="shrink-0 mt-0.5" />
+                        <span>{camp.error}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between text-[13px] mb-4 pb-4 border-b border-gray-100/50">
+                      <div className="flex items-center gap-1.5 text-gray-500 font-medium"><Users size={14} /> Total Sent</div>
+                      <div className="font-bold text-gray-800 text-sm">{camp.sent || camp.count || 0}</div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <div className="flex justify-between items-end mb-1.5">
+                          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Opens</span>
+                          <span className="text-[12px] font-bold text-[#4285F4]">{openRate}%</span>
+                        </div>
+                        <div className="w-full bg-blue-50/50 rounded-full h-1 overflow-hidden">
+                          <div className="bg-gradient-to-r from-[#4285F4] to-[#8ab4f8] h-1 rounded-full transition-all duration-500" style={{ width: `${openRate}%` }}></div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-end mb-1.5">
+                          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Replies</span>
+                          <span className="text-[12px] font-bold text-[#9b72cb]">{replyRate}%</span>
+                        </div>
+                        <div className="w-full bg-purple-50/50 rounded-full h-1 overflow-hidden">
+                          <div className="bg-gradient-to-r from-[#9b72cb] to-[#c4a9eb] h-1 rounded-full transition-all duration-500" style={{ width: `${replyRate}%` }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </LocalCard>
+              )
+            })}
+
             {filteredCampaigns.length === 0 && (
-               <div className="col-span-full py-12 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 text-gray-500">
-                 <Search size={32} className="text-gray-400 mb-3" />
-                 <h3 className="text-gray-900 font-bold">No campaigns found</h3>
-                 <p className="text-sm">Try adjusting your search or filter criteria, or create a new campaign.</p>
-               </div>
+              <div className="col-span-full py-12 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 text-gray-500">
+                <Search size={32} className="text-gray-400 mb-3" />
+                <h3 className="text-gray-900 font-bold">No campaigns found</h3>
+                <p className="text-sm">Try adjusting your search or filter criteria, or create a new campaign.</p>
+              </div>
             )}
           </div>
         </>
@@ -637,7 +640,7 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                     <h3 className="text-[15px] font-bold text-gray-800">{folderName}</h3>
                     <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{folderTemplates.length}</span>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                     {folderTemplates.map(template => (
                       <LocalCard key={template.id} noPadding className="flex flex-col hover:border-[#4285F4]/30 hover:ring-2 hover:ring-[#eaf1fb] transition-all duration-300 group">
@@ -656,8 +659,8 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                         <div className="px-6 py-4 border-t border-gray-50 bg-gray-50/30 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
                           <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Click to edit</span>
                           <div className="flex items-center gap-2">
-                            <button 
-                              onClick={async (e) => { e.stopPropagation(); await deleteTemplate(template.id); setTemplates(templates.filter(t => t.id !== template.id)); }} 
+                            <button
+                              onClick={async (e) => { e.stopPropagation(); await deleteTemplate(template.id); setTemplates(templates.filter(t => t.id !== template.id)); }}
                               className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
                               title="Delete"
                             >
@@ -671,11 +674,11 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                 </div>
               ))
             ) : (
-               <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 text-gray-500">
-                 <Search size={32} className="text-gray-400 mb-3" />
-                 <h3 className="text-gray-900 font-bold">No templates found</h3>
-                 <p className="text-sm">Try adjusting your search or folder filter.</p>
-               </div>
+              <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50 text-gray-500">
+                <Search size={32} className="text-gray-400 mb-3" />
+                <h3 className="text-gray-900 font-bold">No templates found</h3>
+                <p className="text-sm">Try adjusting your search or folder filter.</p>
+              </div>
             )}
           </div>
         </>
@@ -700,9 +703,8 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                       <p className="text-[12px] text-gray-500">{acc.email}</p>
                     </div>
                   </div>
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 ${
-                    acc.status === 'Connected' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
-                  }`}>
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 ${acc.status === 'Connected' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'
+                    }`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${acc.status === 'Connected' ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`}></span>
                     {acc.status}
                   </span>
@@ -712,9 +714,9 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                   <div className="flex justify-between items-center text-[13px]">
                     <span className="text-gray-500 font-medium">Provider</span>
                     <span className="font-bold text-gray-700 flex items-center gap-1.5 bg-white px-2 py-0.5 rounded-md shadow-sm border border-gray-100">
-                      {acc.provider === 'Google' ? <Mail size={12} className="text-red-500"/> : 
-                       acc.provider === 'Microsoft' ? <Mail size={12} className="text-blue-500"/> : 
-                       <Server size={12} className="text-gray-500"/>}
+                      {acc.provider === 'Google' ? <Mail size={12} className="text-red-500" /> :
+                        acc.provider === 'Microsoft' ? <Mail size={12} className="text-blue-500" /> :
+                          <Server size={12} className="text-gray-500" />}
                       {acc.provider}
                     </span>
                   </div>
@@ -735,32 +737,32 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
 
                 <div className="mt-auto grid grid-cols-2 gap-3">
                   <LocalButton variant="outline" onClick={() => setSelectedAccountForSettings(acc)} className="w-full text-[13px] py-1.5 px-0 h-auto">
-                    <Settings2 size={14} className="mr-1.5"/> Settings
+                    <Settings2 size={14} className="mr-1.5" /> Settings
                   </LocalButton>
                   <LocalButton variant="ghost" onClick={async () => { await deleteAccount(acc.id); setAccounts(accounts.filter(a => a.id !== acc.id)); }} className="w-full text-[13px] py-1.5 px-0 h-auto text-red-500 hover:text-red-600 hover:bg-red-50">
-                    <LogOut size={14} className="mr-1.5"/> Disconnect
+                    <LogOut size={14} className="mr-1.5" /> Disconnect
                   </LocalButton>
                 </div>
               </LocalCard>
             ))}
           </div>
-          
-          <ConnectAccountModal 
-            isOpen={isConnectModalOpen} 
-            onClose={() => setIsConnectModalOpen(false)} 
+
+          <ConnectAccountModal
+            isOpen={isConnectModalOpen}
+            onClose={() => setIsConnectModalOpen(false)}
             onConnect={async (newAcc) => {
               try {
                 const res = await connectAccount(newAcc);
                 setAccounts([...accounts, res]);
                 setIsConnectModalOpen(false);
               } catch (e) { console.error(e); }
-            }} 
+            }}
           />
-          
-          <AccountSettingsModal 
-            isOpen={!!selectedAccountForSettings} 
+
+          <AccountSettingsModal
+            isOpen={!!selectedAccountForSettings}
             account={selectedAccountForSettings}
-            onClose={() => setSelectedAccountForSettings(null)} 
+            onClose={() => setSelectedAccountForSettings(null)}
             onSave={async (id, updates) => {
               try {
                 const res = await updateAccount(id, updates);
@@ -770,14 +772,14 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                 console.error(e);
                 alert("Failed to save settings.");
               }
-            }} 
+            }}
           />
         </>
       ) : viewState === "history" ? (
         <>
           <div className="flex justify-end mb-6 px-2">
             {allHistoryEvents.length > 0 && (
-              <LocalButton 
+              <LocalButton
                 variant="danger"
                 onClick={() => setShowClearHistoryConfirm(true)}
                 disabled={connecting === 'Clearing...'}
@@ -805,10 +807,10 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                       const isError = item.action.toLowerCase().includes('failed') || item.action.toLowerCase().includes('error');
                       const isSuccess = item.action.toLowerCase().includes('completed') || item.action.toLowerCase().includes('created');
                       const isWarning = item.action.toLowerCase().includes('paused') || item.action.toLowerCase().includes('stopped');
-                      
-                      const badgeClass = isError ? 'bg-[#fce8e6] text-[#d93025]' : 
-                                         isSuccess ? 'bg-[#e6f4ea] text-[#137333]' : 
-                                         isWarning ? 'bg-[#fef7e0] text-[#b06000]' : 'bg-[#eaf1fb] text-[#1a73e8]';
+
+                      const badgeClass = isError ? 'bg-[#fce8e6] text-[#d93025]' :
+                        isSuccess ? 'bg-[#e6f4ea] text-[#137333]' :
+                          isWarning ? 'bg-[#fef7e0] text-[#b06000]' : 'bg-[#eaf1fb] text-[#1a73e8]';
 
                       return (
                         <tr key={idx} className="hover:bg-[#f8fafd] transition-colors duration-200">
@@ -880,10 +882,10 @@ function AccountSettingsModal({ isOpen, onClose, account, onSave }) {
       <div className="space-y-6">
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-2">Display Name</label>
-          <input 
-            type="text" 
-            value={name} 
-            onChange={e => setName(e.target.value)} 
+          <input
+            type="text"
+            value={name}
+            onChange={e => setName(e.target.value)}
             className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] transition-all"
             placeholder="John Doe"
           />
@@ -891,16 +893,16 @@ function AccountSettingsModal({ isOpen, onClose, account, onSave }) {
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-2">Daily Sending Limit</label>
           <p className="text-[13px] text-gray-500 mb-3">Maximum number of emails this account can send per day to protect your deliverability.</p>
-          <input 
-            type="number" 
-            value={dailyLimit} 
-            onChange={e => setDailyLimit(e.target.value)} 
+          <input
+            type="number"
+            value={dailyLimit}
+            onChange={e => setDailyLimit(e.target.value)}
             className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] transition-all"
             min="1"
             max="2000"
           />
         </div>
-        
+
         <div className="pt-4 border-t border-gray-100 flex justify-end gap-3">
           <LocalButton variant="ghost" onClick={onClose} className="px-5">Cancel</LocalButton>
           <LocalButton onClick={handleSave} disabled={saving} className="px-5">
@@ -957,8 +959,8 @@ function ConnectAccountModal({ isOpen, onClose, onConnect }) {
     <Modal isOpen={isOpen} onClose={onClose} title="Connect Email Provider" maxWidth="max-w-md">
       <div className="space-y-6">
         <p className="text-sm text-gray-500 mb-6">Select your email provider to authorize sending campaigns. We use secure OAuth to connect without storing your password.</p>
-        
-        <button 
+
+        <button
           onClick={() => handleConnect('Google')}
           disabled={connecting !== null}
           className="w-full flex items-center justify-between p-5 bg-white border border-gray-100 hover:border-[#d2e3fc] hover:shadow-[0_4px_24px_rgba(0,0,0,0.04)] rounded-2xl transition-all disabled:opacity-50 group"
@@ -980,15 +982,15 @@ function ConnectAccountModal({ isOpen, onClose, onConnect }) {
 }
 
 function NewCampaignBuilder({ initialData, onCancel, onSend, templates, accounts, resumes }) {
-  const [formData, setFormData] = useState({ 
-    name: initialData?.name || initialData?.title || "", 
+  const [formData, setFormData] = useState({
+    name: initialData?.name || initialData?.title || "",
     title: initialData?.title || initialData?.name || "",
     dailyLimit: initialData?.dailyLimit !== undefined ? initialData.dailyLimit : 50,
     accountId: initialData?.accountId || accounts[0]?.id || "",
-    sequence: initialData?.sequence || [{ id: `step-${Date.now()}`, templateId: "", delayValue: 0, delayUnit: "days" }] 
+    sequence: initialData?.sequence || [{ id: `step-${Date.now()}`, templateId: "", delayValue: 0, delayUnit: "days" }]
   });
-  
-  const [recipientMode, setRecipientMode] = useState("manual"); 
+
+  const [recipientMode, setRecipientMode] = useState("manual");
 
   const selectedAccount = useMemo(() => {
     return accounts.find(a => a.id === formData.accountId) || accounts[0] || null;
@@ -1016,7 +1018,7 @@ function NewCampaignBuilder({ initialData, onCancel, onSend, templates, accounts
     if (!file) return;
     setUploadedFile(file);
     setIsParsing(true);
-    
+
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
@@ -1079,17 +1081,17 @@ function NewCampaignBuilder({ initialData, onCancel, onSend, templates, accounts
       }
     }
 
-    const payload = { 
-      ...formData, 
+    const payload = {
+      ...formData,
       title: formData.name,
     };
 
     if (!initialData) {
-      payload.recipientsList = recipientMode === "manual" 
+      payload.recipientsList = recipientMode === "manual"
         ? manualRecipients.filter(r => r.email.trim()).map(r => ({ email: r.email.trim(), name: r.name.trim(), company: r.company.trim() }))
         : csvRecipients;
-      payload.recipients = recipientMode === "manual" 
-        ? payload.recipientsList.map(r => r.email).join(', ') 
+      payload.recipients = recipientMode === "manual"
+        ? payload.recipientsList.map(r => r.email).join(', ')
         : `${csvRecipients.length} recipients from ${uploadedFile.name}`;
       payload.recipientCount = totalRecipients;
       payload.count = totalRecipients;
@@ -1118,11 +1120,11 @@ function NewCampaignBuilder({ initialData, onCancel, onSend, templates, accounts
         </div>
         <div className="flex items-center gap-3 relative z-10">
           <LocalButton variant="ghost" onClick={onCancel} className="text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 shadow-sm">Cancel</LocalButton>
-          <LocalButton 
-            variant="primary" 
-            onClick={handleSubmit} 
-            icon={Send} 
-            disabled={!formData.name || formData.sequence.some(s=>!s.templateId) || (!initialData && recipientMode === 'upload' && (!uploadedFile || isParsing)) || (!initialData && recipientMode === 'manual' && validManualRecipientsCount === 0)}
+          <LocalButton
+            variant="primary"
+            onClick={handleSubmit}
+            icon={Send}
+            disabled={!formData.name || formData.sequence.some(s => !s.templateId) || (!initialData && recipientMode === 'upload' && (!uploadedFile || isParsing)) || (!initialData && recipientMode === 'manual' && validManualRecipientsCount === 0)}
           >
             {initialData ? "Save Changes" : "Launch Campaign"}
           </LocalButton>
@@ -1133,18 +1135,18 @@ function NewCampaignBuilder({ initialData, onCancel, onSend, templates, accounts
         <div className="flex-1 lg:w-3/5 border-r border-gray-100 overflow-y-auto p-8 space-y-8">
           <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)] space-y-6">
             <h3 className="text-lg font-bold text-gray-800 tracking-tight border-b border-gray-50 pb-4 mb-4">1. Campaign Setup</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">Campaign Name <span className="text-red-500">*</span></label>
-                <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all" placeholder="e.g. Q3 Startup Outreach" />
+                <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all" placeholder="e.g. Q3 Startup Outreach" />
               </div>
 
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">Sender Account <span className="text-red-500">*</span></label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <select required value={formData.accountId} onChange={e => setFormData({...formData, accountId: e.target.value})} className="w-full pl-12 pr-10 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] appearance-none outline-none transition-all cursor-pointer truncate">
+                  <select required value={formData.accountId} onChange={e => setFormData({ ...formData, accountId: e.target.value })} className="w-full pl-12 pr-10 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] appearance-none outline-none transition-all cursor-pointer truncate">
                     <option value="" disabled>Select sender...</option>
                     {accounts.map(acc => (
                       <option key={acc.id} value={acc.id}>{acc.name} ({acc.email})</option>
@@ -1157,31 +1159,31 @@ function NewCampaignBuilder({ initialData, onCancel, onSend, templates, accounts
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-1.5">Daily Send Limit <Flame size={16} className="text-orange-400"/></label>
+                <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-1.5">Daily Send Limit <Flame size={16} className="text-orange-400" /></label>
                 <div className="relative">
                   <Zap className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input required type="number" min="1" max="1000" value={formData.dailyLimit} onChange={e => setFormData({...formData, dailyLimit: parseInt(e.target.value) || 0})} className="w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all" />
+                  <input required type="number" min="1" max="1000" value={formData.dailyLimit} onChange={e => setFormData({ ...formData, dailyLimit: parseInt(e.target.value) || 0 })} className="w-full pl-12 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all" />
                 </div>
               </div>
             </div>
 
             {formData.dailyLimit > 0 && totalRecipients > formData.dailyLimit && (
               <div className="bg-orange-50/50 border border-orange-100 p-5 rounded-2xl flex items-start gap-4 mt-4 animate-in fade-in">
-                 <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0 shadow-sm">
-                    <Flame className="text-orange-500" size={18}/>
-                 </div>
-                 <div>
-                    <p className="text-sm font-bold text-orange-800 tracking-tight">Inbox Warmup Active</p>
-                    <p className="text-sm text-orange-700 mt-1.5">Sending is automatically throttled to <strong>{formData.dailyLimit} emails/day</strong> to protect your sender reputation.</p>
-                    <p className="text-xs font-bold mt-3 text-orange-800 bg-orange-100/50 inline-block px-3 py-1.5 rounded-lg border border-orange-200/50">Estimated Completion: {daysToComplete} Days</p>
-                 </div>
+                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0 shadow-sm">
+                  <Flame className="text-orange-500" size={18} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-orange-800 tracking-tight">Inbox Warmup Active</p>
+                  <p className="text-sm text-orange-700 mt-1.5">Sending is automatically throttled to <strong>{formData.dailyLimit} emails/day</strong> to protect your sender reputation.</p>
+                  <p className="text-xs font-bold mt-3 text-orange-800 bg-orange-100/50 inline-block px-3 py-1.5 rounded-lg border border-orange-200/50">Estimated Completion: {daysToComplete} Days</p>
+                </div>
               </div>
             )}
           </div>
 
           <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
             <h3 className="text-lg font-bold text-gray-800 tracking-tight border-b border-gray-50 pb-4 mb-6">2. Automated Email Sequence</h3>
-            
+
             <div className="space-y-5">
               {formData.sequence.map((step, index) => (
                 <div key={step.id} className="relative bg-gray-50/50 border border-gray-100 rounded-2xl p-5 transition-all focus-within:ring-2 focus-within:ring-[#eaf1fb]">
@@ -1192,14 +1194,14 @@ function NewCampaignBuilder({ initialData, onCancel, onSend, templates, accounts
                     </div>
                     {index > 0 && (
                       <button type="button" onClick={() => removeSequenceStep(step.id)} className="text-gray-400 hover:text-red-500 bg-white hover:bg-red-50 rounded-full p-2 shadow-sm transition-colors">
-                        <Trash2 size={16}/>
+                        <Trash2 size={16} />
                       </button>
                     )}
                   </div>
 
                   {index > 0 && (
                     <div className="flex items-center gap-2.5 mb-5 bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm w-fit flex-wrap">
-                      <Clock size={16} className="text-[#9b72cb] ml-1"/>
+                      <Clock size={16} className="text-[#9b72cb] ml-1" />
                       <span className="text-sm text-gray-600 font-medium">Wait</span>
                       <input type="number" min="1" value={step.delayValue} onChange={(e) => updateSequenceStep(step.id, "delayValue", parseInt(e.target.value) || 1)} className="w-16 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-center outline-none focus:border-[#9b72cb] focus:ring-2 focus:ring-purple-50" />
                       <select value={step.delayUnit} onChange={(e) => updateSequenceStep(step.id, "delayUnit", e.target.value)} className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none focus:border-[#9b72cb] focus:ring-2 focus:ring-purple-50 appearance-none cursor-pointer">
@@ -1230,152 +1232,152 @@ function NewCampaignBuilder({ initialData, onCancel, onSend, templates, accounts
           </div>
 
           {initialData ? (
-          <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col h-full max-h-[500px]">
-            <h3 className="text-lg font-bold text-gray-800 tracking-tight border-b border-gray-50 pb-4 mb-6 shrink-0">3. Audience / Recipients</h3>
-            <div className="bg-gray-50/80 rounded-2xl p-6 border border-gray-100 flex flex-col flex-1 min-h-0">
-              <div className="flex items-center justify-between mb-4 shrink-0">
-                <div className="flex items-center gap-3">
-                  <Users className="text-[#4285F4]" size={20} />
-                  <p className="text-base font-bold text-gray-800">{initialData.recipientsList?.length || 0} Recipients Enrolled</p>
-                </div>
-                <div className="bg-blue-50 text-blue-700 text-[11px] font-bold px-3 py-1 rounded-full border border-blue-100 uppercase tracking-wider">
-                  Read-Only
-                </div>
-              </div>
-              
-              <div className="flex-1 overflow-y-auto pr-2 space-y-2 mb-4 custom-scrollbar">
-                {initialData.recipientsList?.map((rec, idx) => (
-                  <div key={idx} className="bg-white p-3 rounded-xl border border-gray-100 flex items-center gap-4 text-sm shadow-sm hover:border-[#d2e3fc] transition-colors">
-                     <div className="w-8 h-8 rounded-full bg-blue-50/50 flex items-center justify-center text-[#4285F4] font-bold shrink-0">
-                       {idx + 1}
-                     </div>
-                     <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-3 gap-2">
-                       <div className="truncate"><span className="text-gray-400 text-xs mr-1">Email:</span><span className="font-medium text-gray-800">{rec.email}</span></div>
-                       <div className="truncate"><span className="text-gray-400 text-xs mr-1">Name:</span><span className="text-gray-700">{rec.name || '-'}</span></div>
-                       <div className="truncate"><span className="text-gray-400 text-xs mr-1">Company:</span><span className="text-gray-700">{rec.company || '-'}</span></div>
-                     </div>
+            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col h-full max-h-[500px]">
+              <h3 className="text-lg font-bold text-gray-800 tracking-tight border-b border-gray-50 pb-4 mb-6 shrink-0">3. Audience / Recipients</h3>
+              <div className="bg-gray-50/80 rounded-2xl p-6 border border-gray-100 flex flex-col flex-1 min-h-0">
+                <div className="flex items-center justify-between mb-4 shrink-0">
+                  <div className="flex items-center gap-3">
+                    <Users className="text-[#4285F4]" size={20} />
+                    <p className="text-base font-bold text-gray-800">{initialData.recipientsList?.length || 0} Recipients Enrolled</p>
                   </div>
-                ))}
-                {(!initialData.recipientsList || initialData.recipientsList.length === 0) && (
-                  <div className="text-center text-gray-400 py-4 text-sm">No recipients found.</div>
-                )}
-              </div>
+                  <div className="bg-blue-50 text-blue-700 text-[11px] font-bold px-3 py-1 rounded-full border border-blue-100 uppercase tracking-wider">
+                    Read-Only
+                  </div>
+                </div>
 
-              <div className="bg-blue-50/50 text-blue-800 text-xs px-4 py-3 rounded-xl border border-blue-100 flex items-start gap-2 shrink-0">
-                <AlertCircle size={14} className="shrink-0 mt-0.5 text-blue-500" />
-                <p><strong>Note:</strong> Recipient lists cannot be modified after a campaign is created. To send to new recipients, please create a new campaign.</p>
+                <div className="flex-1 overflow-y-auto pr-2 space-y-2 mb-4 custom-scrollbar">
+                  {initialData.recipientsList?.map((rec, idx) => (
+                    <div key={idx} className="bg-white p-3 rounded-xl border border-gray-100 flex items-center gap-4 text-sm shadow-sm hover:border-[#d2e3fc] transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-blue-50/50 flex items-center justify-center text-[#4285F4] font-bold shrink-0">
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div className="truncate"><span className="text-gray-400 text-xs mr-1">Email:</span><span className="font-medium text-gray-800">{rec.email}</span></div>
+                        <div className="truncate"><span className="text-gray-400 text-xs mr-1">Name:</span><span className="text-gray-700">{rec.name || '-'}</span></div>
+                        <div className="truncate"><span className="text-gray-400 text-xs mr-1">Company:</span><span className="text-gray-700">{rec.company || '-'}</span></div>
+                      </div>
+                    </div>
+                  ))}
+                  {(!initialData.recipientsList || initialData.recipientsList.length === 0) && (
+                    <div className="text-center text-gray-400 py-4 text-sm">No recipients found.</div>
+                  )}
+                </div>
+
+                <div className="bg-blue-50/50 text-blue-800 text-xs px-4 py-3 rounded-xl border border-blue-100 flex items-start gap-2 shrink-0">
+                  <AlertCircle size={14} className="shrink-0 mt-0.5 text-blue-500" />
+                  <p><strong>Note:</strong> Recipient lists cannot be modified after a campaign is created. To send to new recipients, please create a new campaign.</p>
+                </div>
               </div>
             </div>
-          </div>
           ) : (
-          <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
-            <div className="flex items-center justify-between border-b border-gray-50 pb-4 mb-6">
-              <h3 className="text-lg font-bold text-gray-800 tracking-tight">3. Audience / Recipients <span className="text-red-500">*</span></h3>
-              <div className="flex bg-gray-50/80 p-1 rounded-xl border border-gray-100 shadow-inner">
-                <button type="button" onClick={() => setRecipientMode("manual")} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${recipientMode === "manual" ? "bg-white text-[#4285F4] shadow-[0_2px_8px_rgba(0,0,0,0.06)]" : "text-gray-500 hover:text-gray-800"}`}>Manual</button>
-                <button type="button" onClick={() => setRecipientMode("upload")} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${recipientMode === "upload" ? "bg-white text-[#4285F4] shadow-[0_2px_8px_rgba(0,0,0,0.06)]" : "text-gray-500 hover:text-gray-800"}`}>Upload CSV</button>
-              </div>
-            </div>
-
-            {recipientMode === "manual" ? (
-              <div className="space-y-4 bg-gray-50/30 p-6 rounded-2xl border border-gray-100/60 overflow-x-auto">
-                <div className="flex items-center justify-between mb-4 border-b border-gray-50 pb-3">
-                  <p className="text-sm text-gray-500 font-medium flex items-center gap-2">
-                    <AlertCircle size={16} className="text-[#4285F4]"/> Enter data below. {'{{name}}'} and {'{{company}}'} will use these values dynamically.
-                  </p>
+            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+              <div className="flex items-center justify-between border-b border-gray-50 pb-4 mb-6">
+                <h3 className="text-lg font-bold text-gray-800 tracking-tight">3. Audience / Recipients <span className="text-red-500">*</span></h3>
+                <div className="flex bg-gray-50/80 p-1 rounded-xl border border-gray-100 shadow-inner">
+                  <button type="button" onClick={() => setRecipientMode("manual")} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${recipientMode === "manual" ? "bg-white text-[#4285F4] shadow-[0_2px_8px_rgba(0,0,0,0.06)]" : "text-gray-500 hover:text-gray-800"}`}>Manual</button>
+                  <button type="button" onClick={() => setRecipientMode("upload")} className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${recipientMode === "upload" ? "bg-white text-[#4285F4] shadow-[0_2px_8px_rgba(0,0,0,0.06)]" : "text-gray-500 hover:text-gray-800"}`}>Upload CSV</button>
                 </div>
+              </div>
 
-                {manualRecipients.map((rec) => (
-                  <div key={rec.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 animate-in fade-in slide-in-from-top-1 min-w-[500px]">
-                    <div className="w-full sm:w-2/5">
-                      <input required type="email" placeholder="Email address *" value={rec.email} onChange={(e) => setManualRecipients(manualRecipients.map(r => r.id === rec.id ? { ...r, email: e.target.value } : r))} className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all shadow-sm" />
-                    </div>
-                    <div className="w-[calc(50%-0.5rem)] sm:w-1/4">
-                      <input type="text" placeholder="Name" value={rec.name} onChange={(e) => setManualRecipients(manualRecipients.map(r => r.id === rec.id ? { ...r, name: e.target.value } : r))} className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all shadow-sm" />
-                    </div>
-                    <div className="w-[calc(50%-0.5rem)] sm:w-1/4">
-                      <input type="text" placeholder="Company" value={rec.company} onChange={(e) => setManualRecipients(manualRecipients.map(r => r.id === rec.id ? { ...r, company: e.target.value } : r))} className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all shadow-sm" />
-                    </div>
-                    <button type="button" onClick={() => setManualRecipients(manualRecipients.filter(r => r.id !== rec.id))} disabled={manualRecipients.length === 1} className="w-10 h-10 flex items-center justify-center shrink-0 text-gray-400 hover:text-red-500 bg-white hover:bg-red-50 border border-gray-200 hover:border-red-100 shadow-sm rounded-full transition-colors disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-400 mt-2 sm:mt-0">
-                      <Trash2 size={16} />
-                    </button>
+              {recipientMode === "manual" ? (
+                <div className="space-y-4 bg-gray-50/30 p-6 rounded-2xl border border-gray-100/60 overflow-x-auto">
+                  <div className="flex items-center justify-between mb-4 border-b border-gray-50 pb-3">
+                    <p className="text-sm text-gray-500 font-medium flex items-center gap-2">
+                      <AlertCircle size={16} className="text-[#4285F4]" /> Enter data below. {'{{name}}'} and {'{{company}}'} will use these values dynamically.
+                    </p>
                   </div>
-                ))}
-                
-                <button type="button" onClick={() => setManualRecipients([...manualRecipients, { id: Date.now(), email: "", name: "", company: "" }])} className="text-sm font-bold text-[#4285F4] hover:text-[#3367d6] flex items-center gap-2 mt-5 px-5 py-2.5 bg-white shadow-sm rounded-full transition-colors w-max border border-gray-100 hover:border-[#d2e3fc]">
-                  <Plus size={16} /> Add Another Recipient
-                </button>
-              </div>
-            ) : (
-              <div className={`border-2 border-dashed rounded-3xl p-10 transition-all text-center ${uploadedFile ? 'border-[#d2e3fc] bg-blue-50/30' : 'border-gray-200 hover:border-[#4285F4] bg-gray-50/50 hover:bg-blue-50/30'}`}>
-                {!uploadedFile ? (
-                  <>
-                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-100">
-                      <UploadCloud className="text-[#4285F4]" size={32} />
+
+                  {manualRecipients.map((rec) => (
+                    <div key={rec.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 animate-in fade-in slide-in-from-top-1 min-w-[500px]">
+                      <div className="w-full sm:w-2/5">
+                        <input required type="email" placeholder="Email address *" value={rec.email} onChange={(e) => setManualRecipients(manualRecipients.map(r => r.id === rec.id ? { ...r, email: e.target.value } : r))} className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all shadow-sm" />
+                      </div>
+                      <div className="w-[calc(50%-0.5rem)] sm:w-1/4">
+                        <input type="text" placeholder="Name" value={rec.name} onChange={(e) => setManualRecipients(manualRecipients.map(r => r.id === rec.id ? { ...r, name: e.target.value } : r))} className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all shadow-sm" />
+                      </div>
+                      <div className="w-[calc(50%-0.5rem)] sm:w-1/4">
+                        <input type="text" placeholder="Company" value={rec.company} onChange={(e) => setManualRecipients(manualRecipients.map(r => r.id === rec.id ? { ...r, company: e.target.value } : r))} className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all shadow-sm" />
+                      </div>
+                      <button type="button" onClick={() => setManualRecipients(manualRecipients.filter(r => r.id !== rec.id))} disabled={manualRecipients.length === 1} className="w-10 h-10 flex items-center justify-center shrink-0 text-gray-400 hover:text-red-500 bg-white hover:bg-red-50 border border-gray-200 hover:border-red-100 shadow-sm rounded-full transition-colors disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-gray-400 mt-2 sm:mt-0">
+                        <Trash2 size={16} />
+                      </button>
                     </div>
-                    <p className="text-base font-bold text-gray-800 mb-2">Upload Excel (.xls, .xlsx) or CSV</p>
-                    <p className="text-sm text-gray-500 mb-4 max-w-sm mx-auto">Upload a list of recipients. Must contain <span className="font-bold text-gray-700">Email</span>, <span className="font-bold text-gray-700">Name</span>, and <span className="font-bold text-gray-700">Company Name</span> headers.</p>
-                    <button type="button" onClick={handleDownloadSample} className="text-sm text-[#9b72cb] hover:text-[#7f5bb3] font-bold mb-6 inline-flex items-center gap-1.5 transition-colors"><Download size={14}/> Download Sample File (CSV)</button>
-                    <div className="w-full"></div>
-                    <label className="cursor-pointer inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-6 py-3 rounded-full text-sm font-bold shadow-sm hover:bg-gray-50 transition-all hover:shadow">
-                      Browse Files
-                      <input type="file" accept=".csv, .xls, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv" className="hidden" onChange={handleFileUpload} />
-                    </label>
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-6">
-                    {isParsing ? (
-                      <>
-                        <Loader2 size={36} className="animate-spin text-[#4285F4] mx-auto mb-5" />
-                        <p className="text-base font-bold text-gray-800">Analyzing columns and extracting contacts...</p>
-                      </>
-                    ) : (
-                      <>
-                        <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-100">
-                          <FileSpreadsheet size={32} className="text-emerald-500" />
-                        </div>
-                        <p className="text-lg font-bold text-gray-800 mb-2">{uploadedFile.name}</p>
-                        <p className="text-sm text-emerald-700 font-bold mb-6 bg-emerald-50 border border-emerald-100 px-5 py-2 rounded-full inline-flex items-center gap-2">
-                          <CheckCircle size={18}/> Successfully parsed {parsedCount} recipients!
-                        </p>
-                        <div className="w-full"></div>
-                        <button type="button" onClick={() => { setUploadedFile(null); setParsedCount(0); }} className="text-sm font-bold text-red-500 hover:text-red-600 hover:bg-red-50 px-5 py-2 rounded-full transition-colors border border-transparent hover:border-red-100">Remove file</button>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+                  ))}
+
+                  <button type="button" onClick={() => setManualRecipients([...manualRecipients, { id: Date.now(), email: "", name: "", company: "" }])} className="text-sm font-bold text-[#4285F4] hover:text-[#3367d6] flex items-center gap-2 mt-5 px-5 py-2.5 bg-white shadow-sm rounded-full transition-colors w-max border border-gray-100 hover:border-[#d2e3fc]">
+                    <Plus size={16} /> Add Another Recipient
+                  </button>
+                </div>
+              ) : (
+                <div className={`border-2 border-dashed rounded-3xl p-10 transition-all text-center ${uploadedFile ? 'border-[#d2e3fc] bg-blue-50/30' : 'border-gray-200 hover:border-[#4285F4] bg-gray-50/50 hover:bg-blue-50/30'}`}>
+                  {!uploadedFile ? (
+                    <>
+                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-100">
+                        <UploadCloud className="text-[#4285F4]" size={32} />
+                      </div>
+                      <p className="text-base font-bold text-gray-800 mb-2">Upload Excel (.xls, .xlsx) or CSV</p>
+                      <p className="text-sm text-gray-500 mb-4 max-w-sm mx-auto">Upload a list of recipients. Must contain <span className="font-bold text-gray-700">Email</span>, <span className="font-bold text-gray-700">Name</span>, and <span className="font-bold text-gray-700">Company Name</span> headers.</p>
+                      <button type="button" onClick={handleDownloadSample} className="text-sm text-[#9b72cb] hover:text-[#7f5bb3] font-bold mb-6 inline-flex items-center gap-1.5 transition-colors"><Download size={14} /> Download Sample File (CSV)</button>
+                      <div className="w-full"></div>
+                      <label className="cursor-pointer inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-6 py-3 rounded-full text-sm font-bold shadow-sm hover:bg-gray-50 transition-all hover:shadow">
+                        Browse Files
+                        <input type="file" accept=".csv, .xls, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv" className="hidden" onChange={handleFileUpload} />
+                      </label>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-6">
+                      {isParsing ? (
+                        <>
+                          <Loader2 size={36} className="animate-spin text-[#4285F4] mx-auto mb-5" />
+                          <p className="text-base font-bold text-gray-800">Analyzing columns and extracting contacts...</p>
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-100">
+                            <FileSpreadsheet size={32} className="text-emerald-500" />
+                          </div>
+                          <p className="text-lg font-bold text-gray-800 mb-2">{uploadedFile.name}</p>
+                          <p className="text-sm text-emerald-700 font-bold mb-6 bg-emerald-50 border border-emerald-100 px-5 py-2 rounded-full inline-flex items-center gap-2">
+                            <CheckCircle size={18} /> Successfully parsed {parsedCount} recipients!
+                          </p>
+                          <div className="w-full"></div>
+                          <button type="button" onClick={() => { setUploadedFile(null); setParsedCount(0); }} className="text-sm font-bold text-red-500 hover:text-red-600 hover:bg-red-50 px-5 py-2 rounded-full transition-colors border border-transparent hover:border-red-100">Remove file</button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           )}
         </div>
 
         {/* RIGHT PANE: Live Sequence Preview */}
         <div className="w-full lg:w-2/5 bg-[#f8fafd] overflow-y-auto p-8 flex flex-col border-t lg:border-t-0 lg:border-l border-gray-100">
           <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-200">
-            <h3 className="text-base font-bold text-gray-800 flex items-center gap-2 tracking-tight"><ListTree size={18} className="text-[#9b72cb]"/> Sequence Preview</h3>
+            <h3 className="text-base font-bold text-gray-800 flex items-center gap-2 tracking-tight"><ListTree size={18} className="text-[#9b72cb]" /> Sequence Preview</h3>
             <span className="text-xs text-gray-500 font-bold bg-white px-3 py-1.5 rounded-full border border-gray-200/60 shadow-sm hidden sm:inline-block">Sample Data Applied</span>
           </div>
-          
+
           <div className="flex-1 space-y-8">
             {formData.sequence.map((step, idx) => {
               const selectedTpl = templates.find(t => t.id === step.templateId);
-              
+
               if (!selectedTpl && idx === 0) {
-                 return (
+                return (
                   <div key="empty" className="bg-white border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center p-8 text-center text-gray-400 h-64">
                     <History size={40} className="mb-4 opacity-50 text-blue-300" />
                     <p className="text-sm font-bold text-gray-600">No template selected.</p>
                     <p className="text-sm mt-2 text-gray-400">Select a template on the left to preview.</p>
                   </div>
-                 )
+                )
               }
 
               if (!selectedTpl) return null;
 
               const stepBody = selectedTpl.body.replace(/{{company}}/g, previewCompany).replace(/{{name}}/g, previewName);
               const stepSubject = selectedTpl.subject.replace(/{{company}}/g, previewCompany).replace(/{{name}}/g, previewName);
-              
+
               const attachedResume = resumes.find(r => r.id === selectedTpl.resumeId);
               const resumeDisplayName = attachedResume ? (attachedResume.fileName || attachedResume.name) : selectedTpl.resumeId ? "Attached Resume" : null;
 
@@ -1391,28 +1393,28 @@ function NewCampaignBuilder({ initialData, onCancel, onSend, templates, accounts
 
                   <div className="bg-white border border-gray-100 rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.02)] overflow-hidden relative z-10 transition-all hover:shadow-[0_8px_32px_rgba(0,0,0,0.04)]">
                     <div className="bg-gradient-to-r from-blue-50/50 to-purple-50/50 px-6 py-3 border-b border-gray-50 flex items-center justify-between">
-                       <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
-                         <Mail size={14} className="text-[#4285F4]"/> Step {idx + 1}
-                       </span>
+                      <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                        <Mail size={14} className="text-[#4285F4]" /> Step {idx + 1}
+                      </span>
                     </div>
 
                     <div className="p-6">
                       <div className="space-y-2 mb-5 pb-5 border-b border-gray-50 text-[13px] overflow-hidden">
                         <p className="flex items-start gap-3"><span className="font-semibold text-gray-400 w-12 shrink-0">From</span> <span className="text-gray-800 truncate font-medium">{selectedAccount ? `${selectedAccount.name} <${selectedAccount.email}>` : '[No sender]'}</span></p>
                         <p className="flex items-start gap-3">
-                          <span className="font-semibold text-gray-400 w-12 shrink-0">To</span> 
+                          <span className="font-semibold text-gray-400 w-12 shrink-0">To</span>
                           <span className="text-[#4285F4] font-bold bg-[#eaf1fb] px-2.5 py-0.5 rounded-md truncate">
-                            {recipientMode === 'manual' && manualRecipients[0].email 
+                            {recipientMode === 'manual' && manualRecipients[0].email
                               ? `${manualRecipients[0].name ? `${manualRecipients[0].name} ` : ''}<${manualRecipients[0].email}>${manualRecipients.length > 1 ? ` (+${manualRecipients.length - 1} more)` : ''}`
                               : '[Recipient List]'}
                           </span>
                         </p>
                         <p className="flex items-start gap-3"><span className="font-semibold text-gray-400 w-12 shrink-0">Subj</span> <span className="text-gray-800 font-bold truncate">{stepSubject}</span></p>
                         {resumeDisplayName && (
-                          <p className="flex items-center gap-3 mt-3 pt-3"><Paperclip size={16} className="text-gray-400 shrink-0"/> <span className="text-[12px] bg-gray-50 text-gray-700 px-3 py-1 rounded-lg font-bold border border-gray-100 truncate">{resumeDisplayName}</span></p>
+                          <p className="flex items-center gap-3 mt-3 pt-3"><Paperclip size={16} className="text-gray-400 shrink-0" /> <span className="text-[12px] bg-gray-50 text-gray-700 px-3 py-1 rounded-lg font-bold border border-gray-100 truncate">{resumeDisplayName}</span></p>
                         )}
                       </div>
-                      
+
                       <div className="text-sm text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">
                         <div dangerouslySetInnerHTML={{ __html: stepBody }} />
                         <br /><br />
@@ -1443,7 +1445,7 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
 
   useEffect(() => {
     if (liveCampaign.status !== 'Active') return;
-    
+
     let isMounted = true;
     const interval = setInterval(async () => {
       try {
@@ -1482,7 +1484,7 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
 
   const openRate = liveCampaign.sent > 0 ? Math.round((parseInt(liveCampaign.opens) || 0) / parseInt(liveCampaign.sent) * 100) : 0;
   const replyRate = liveCampaign.sent > 0 ? Math.round((parseInt(liveCampaign.replies) || 0) / parseInt(liveCampaign.sent) * 100) : 0;
-  
+
   const firstTemplate = templates.find(t => t.id === liveCampaign.sequence?.[0]?.templateId);
   const attachedResume = resumes.find(r => r.id === (firstTemplate?.resumeId || liveCampaign.resumeId));
   const resumeDisplayName = attachedResume ? (attachedResume.fileName || attachedResume.name) : (firstTemplate?.resumeId || liveCampaign.resumeId) ? "Attached Resume" : null;
@@ -1497,19 +1499,18 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
           <div>
             <div className="flex items-center gap-3 mb-1.5 flex-wrap">
               <h2 className="text-[28px] font-normal text-[#1f1f1f] tracking-tight leading-tight">{liveCampaign.name || liveCampaign.title}</h2>
-              <span className={`inline-flex px-3 py-1 rounded-full text-[12px] font-medium tracking-wide ${
-                liveCampaign.status === 'Active' ? 'bg-[#eaf1fb] text-[#1a73e8]' : 
-                liveCampaign.status === 'Paused' ? 'bg-amber-50 text-amber-700' :
-                liveCampaign.status === 'Failed' ? 'bg-red-50 text-red-600' :
-                liveCampaign.status === 'Stopped' ? 'bg-slate-100 text-slate-600' :
-                liveCampaign.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
-                'bg-[#f0f4f9] text-[#444746]'
-              }`}>{liveCampaign.status}</span>
+              <span className={`inline-flex px-3 py-1 rounded-full text-[12px] font-medium tracking-wide ${liveCampaign.status === 'Active' ? 'bg-[#eaf1fb] text-[#1a73e8]' :
+                  liveCampaign.status === 'Paused' ? 'bg-amber-50 text-amber-700' :
+                    liveCampaign.status === 'Failed' ? 'bg-red-50 text-red-600' :
+                      liveCampaign.status === 'Stopped' ? 'bg-slate-100 text-slate-600' :
+                        liveCampaign.status === 'Completed' ? 'bg-emerald-50 text-emerald-600' :
+                          'bg-[#f0f4f9] text-[#444746]'
+                }`}>{liveCampaign.status}</span>
             </div>
             <p className="text-[14px] text-[#444746]">Started on {formatDate(liveCampaign.createdAt || liveCampaign.date)}</p>
           </div>
         </div>
-        
+
         {liveCampaign.status === 'Failed' && liveCampaign.error && (
           <div className="w-full md:w-auto px-4 text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-100 flex items-center gap-2">
             <AlertCircle size={16} className="shrink-0" />
@@ -1518,36 +1519,36 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
         )}
 
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <LocalButton 
-            variant="ghost" 
-            onClick={onEdit} 
-            icon={Settings2} 
+          <LocalButton
+            variant="ghost"
+            onClick={onEdit}
+            icon={Settings2}
             className="text-[#444746] hover:bg-[#f0f4f9]"
           >
             Edit Settings
           </LocalButton>
 
-          <LocalButton 
-            variant="ghost" 
-            onClick={onDelete} 
-            icon={Trash2} 
+          <LocalButton
+            variant="ghost"
+            onClick={onDelete}
+            icon={Trash2}
             className="text-red-500 hover:text-red-600 hover:bg-red-50"
           >
             Delete
           </LocalButton>
-          
+
           {liveCampaign.status === 'Active' && (
             <>
-              <LocalButton 
-                variant="outline" 
-                onClick={onToggleStatus} 
+              <LocalButton
+                variant="outline"
+                onClick={onToggleStatus}
                 icon={PauseCircle}
               >
                 Pause Campaign
               </LocalButton>
-              <LocalButton 
+              <LocalButton
                 variant="outline"
-                onClick={onStop} 
+                onClick={onStop}
                 icon={XCircle}
                 className="text-red-500 border-red-200 hover:bg-red-50"
               >
@@ -1557,16 +1558,16 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
           )}
           {liveCampaign.status === 'Paused' && (
             <>
-              <LocalButton 
-                variant="primary" 
-                onClick={onToggleStatus} 
+              <LocalButton
+                variant="primary"
+                onClick={onToggleStatus}
                 icon={PlayCircle}
               >
                 Resume Campaign
               </LocalButton>
-              <LocalButton 
+              <LocalButton
                 variant="outline"
-                onClick={onStop} 
+                onClick={onStop}
                 icon={XCircle}
                 className="text-red-500 border-red-200 hover:bg-red-50"
               >
@@ -1577,20 +1578,20 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
           {(liveCampaign.status === 'Completed' || liveCampaign.status === 'Failed' || liveCampaign.status === 'Stopped') && (
             !senderAccount && accounts?.length > 0 ? (
               <div className="flex items-center gap-2">
-                <select 
+                <select
                   id="reassignAccount"
                   className="px-3 py-2.5 bg-white border border-gray-200 rounded-full text-[13px] font-medium outline-none text-gray-700 hover:border-gray-300 transition-colors shadow-sm cursor-pointer"
                 >
                   <option value="">Select account to resend...</option>
                   {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.email}</option>)}
                 </select>
-                <LocalButton 
+                <LocalButton
                   variant="outline"
                   onClick={() => {
-                     const val = document.getElementById('reassignAccount')?.value;
-                     if (val) onResend(val);
-                     else alert("Please select an account first");
-                  }} 
+                    const val = document.getElementById('reassignAccount')?.value;
+                    if (val) onResend(val);
+                    else alert("Please select an account first");
+                  }}
                   icon={RotateCcw}
                   className="text-[#1a73e8] border-[#1a73e8]/20 hover:bg-[#eaf1fb]"
                 >
@@ -1598,9 +1599,9 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
                 </LocalButton>
               </div>
             ) : (
-              <LocalButton 
+              <LocalButton
                 variant="outline"
-                onClick={() => onResend()} 
+                onClick={() => onResend()}
                 icon={RotateCcw}
                 className="text-[#1a73e8] border-[#1a73e8]/20 hover:bg-[#eaf1fb]"
               >
@@ -1612,13 +1613,13 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 md:px-10 py-8">
-        
+
         {/* Progress Bar Section */}
         {liveCampaign.status === 'Active' && (
           <div className="bg-white rounded-[24px] p-6 border border-blue-100 shadow-[0_2px_12px_rgba(26,115,232,0.08)] mb-8 overflow-hidden relative">
             <div className="absolute top-0 left-0 w-full h-1.5 bg-blue-50">
-              <div 
-                className="h-full bg-gradient-to-r from-[#4285F4] to-[#3442FF] transition-all duration-500 ease-out" 
+              <div
+                className="h-full bg-gradient-to-r from-[#4285F4] to-[#3442FF] transition-all duration-500 ease-out"
                 style={{ width: `${Math.min(100, ((liveCampaign.sent || 0) / (liveCampaign.recipientsList?.length || 1)) * 100)}%` }}
               />
             </div>
@@ -1629,7 +1630,7 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
                   Sending in progress...
                 </h3>
                 <p className="text-[14px] text-gray-600">
-                  {liveCampaign.currentRecipient 
+                  {liveCampaign.currentRecipient
                     ? <span>Currently sending to <strong className="text-gray-900 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{liveCampaign.currentRecipient}</strong></span>
                     : <span>Preparing next email...</span>
                   }
@@ -1687,7 +1688,7 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
                 <div className="flex items-center justify-between bg-white p-4 rounded-[16px] shadow-sm border border-gray-50">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-[#f0f4f9] flex items-center justify-center text-[#444746]">
-                      <ListTree size={16}/>
+                      <ListTree size={16} />
                     </div>
                     <div>
                       <p className="text-[12px] text-[#444746] font-medium">Sequence</p>
@@ -1746,25 +1747,23 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
                 {recipientActivity.length > 0 ? recipientActivity.map((log, i) => (
                   <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
                     <div className="flex items-center gap-4 overflow-hidden">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm ${
-                        log.status === 'Replied' ? 'bg-[#f3e8ff] text-[#9333ea]' : 
-                        log.status === 'Opened' ? 'bg-[#eaf1fb] text-[#1a73e8]' : 
-                        'bg-[#f0f4f9] text-[#444746]'
-                      }`}>
-                        {log.status === 'Replied' ? <CheckCircle size={18} /> : 
-                         log.status === 'Opened' ? <Eye size={18} /> : 
-                         <Mail size={18} />}
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm ${log.status === 'Replied' ? 'bg-[#f3e8ff] text-[#9333ea]' :
+                          log.status === 'Opened' ? 'bg-[#eaf1fb] text-[#1a73e8]' :
+                            'bg-[#f0f4f9] text-[#444746]'
+                        }`}>
+                        {log.status === 'Replied' ? <CheckCircle size={18} /> :
+                          log.status === 'Opened' ? <Eye size={18} /> :
+                            <Mail size={18} />}
                       </div>
                       <div className="min-w-0">
                         <p className="text-[14px] font-medium text-[#1f1f1f] truncate">{log.email}</p>
                         <p className="text-[13px] text-[#444746]">{log.name && `${log.name} · `}{log.time}</p>
                       </div>
                     </div>
-                    <span className={`text-[12px] font-medium px-3 py-1 rounded-full shrink-0 ml-4 ${
-                      log.status === 'Replied' ? 'text-[#9333ea] bg-[#f3e8ff]' : 
-                      log.status === 'Opened' ? 'text-[#1a73e8] bg-[#eaf1fb]' : 
-                      'text-[#444746] bg-[#f0f4f9]'
-                    }`}>
+                    <span className={`text-[12px] font-medium px-3 py-1 rounded-full shrink-0 ml-4 ${log.status === 'Replied' ? 'text-[#9333ea] bg-[#f3e8ff]' :
+                        log.status === 'Opened' ? 'text-[#1a73e8] bg-[#eaf1fb]' :
+                          'text-[#444746] bg-[#f0f4f9]'
+                      }`}>
                       {log.status}
                     </span>
                   </div>
@@ -1791,13 +1790,13 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
                 const sampleRecipient = campaign.recipientsList?.[0] || { name: 'Sample Name', company: 'Sample Company' };
                 const stepBody = selectedTpl.body.replace(/\{\{company\}\}/gi, sampleRecipient.company || '').replace(/\{\{name\}\}/gi, sampleRecipient.name || '').replace(/\{\{first_name\}\}/gi, (sampleRecipient.name || '').split(' ')[0] || '').replace(/\{\{email\}\}/gi, sampleRecipient.email || '');
                 const stepSubject = selectedTpl.subject.replace(/\{\{company\}\}/gi, sampleRecipient.company || '').replace(/\{\{name\}\}/gi, sampleRecipient.name || '').replace(/\{\{first_name\}\}/gi, (sampleRecipient.name || '').split(' ')[0] || '').replace(/\{\{email\}\}/gi, sampleRecipient.email || '');
-                
+
                 const attachedResumeId = selectedTpl.resumeId || campaign.resumeId;
                 const attachedResumeObj = resumes.find(r => r.id === attachedResumeId);
                 const resumeName = attachedResumeObj ? (attachedResumeObj.fileName || attachedResumeObj.name) : attachedResumeId ? "Attached Resume" : null;
 
                 return (
-                  <div key={step.id || idx} className="relative pl-8 border-l-[2px] border-[#e1e5ea] ml-4 animate-in slide-in-from-top-4 duration-300" style={{ animationDelay: `${idx * 100}ms`}}>
+                  <div key={step.id || idx} className="relative pl-8 border-l-[2px] border-[#e1e5ea] ml-4 animate-in slide-in-from-top-4 duration-300" style={{ animationDelay: `${idx * 100}ms` }}>
                     <div className="absolute -left-[9px] top-5 w-4 h-4 rounded-full bg-[#1a73e8] border-4 border-white shadow-sm"></div>
                     <div className="bg-white rounded-[24px] border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                       <div className="px-6 py-3 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between text-[12px] font-medium text-[#444746] uppercase tracking-wider">
@@ -1805,14 +1804,14 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
                         {idx > 0 && <span className="text-[#9333ea] bg-[#f3e8ff] px-2.5 py-1 rounded-md lowercase normal-case tracking-normal">Wait {step.delayValue} {step.delayUnit}</span>}
                       </div>
                       <div className="p-6">
-                         <div className="space-y-3 mb-5 pb-5 border-b border-gray-100 text-[14px]">
-                           <p className="flex items-start gap-4"><span className="text-[#444746] w-12 shrink-0">From</span> <span className="text-[#1f1f1f] truncate">{senderAccount ? `${senderAccount.name} <${senderAccount.email}>` : (campaign.accountId || 'Unknown')}</span></p>
-                           <p className="flex items-start gap-4"><span className="text-[#444746] w-12 shrink-0">Subj</span> <span className="text-[#1f1f1f] font-medium truncate">{stepSubject}</span></p>
-                           {resumeName && (
-                             <p className="flex items-center gap-4 mt-3"><Paperclip size={16} className="text-[#444746] shrink-0 w-12"/> <span className="text-[13px] bg-[#f0f4f9] text-[#1f1f1f] px-3 py-1.5 rounded-lg font-medium truncate">{resumeName}</span></p>
-                           )}
-                         </div>
-                         <div className="text-[14px] text-[#1f1f1f] font-sans leading-relaxed" dangerouslySetInnerHTML={{ __html: stepBody }} />
+                        <div className="space-y-3 mb-5 pb-5 border-b border-gray-100 text-[14px]">
+                          <p className="flex items-start gap-4"><span className="text-[#444746] w-12 shrink-0">From</span> <span className="text-[#1f1f1f] truncate">{senderAccount ? `${senderAccount.name} <${senderAccount.email}>` : (campaign.accountId || 'Unknown')}</span></p>
+                          <p className="flex items-start gap-4"><span className="text-[#444746] w-12 shrink-0">Subj</span> <span className="text-[#1f1f1f] font-medium truncate">{stepSubject}</span></p>
+                          {resumeName && (
+                            <p className="flex items-center gap-4 mt-3"><Paperclip size={16} className="text-[#444746] shrink-0 w-12" /> <span className="text-[13px] bg-[#f0f4f9] text-[#1f1f1f] px-3 py-1.5 rounded-lg font-medium truncate">{resumeName}</span></p>
+                          )}
+                        </div>
+                        <div className="text-[14px] text-[#1f1f1f] font-sans leading-relaxed" dangerouslySetInnerHTML={{ __html: stepBody }} />
                       </div>
                     </div>
                   </div>
@@ -1826,6 +1825,20 @@ function CampaignDetailsView({ campaign, templates, resumes, accounts, onBack, o
     </div>
   );
 }
+
+const NavButton = ({ onClick, isActive, icon: Icon, title }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={title}
+    className={`p-2 rounded-lg transition-all flex items-center justify-center ${isActive
+        ? 'bg-[#eaf1fb] text-[#1a73e8] shadow-sm'
+        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+      }`}
+  >
+    <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
+  </button>
+);
 
 const MenuBar = ({ editor }) => {
   if (!editor) return null;
@@ -1845,20 +1858,7 @@ const MenuBar = ({ editor }) => {
     editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
   };
 
-  const NavButton = ({ onClick, isActive, icon: Icon, title }) => (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title}
-      className={`p-2 rounded-lg transition-all flex items-center justify-center ${
-        isActive 
-          ? 'bg-[#eaf1fb] text-[#1a73e8] shadow-sm' 
-          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
-      }`}
-    >
-      <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
-    </button>
-  );
+
 
   return (
     <div className="flex flex-wrap gap-1 items-center p-2 border-b border-gray-100 bg-gray-50/50 shrink-0">
@@ -1866,24 +1866,24 @@ const MenuBar = ({ editor }) => {
       <NavButton onClick={() => editor.chain().focus().toggleItalic().run()} isActive={editor.isActive('italic')} icon={Italic} title="Italic" />
       <NavButton onClick={() => editor.chain().focus().toggleUnderline().run()} isActive={editor.isActive('underline')} icon={UnderlineIcon} title="Underline" />
       <NavButton onClick={() => editor.chain().focus().toggleStrike().run()} isActive={editor.isActive('strike')} icon={Strikethrough} title="Strikethrough" />
-      
+
       <div className="w-px h-5 bg-gray-200 mx-1"></div>
-      
+
       <NavButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} isActive={editor.isActive('heading', { level: 1 })} icon={Heading1} title="Heading 1" />
       <NavButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} isActive={editor.isActive('heading', { level: 2 })} icon={Heading2} title="Heading 2" />
-      
+
       <div className="w-px h-5 bg-gray-200 mx-1"></div>
-      
+
       <NavButton onClick={() => editor.chain().focus().toggleBulletList().run()} isActive={editor.isActive('bulletList')} icon={List} title="Bullet List" />
       <NavButton onClick={() => editor.chain().focus().toggleOrderedList().run()} isActive={editor.isActive('orderedList')} icon={ListOrdered} title="Numbered List" />
-      
+
       <div className="w-px h-5 bg-gray-200 mx-1"></div>
-      
+
       <NavButton onClick={toggleLink} isActive={editor.isActive('link')} icon={LinkIcon} title="Insert Link" />
       <NavButton onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()} isActive={false} icon={RemoveFormatting} title="Clear Formatting" />
-      
+
       <div className="w-px h-5 bg-gray-200 mx-1"></div>
-      
+
       <NavButton onClick={() => editor.chain().focus().undo().run()} isActive={false} icon={Undo} title="Undo" />
       <NavButton onClick={() => editor.chain().focus().redo().run()} isActive={false} icon={Redo} title="Redo" />
     </div>
@@ -1930,10 +1930,10 @@ const TipTapEditor = ({ value, onChange }) => {
 
 function EmailTemplateBuilder({ template, resumes, accounts, onCancel, onSave }) {
   const senderAccount = accounts?.[0] || null;
-  const [formData, setFormData] = useState(template || { 
-    name: "", 
-    folder: "", 
-    subject: "", 
+  const [formData, setFormData] = useState(template || {
+    name: "",
+    folder: "",
+    subject: "",
     body: "",
     resumeId: ""
   });
@@ -1941,7 +1941,7 @@ function EmailTemplateBuilder({ template, resumes, accounts, onCancel, onSave })
   const textareaRef = useRef(null);
 
   const handleSubmit = () => {
-    if(!formData.name || !formData.subject || !formData.body) {
+    if (!formData.name || !formData.subject || !formData.body) {
       alert("Please fill in the template name, subject, and body.");
       return;
     }
@@ -1969,13 +1969,13 @@ function EmailTemplateBuilder({ template, resumes, accounts, onCancel, onSave })
   const handleToolbarAction = (label) => {
     switch (label) {
       case "Text Format": insertTextAtCursor("**", "**"); break;
-      case "Link": 
+      case "Link":
         const url = prompt("Enter the URL:");
         if (url) insertTextAtCursor("[", `](${url})`);
         else insertTextAtCursor("[", "](https://...)");
         break;
       case "Image": insertTextAtCursor("![Alt Text](", "https://...)"); break;
-      case "Attachment": 
+      case "Attachment":
         const attachmentDropdown = document.getElementById("resume-select");
         if (attachmentDropdown) {
           attachmentDropdown.focus();
@@ -2019,14 +2019,14 @@ function EmailTemplateBuilder({ template, resumes, accounts, onCancel, onSave })
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] shrink-0">
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Template Name <span className="text-red-500">*</span></label>
-              <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all" placeholder="e.g. Initial Outreach" />
+              <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all" placeholder="e.g. Initial Outreach" />
             </div>
 
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Template Folder</label>
               <div className="relative">
                 <Folder className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <select value={formData.folder} onChange={e => setFormData({...formData, folder: e.target.value})} className="w-full pl-12 pr-10 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] appearance-none outline-none transition-all cursor-pointer">
+                <select value={formData.folder} onChange={e => setFormData({ ...formData, folder: e.target.value })} className="w-full pl-12 pr-10 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] appearance-none outline-none transition-all cursor-pointer">
                   <option value="">No Folder (Uncategorized)</option>
                   <option value="Initial Outreach">Initial Outreach</option>
                   <option value="Follow Up">Follow Up</option>
@@ -2038,14 +2038,14 @@ function EmailTemplateBuilder({ template, resumes, accounts, onCancel, onSave })
 
             <div className="md:col-span-2">
               <label className="block text-sm font-bold text-gray-700 mb-2">Subject <span className="text-red-500">*</span></label>
-              <input type="text" value={formData.subject} onChange={e => setFormData({...formData, subject: e.target.value})} className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all" placeholder="e.g. Exploring Frontend Roles at {{company}}" />
+              <input type="text" value={formData.subject} onChange={e => setFormData({ ...formData, subject: e.target.value })} className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] outline-none transition-all" placeholder="e.g. Exploring Frontend Roles at {{company}}" />
             </div>
 
             <div className="md:col-span-2">
               <label className="block text-sm font-bold text-gray-700 mb-2">Attachment (Resume)</label>
               <div className="relative">
                 <Paperclip className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                <select id="resume-select" value={formData.resumeId || ""} onChange={e => setFormData({...formData, resumeId: e.target.value})} className="w-full pl-12 pr-10 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] appearance-none outline-none transition-all cursor-pointer">
+                <select id="resume-select" value={formData.resumeId || ""} onChange={e => setFormData({ ...formData, resumeId: e.target.value })} className="w-full pl-12 pr-10 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-sm text-gray-800 focus:bg-white focus:ring-4 focus:ring-[#eaf1fb] focus:border-[#d2e3fc] appearance-none outline-none transition-all cursor-pointer">
                   <option value="">No attachment</option>
                   {resumes.map(r => (
                     <option key={r.id} value={r.id}>{r.fileName || r.name || 'Resume'}</option>
@@ -2062,9 +2062,9 @@ function EmailTemplateBuilder({ template, resumes, accounts, onCancel, onSave })
               <span className="text-xs font-bold text-[#4285F4] bg-blue-50 px-3 py-1 rounded-full border border-blue-100">Use {'{{company}}'} or {'{{name}}'}</span>
             </div>
             <div className="flex flex-col focus-within:ring-2 focus-within:ring-[#eaf1fb] transition-all rounded-b-3xl">
-              <TipTapEditor 
+              <TipTapEditor
                 value={formData.body}
-                onChange={content => setFormData({...formData, body: content})}
+                onChange={content => setFormData({ ...formData, body: content })}
               />
             </div>
           </div>
@@ -2072,7 +2072,7 @@ function EmailTemplateBuilder({ template, resumes, accounts, onCancel, onSave })
 
         <div className="w-full lg:w-1/2 shrink-0 bg-[#f8fafd] flex flex-col p-6 sm:p-8 lg:border-l lg:border-gray-100 min-w-0">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-base font-bold text-gray-800 flex items-center gap-2 tracking-tight"><Eye size={18} className="text-[#9b72cb]"/> Live Preview</h3>
+            <h3 className="text-base font-bold text-gray-800 flex items-center gap-2 tracking-tight"><Eye size={18} className="text-[#9b72cb]" /> Live Preview</h3>
             <span className="text-xs text-gray-500 font-bold bg-white px-3 py-1.5 rounded-full border border-gray-200/60 shadow-sm hidden sm:inline-block">Sample Data Applied</span>
           </div>
 
@@ -2081,10 +2081,10 @@ function EmailTemplateBuilder({ template, resumes, accounts, onCancel, onSave })
               <p className="flex items-start gap-3"><span className="font-semibold text-gray-400 w-16 shrink-0">To</span> <span className="text-[#4285F4] font-bold bg-[#eaf1fb] px-2.5 py-0.5 rounded-md truncate">Example Recruiter &lt;hiring@google.com&gt;</span></p>
               <p className="flex items-start gap-3"><span className="font-semibold text-gray-400 w-16 shrink-0">Subject</span> <span className="text-gray-800 font-bold truncate">{formData.subject || <span className="text-gray-400 italic font-normal">No subject</span>}</span></p>
               {resumeDisplayName && (
-                <p className="flex items-center gap-3 mt-4 pt-4"><Paperclip size={16} className="text-gray-400 shrink-0"/> <span className="text-[12px] bg-gray-50 text-gray-700 px-3 py-1 rounded-lg font-bold border border-gray-100 truncate">{resumeDisplayName}</span></p>
+                <p className="flex items-center gap-3 mt-4 pt-4"><Paperclip size={16} className="text-gray-400 shrink-0" /> <span className="text-[12px] bg-gray-50 text-gray-700 px-3 py-1 rounded-lg font-bold border border-gray-100 truncate">{resumeDisplayName}</span></p>
               )}
             </div>
-            
+
             <div className="text-sm text-gray-700 font-sans leading-relaxed">
               {previewBody ? <div dangerouslySetInnerHTML={{ __html: previewBody }} /> : <span className="text-gray-400 italic">Body content will appear here...</span>}
               <br /><br />
