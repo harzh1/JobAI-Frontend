@@ -17,6 +17,7 @@ import {
   Trash2,
 } from "../components/ui/AppIcons";
 import { Badge, Button, Card } from "../components/ui/UIComponents";
+import ConfirmDialog from "../components/ui/ConfirmDialog";
 import {
   jobService,
   savedJobService,
@@ -46,6 +47,7 @@ export default function JobDetail({ jobId, job: jobProp, onBack }) {
   const [resumes, setResumes] = useState([]);
   const [selectedResume, setSelectedResume] = useState(null);
   const [loadingResumes, setLoadingResumes] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (jobProp) {
@@ -137,6 +139,19 @@ export default function JobDetail({ jobId, job: jobProp, onBack }) {
       alert("Failed to mark as applied. Please try again.");
     } finally {
       setIsMarkingApplied(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await savedJobService.unsave(user.uid, job.id || jobId);
+      await jobService.delete(job.id || jobId);
+      if (onBack) onBack();
+    } catch (error) {
+      console.error("Error deleting job:", error);
+      alert("Failed to delete job. Please try again.");
+    } finally {
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -252,20 +267,7 @@ export default function JobDetail({ jobId, job: jobProp, onBack }) {
               variant="secondary"
               icon={Trash2}
               className="hover:bg-red-50 hover:text-red-600 hover:border-red-200"
-              onClick={async () => {
-                if (
-                  window.confirm(`Delete "${job.title}" from your saved jobs?`)
-                ) {
-                  try {
-                    await savedJobService.unsave(user.uid, job.id || jobId);
-                    await jobService.delete(job.id || jobId);
-                    if (onBack) onBack();
-                  } catch (error) {
-                    console.error("Error deleting job:", error);
-                    alert("Failed to delete job. Please try again.");
-                  }
-                }
-              }}
+              onClick={() => setShowDeleteConfirm(true)}
             >
               Delete
             </Button>
@@ -468,6 +470,15 @@ export default function JobDetail({ jobId, job: jobProp, onBack }) {
           )}
         </div>
       </Card>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Delete saved job?"
+        description={`"${job.title}" will be permanently removed.`}
+        confirmLabel="Delete"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 }

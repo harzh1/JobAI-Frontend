@@ -11,6 +11,8 @@ import {
   X,
 } from "../components/ui/AppIcons";
 import { Card, Button } from "../components/ui/UIComponents";
+import EmptyStateCard from "../components/ui/EmptyStateCard";
+import ConfirmDialog from "../components/ui/ConfirmDialog";
 import { useAuth } from "../context/AuthContext";
 import { uploadResume, getUserResumes, deleteResume } from "../utils/firebaseServices";
 
@@ -22,6 +24,7 @@ export default function Resumes() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [viewingResume, setViewingResume] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const fileInputRef = useRef(null);
 
   const getResumeDownloadUrl = (resume) =>
@@ -89,19 +92,19 @@ export default function Resumes() {
     }
   };
 
-  const handleDeleteResume = async (resume) => {
-    if (!confirm(`Are you sure you want to delete "${resume.fileName}"?`)) {
-      return;
-    }
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
 
     try {
-      await deleteResume(resume.id);
-      setResumes(resumes.filter(r => r.id !== resume.id));
+      await deleteResume(deleteTarget.id);
+      setResumes(resumes.filter(r => r.id !== deleteTarget.id));
       setSuccess("Resume deleted successfully!");
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       console.error("Error deleting resume:", err);
       setError("Failed to delete resume. Please try again.");
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -120,7 +123,7 @@ export default function Resumes() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto flex flex-col gap-6 w-full">
+    <div className="w-full space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-end items-start sm:items-center gap-4">
         <div>
@@ -187,15 +190,11 @@ export default function Resumes() {
 
       {/* Resumes Grid */}
       {resumes.length === 0 ? (
-        <Card className="text-center py-12">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
-            <FileText size={24} />
-          </div>
-          <h3 className="text-gray-900 font-bold mb-1">No resumes uploaded</h3>
-          <p className="text-gray-500 text-sm mb-4">
-            Upload your first resume to get started
-          </p>
-        </Card>
+        <EmptyStateCard
+          icon={FileText}
+          title="No resumes uploaded"
+          description="Upload your first resume to get started."
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {resumes.map((resume) => (
@@ -254,8 +253,10 @@ export default function Resumes() {
                 </Button>
                 <Button
                   variant="secondary"
-                  className="px-3 text-red-500 hover:bg-red-50"
-                  onClick={() => handleDeleteResume(resume)}
+                  className="px-3 text-red-500"
+                  onClick={() => setDeleteTarget(resume)}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(217, 48, 37, 0.1)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   title="Delete"
                 >
                   <Trash2 size={14} />
@@ -341,6 +342,16 @@ export default function Resumes() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete Resume?"
+        description={`"${deleteTarget?.fileName}" will be permanently removed.`}
+        confirmLabel="Delete"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

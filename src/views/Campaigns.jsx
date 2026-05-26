@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { motion } from "framer-motion";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -47,7 +48,9 @@ import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, List, ListOrdered, Link as LinkIcon, RemoveFormatting, Heading1, Heading2, Undo, Redo, RotateCcw, XCircle, Edit2
 } from "lucide-react";
 
+import { Card } from "../components/ui/UIComponents";
 import EmptyStateCard from "../components/ui/EmptyStateCard";
+import ConfirmDialog from "../components/ui/ConfirmDialog";
 
 // --- Helpers ---
 const formatDate = (dateMs) => {
@@ -61,7 +64,7 @@ const formatDate = (dateMs) => {
 
 // --- Local UI Wrappers (Ensures the complex UI renders perfectly) ---
 const LocalCard = ({ children, className = "", noPadding = false, onClick }) => (
-  <div onClick={onClick} className={`bg-white rounded-3xl border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)] overflow-hidden transition-all duration-300 hover:shadow-[0_8px_32px_rgba(0,0,0,0.04)] ${noPadding ? "" : "p-6 sm:p-8"} ${className}`}>
+  <div onClick={onClick} className={`bg-white rounded-3xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden transition-all duration-300 hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] ${noPadding ? "" : "p-6 sm:p-8"} ${className}`}>
     {children}
   </div>
 );
@@ -87,7 +90,7 @@ const LocalButton = ({ children, onClick, variant = "primary", disabled, classNa
 const Modal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md", hideHeader = false }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/10 backdrop-blur-md animate-in fade-in duration-300" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-300" onClick={onClose}>
       <div className={`bg-white rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.08)] border border-white/50 w-full ${maxWidth} max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300`} onClick={e => e.stopPropagation()}>
         {!hideHeader && (
           <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between shrink-0">
@@ -127,6 +130,8 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [selectedAccountForSettings, setSelectedAccountForSettings] = useState(null);
+  const [showClearHistoryConfirm, setShowClearHistoryConfirm] = useState(false);
+  const [showDeleteCampaignConfirm, setShowDeleteCampaignConfirm] = useState(false);
 
   // Search & Filter
   const [campaignSearch, setCampaignSearch] = useState("");
@@ -264,9 +269,7 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
     }
   };
 
-  const handleClearHistory = async () => {
-    if (!window.confirm("Are you sure you want to clear all activity history? This cannot be undone.")) return;
-    
+  const handleConfirmClearHistory = async () => {
     setConnecting('Clearing...');
     try {
       const campaignsWithHistory = campaigns.filter(c => c.history && c.history.length > 0);
@@ -278,6 +281,7 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
       alert("Failed to clear history");
     } finally {
       setConnecting(null);
+      setShowClearHistoryConfirm(false);
     }
   };
 
@@ -326,25 +330,37 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
   }, [campaigns]);
 
   // --- Routing Logic ---
-  if (viewState === "campaign-details" && selectedCampaign) {
+  if (viewState === "campaign-detail") {
     return (
-      <CampaignDetailsView 
-        campaign={selectedCampaign} 
-        templates={templates}
-        resumes={resumes}
-        accounts={accounts}
-        onBack={() => { setSelectedCampaign(null); setViewState("campaigns"); }} 
-        onToggleStatus={() => toggleCampaignStatus(selectedCampaign.id)}
-        onStop={() => {
-          updateCampaignStatus(selectedCampaign.id, 'Stopped').then(() => {
-            setSelectedCampaign(prev => ({ ...prev, status: 'Stopped' }));
-            setCampaigns(prev => prev.map(c => c.id === selectedCampaign.id ? { ...c, status: 'Stopped' } : c));
-          })
-        }}
-        onResend={(accountId) => handleResendCampaign(selectedCampaign.id, accountId)}
-        onEdit={() => setViewState("edit-campaign")}
-        onDelete={async () => {
-          if (window.confirm("Are you sure you want to delete this campaign? All analytics and history will be lost. This cannot be undone.")) {
+      <>
+        <CampaignDetailView 
+          campaign={selectedCampaign}
+          onBack={() => {
+            setSelectedCampaign(null);
+            setViewState("campaigns");
+          }}
+          onStatusChange={async (newStatus) => {
+            await updateCampaignStatus(selectedCampaign.id, newStatus);
+            setSelectedCampaign(prev => ({ ...prev, status: newStatus }));
+            setCampaigns(prev => prev.map(c => c.id === selectedCampaign.id ? { ...c, status: newStatus } : c));
+          }}
+          onStop={() => {
+            updateCampaignStatus(selectedCampaign.id, 'Stopped').then(() => {
+              setSelectedCampaign(prev => ({ ...prev, status: 'Stopped' }));
+              setCampaigns(prev => prev.map(c => c.id === selectedCampaign.id ? { ...c, status: 'Stopped' } : c));
+            })
+          }}
+          onResend={(accountId) => handleResendCampaign(selectedCampaign.id, accountId)}
+          onEdit={() => setViewState("edit-campaign")}
+          onDelete={() => setShowDeleteCampaignConfirm(true)}
+        />
+        
+        <ConfirmDialog
+          open={showDeleteCampaignConfirm}
+          title="Delete campaign?"
+          description="All analytics and history will be lost. This cannot be undone."
+          confirmLabel="Delete"
+          onConfirm={async () => {
             try {
               await deleteCampaign(selectedCampaign.id);
               setCampaigns(prev => prev.filter(c => c.id !== selectedCampaign.id));
@@ -353,10 +369,13 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
             } catch(e) {
               console.error("Failed to delete campaign:", e);
               alert("Failed to delete campaign. Please try again.");
+            } finally {
+              setShowDeleteCampaignConfirm(false);
             }
-          }
-        }}
-      />
+          }}
+          onCancel={() => setShowDeleteCampaignConfirm(false)}
+        />
+      </>
     );
   }
 
@@ -422,30 +441,28 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
     <div className="flex flex-col h-full max-w-[1400px] mx-auto">
       {/* Sub-Navigation Tabs */}
       <div className="flex items-center gap-1 mb-8 p-1.5 bg-[#f0f4f9] rounded-full w-fit mx-2 sm:mx-0">
-        <button 
-          onClick={() => setViewState("campaigns")} 
-          className={`px-5 py-2.5 rounded-full text-[14px] font-medium transition-all duration-300 ${viewState === 'campaigns' ? 'bg-white text-[#1f1f1f] shadow-sm border border-black/5' : 'bg-transparent text-[#444746] hover:text-[#1f1f1f] hover:bg-black/5'}`}
-        >
-          Active Campaigns
-        </button>
-        <button 
-          onClick={() => setViewState("templates")} 
-          className={`px-5 py-2.5 rounded-full text-[14px] font-medium transition-all duration-300 ${viewState === 'templates' ? 'bg-white text-[#1f1f1f] shadow-sm border border-black/5' : 'bg-transparent text-[#444746] hover:text-[#1f1f1f] hover:bg-black/5'}`}
-        >
-          Email Templates
-        </button>
-        <button 
-          onClick={() => setViewState("accounts")} 
-          className={`px-5 py-2.5 rounded-full text-[14px] font-medium transition-all duration-300 ${viewState === 'accounts' ? 'bg-white text-[#1f1f1f] shadow-sm border border-black/5' : 'bg-transparent text-[#444746] hover:text-[#1f1f1f] hover:bg-black/5'}`}
-        >
-          Sender Accounts
-        </button>
-        <button 
-          onClick={() => setViewState("history")} 
-          className={`px-5 py-2.5 rounded-full text-[14px] font-medium transition-all duration-300 ${viewState === 'history' ? 'bg-white text-[#1f1f1f] shadow-sm border border-black/5' : 'bg-transparent text-[#444746] hover:text-[#1f1f1f] hover:bg-black/5'}`}
-        >
-          Activity History
-        </button>
+        {[
+          { id: 'campaigns', label: 'Active Campaigns' },
+          { id: 'templates', label: 'Email Templates' },
+          { id: 'accounts', label: 'Sender Accounts' },
+          { id: 'history', label: 'Activity History' }
+        ].map(tab => (
+          <button 
+            key={tab.id}
+            onClick={() => setViewState(tab.id)} 
+            className={`relative px-5 py-2.5 rounded-full text-[14px] font-medium transition-colors duration-300 ${viewState === tab.id ? 'text-[#1f1f1f]' : 'text-[#444746] hover:text-[#1f1f1f] hover:bg-black/5'}`}
+          >
+            {viewState === tab.id && (
+              <motion.div
+                layoutId="campaigns-tab-active"
+                className="absolute inset-0 bg-white shadow-sm border border-black/5 rounded-full"
+                initial={false}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              />
+            )}
+            <span className="relative z-10">{tab.label}</span>
+          </button>
+        ))}
       </div>
 
       {viewState === "campaigns" ? (
@@ -757,21 +774,24 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
           />
         </>
       ) : viewState === "history" ? (
-        <div className="flex-1 overflow-y-auto px-2 sm:px-0 pb-12 animate-in fade-in duration-300">
-          <div className="p-2 sm:p-4 mb-8">
-            
+        <>
+          <div className="flex justify-end mb-6 px-2">
+            {allHistoryEvents.length > 0 && (
+              <LocalButton 
+                variant="danger"
+                onClick={() => setShowClearHistoryConfirm(true)}
+                disabled={connecting === 'Clearing...'}
+                className="w-full sm:w-auto whitespace-nowrap"
+              >
+                {connecting === 'Clearing...' ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                Clear History
+              </LocalButton>
+            )}
+          </div>
+
+          <div className="px-2 pb-12 animate-in fade-in duration-300">
             {allHistoryEvents.length > 0 ? (
               <div className="overflow-hidden">
-                <div className="flex justify-end mb-4">
-                  <button 
-                    onClick={handleClearHistory}
-                    disabled={connecting === 'Clearing...'}
-                    className="flex items-center gap-2 px-4 py-2 text-[13px] font-bold text-red-500 bg-white border border-red-100 rounded-full hover:bg-red-50 hover:border-red-200 transition-colors shadow-sm disabled:opacity-50"
-                  >
-                    {connecting === 'Clearing...' ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
-                    Clear History
-                  </button>
-                </div>
                 <table className="w-full text-left min-w-[600px] border-collapse">
                   <thead className="text-[12px] uppercase tracking-widest text-[#444746] font-bold border-b border-gray-200/60">
                     <tr>
@@ -817,8 +837,17 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
               />
             )}
           </div>
-        </div>
+        </>
       ) : null}
+
+      <ConfirmDialog
+        open={showClearHistoryConfirm}
+        title="Clear activity history?"
+        description="Are you sure you want to clear all activity history? This cannot be undone."
+        confirmLabel="Clear"
+        onConfirm={handleConfirmClearHistory}
+        onCancel={() => setShowClearHistoryConfirm(false)}
+      />
     </div>
   );
 }
@@ -1385,7 +1414,7 @@ function NewCampaignBuilder({ initialData, onCancel, onSend, templates, accounts
                       </div>
                       
                       <div className="text-sm text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">
-                        {stepBody}
+                        <div dangerouslySetInnerHTML={{ __html: stepBody }} />
                         <br /><br />
                         <div className="text-gray-400 pt-4 border-t border-gray-50 mt-4 inline-block w-full">
                           <span className="font-bold text-gray-800">{selectedAccount?.name || 'Your Name'}</span><br />

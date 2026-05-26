@@ -21,6 +21,7 @@ import {
   Eye,
   Edit3
 } from "../components/ui/AppIcons";
+import ConfirmDialog from "../components/ui/ConfirmDialog";
 import { useAuth } from "../context/AuthContext";
 import { applicationService } from "../services/database";
 import { APPLICATION_STATUSES } from "../data/databaseSchema";
@@ -93,7 +94,7 @@ const Button = ({ children, onClick, variant = "primary", disabled, className = 
 const Modal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md", hideHeader = false }) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/20 animate-in fade-in duration-200" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200" onClick={onClose}>
       <div className={`bg-white rounded-2xl shadow-2xl border border-gray-200 w-full ${maxWidth} max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200`} onClick={e => e.stopPropagation()}>
         {!hideHeader && (
           <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50 shrink-0">
@@ -123,6 +124,7 @@ export default function Applications({ setView, setSelectedJobId }) {
   const [viewingApp, setViewingApp] = useState(null);
   const [dragOverCol, setDragOverCol] = useState(null);
   const [viewingResume, setViewingResume] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const formatFileSize = (bytes) => {
     if (!bytes) return "Unknown size";
@@ -173,14 +175,16 @@ export default function Applications({ setView, setSelectedJobId }) {
     }
   };
 
-  const handleDelete = async (applicationId) => {
-    if (!window.confirm("Are you sure you want to delete this application?")) return;
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await applicationService.delete(user.uid, applicationId);
-      setApplications((current) => current.filter((app) => app.id !== applicationId));
-      if (viewingApp?.id === applicationId) setViewingApp(null);
+      await applicationService.delete(user.uid, deleteTarget);
+      setApplications((current) => current.filter((app) => app.id !== deleteTarget));
+      if (viewingApp?.id === deleteTarget) setViewingApp(null);
     } catch (error) {
       console.error("Error deleting application:", error);
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -307,7 +311,7 @@ export default function Applications({ setView, setSelectedJobId }) {
                         onClick={() => setViewingApp(app)}
                         onViewJob={() => openJobDetail(app)}
                         onViewResume={() => openResume(app)}
-                        onDelete={() => handleDelete(app.id)}
+                        onDelete={() => setDeleteTarget(app.id)}
                       />
                     ))
                   )}
@@ -359,7 +363,7 @@ export default function Applications({ setView, setSelectedJobId }) {
         }}
         onViewJob={() => openJobDetail(viewingApp)}
         onViewResume={() => openResume(viewingApp)}
-        onDelete={() => handleDelete(viewingApp?.id)}
+        onDelete={() => setDeleteTarget(viewingApp?.id)}
       />
 
       {/* Resume Viewer Modal */}
@@ -438,6 +442,15 @@ export default function Applications({ setView, setSelectedJobId }) {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete application?"
+        description="This action will permanently remove this application."
+        confirmLabel="Delete"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

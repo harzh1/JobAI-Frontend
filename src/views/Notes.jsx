@@ -6,15 +6,23 @@ import {
   Trash2,
   Check,
   Loader2,
+  Pencil,
+  X,
+  Save,
 } from "../components/ui/AppIcons";
 
 import { Card, Button } from "../components/ui/UIComponents";
 
 import EmptyStateCard from "../components/ui/EmptyStateCard";
+import ConfirmDialog from "../components/ui/ConfirmDialog";
 
 export default function Notes({ notes, setNotes }) {
   const [newNote, setNewNote] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  
+  const [editingId, setEditingId] = useState(null);
+  const [editContent, setEditContent] = useState("");
 
   const handleAddNote = () => {
     if (!newNote.trim()) return;
@@ -42,14 +50,37 @@ export default function Notes({ notes, setNotes }) {
     );
   };
 
-  const deleteNote = (id) => {
-    if (!window.confirm("Delete this note?")) return;
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    setNotes(notes.filter((n) => n.id !== deleteTarget.id));
+    setDeleteTarget(null);
+  };
 
-    setNotes(notes.filter((n) => n.id !== id));
+  const handleEditClick = (note) => {
+    setEditingId(note.id);
+    setEditContent(note.content);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditContent("");
+  };
+
+  const handleSaveEdit = (id) => {
+    if (!editContent.trim()) return;
+    setNotes(notes.map((n) => (n.id === id ? { ...n, content: editContent } : n)));
+    setEditingId(null);
+    setEditContent("");
+  };
+
+  const formatDate = (isoString) => {
+    if (!isoString) return "";
+    const d = new Date(isoString);
+    return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
   };
 
   return (
-    <div className="max-w-4xl mx-auto w-full space-y-6">
+    <div className="w-full space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
         {!isCreating && (
@@ -65,21 +96,14 @@ export default function Notes({ notes, setNotes }) {
 
       {/* Create Note */}
       {isCreating && (
-        <Card
-          className="
-            border border-gray-200/80
-            bg-white
-            shadow-sm
-          "
-        >
+        <Card className="transition-all duration-300 border-none bg-white dark:bg-[var(--surface-bg)] shadow-md">
           <div className="space-y-5">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-semibold text-gray-900">
+                <h3 className="text-base font-bold text-[var(--text-primary)] tracking-tight">
                   Create Note
                 </h3>
-
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-[var(--muted)]">
                   Add reminders, prep points, or quick thoughts.
                 </p>
               </div>
@@ -90,11 +114,7 @@ export default function Notes({ notes, setNotes }) {
                   setNewNote("");
                 }}
                 variant="ghost"
-                className="
-                  rounded-xl
-                  text-gray-500
-                  hover:text-gray-900
-                "
+                className="rounded-full text-[var(--muted)] hover:text-[var(--text-primary)] hover:bg-gray-100"
               >
                 Cancel
               </Button>
@@ -104,22 +124,8 @@ export default function Notes({ notes, setNotes }) {
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
               placeholder="Write something..."
-              className="
-                w-full
-                min-h-[180px]
-                rounded-2xl
-                border border-gray-200
-                bg-gray-50
-                px-4 py-3
-                text-[15px]
-                leading-7
-                text-gray-900
-                outline-none
-                resize-none
-                transition-all
-                focus:border-[#3442FF]
-                focus:ring-4 focus:ring-[#3442FF]/10
-              "
+              autoFocus
+              className="w-full min-h-[180px] rounded-xl px-4 py-3 text-[15px] leading-7 outline-none resize-y transition-all bg-transparent border border-[#e1e5ea] dark:border-[#333538]/50 focus:border-[#3442FF] focus:ring-4 focus:ring-[#3442FF]/10 text-black"
             />
 
             <div className="flex justify-end">
@@ -143,111 +149,124 @@ export default function Notes({ notes, setNotes }) {
         />
       )}
 
-      {/* Notes */}
-      <div className="space-y-4">
-        {notes.map((note, index) => (
-          <Card
-            key={note.id}
-            className={`
-              border border-gray-200/80
-              bg-white
-              shadow-sm
-              transition-all duration-200
-              hover:border-indigo-200
-              hover:shadow-md
-              ${
-                note.isCompleted
-                  ? "opacity-75"
-                  : ""
-              }
-            `}
-          >
-            <div className="flex items-start gap-4">
-              {/* Toggle */}
-              <button
-                type="button"
-                onClick={() => toggleNote(note)}
-                className={`
-                  mt-1
-                  flex h-10 w-10 shrink-0 items-center justify-center
-                  rounded-xl
-                  border
-                  transition-all duration-200
-                  ${
-                    note.isCompleted
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-600"
-                      : "border-gray-200 bg-gray-50 text-gray-400 hover:border-indigo-200 hover:text-[#3442FF]"
-                  }
-                `}
-              >
-                <Check
-                  size={18}
-                  className={
-                    note.isCompleted
-                      ? "opacity-100"
-                      : "opacity-0"
-                  }
-                />
-              </button>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-600">
-                      Note {String(index + 1).padStart(2, "0")}
-                    </span>
-
-                    <span
-                      className={`
-                        inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold
-                        ${
-                          note.isCompleted
-                            ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
-                            : "border border-indigo-100 bg-indigo-50 text-[#3442FF]"
-                        }
-                      `}
-                    >
-                      {note.isCompleted
-                        ? "Completed"
-                        : "Active"}
-                    </span>
-                  </div>
-
-                  <Button
-                    onClick={() => deleteNote(note.id)}
-                    variant="ghost"
-                    className="
-                      h-9 w-9 p-0
-                      rounded-xl
-                      text-gray-300
-                      hover:bg-red-50
-                      hover:text-red-500
-                    "
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </div>
-
-                <p
-                  className={`
-                    whitespace-pre-wrap
-                    text-[15px]
-                    leading-7
-                    ${
-                      note.isCompleted
-                        ? "text-gray-400 line-through"
-                        : "text-gray-700"
-                    }
-                  `}
+      {/* Notes Table */}
+      {notes.length > 0 && (
+        <div className="overflow-hidden animate-in fade-in duration-300 px-2">
+          <table className="w-full text-left min-w-[600px] border-collapse">
+            <thead className="text-[12px] uppercase tracking-widest text-black font-bold border-b border-[#e1e5ea]">
+              <tr>
+                <th className="py-4 px-2 font-bold border-none w-24">Status</th>
+                <th className="py-4 px-4 font-bold border-none">Note Content</th>
+                <th className="py-4 px-4 font-bold border-none w-48">Date & Time</th>
+                <th className="py-4 px-4 font-bold border-none w-20 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-transparent divide-y divide-[#e1e5ea]/60">
+              {notes.map((note) => (
+                <tr
+                  key={note.id}
+                  className={`group hover:bg-[#f8fafd] transition-colors duration-200 ${note.isCompleted ? "opacity-70" : ""
+                    }`}
                 >
-                  {note.content}
-                </p>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+                  <td className="py-4 px-2 whitespace-nowrap">
+                    <button
+                      type="button"
+                      onClick={() => toggleNote(note)}
+                      className={`flex items-center gap-2 text-[13px] font-bold transition-colors duration-200 rounded-full py-1.5 ${note.isCompleted
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-black"
+                        }`}
+                    >
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${note.isCompleted
+                            ? "border-emerald-500 bg-emerald-500 dark:border-emerald-500 dark:bg-emerald-500"
+                            : "border-gray-300 dark:border-gray-600"
+                          }`}
+                      >
+                        {note.isCompleted && (
+                          <Check size={12} className="text-white" />
+                        )}
+                      </div>
+                      {note.isCompleted ? "Done" : "Active"}
+                    </button>
+                  </td>
+                  <td className="py-4 px-4 align-middle">
+                    {editingId === note.id ? (
+                      <textarea
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        rows={3}
+                        autoFocus
+                        className="w-full rounded-xl px-4 py-3 text-[15px] outline-none resize-y transition-all bg-transparent border border-[#e1e5ea] dark:border-[#333538]/50 focus:border-[#3442FF] focus:ring-4 focus:ring-[#3442FF]/10 text-black"
+                      />
+                    ) : (
+                      <p
+                        className={`whitespace-pre-wrap leading-relaxed line-clamp-2 break-all ${note.isCompleted
+                            ? "text-[var(--muted)] line-through opacity-70"
+                            : "text-black text-[15px] font-medium"
+                          }`}
+                      >
+                        {note.content}
+                      </p>
+                    )}
+                  </td>
+                  <td className="py-4 px-4 whitespace-nowrap text-black text-[14px]">
+                    {note.createdAt ? formatDate(note.createdAt) : "Unknown"}
+                  </td>
+                  <td className="py-4 px-4 text-right align-middle">
+                    <div className="flex items-center justify-end gap-1">
+                      {editingId === note.id ? (
+                        <>
+                          <button
+                            onClick={() => handleSaveEdit(note.id)}
+                            className="p-2 rounded-full text-[#3442FF] hover:bg-[#3442FF]/10 transition-colors"
+                            title="Save"
+                          >
+                            <Save size={16} />
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="p-2 rounded-full text-[var(--muted)] hover:text-[var(--text-primary)] hover:bg-gray-100 transition-colors"
+                            title="Cancel"
+                          >
+                            <X size={16} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleEditClick(note)}
+                            className="p-2 rounded-full text-gray-400 hover:text-[#3442FF] hover:bg-[#3442FF]/10 transition-all duration-200 inline-flex"
+                            title="Edit"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <button
+                            onClick={() => setDeleteTarget(note)}
+                            className="p-2 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all duration-200 inline-flex"
+                            title="Delete"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="Delete this note?"
+        description="This note will be permanently removed."
+        confirmLabel="Delete"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

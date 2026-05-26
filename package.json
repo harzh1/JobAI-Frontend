@@ -22,6 +22,7 @@
     "firebase": "^12.7.0",
     "firebase-admin": "^13.6.1",
     "firebase-functions": "^7.0.5",
+    "framer-motion": "^12.40.0",
     "lucide-react": "^0.562.0",
     "picomatch": "^4.0.3",
     "react": "^19.2.0",

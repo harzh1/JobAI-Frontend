@@ -48,6 +48,7 @@ import {
   SquaresFour,
   SuitcaseSimple,
   Sun as PhSun,
+  Tag as PhTag,
   Trash,
   TrendUp,
   UploadSimple,
@@ -126,3 +127,4 @@ export const Edit3 = withDefaultWeight(Pen);
 export const MoreHorizontal = withDefaultWeight(DotsThree);
 export const LayoutDashboard = withDefaultWeight(SquaresFour);
 export const List = withDefaultWeight(PhList);
+export const Tag = withDefaultWeight(PhTag);
