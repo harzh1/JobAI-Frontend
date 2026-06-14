@@ -25,6 +25,8 @@ const getAuthErrorMessage = (error, isGoogleFlow = false) => {
       return "The Google sign-in popup was closed before sign-in completed.";
     case "auth/popup-blocked":
       return "Your browser blocked the Google sign-in popup.";
+    case "auth/account-exists-with-different-credential":
+      return "This email is linked to a Google account. Please sign in with Google.";
     case "auth/unauthorized-domain":
       return "This domain is not authorized for Firebase Google sign-in yet.";
     case "auth/operation-not-allowed":

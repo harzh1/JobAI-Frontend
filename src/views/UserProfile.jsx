@@ -11,17 +11,260 @@ import {
   CreditCard,
   HelpCircle,
   ChevronRight,
+  ChevronDown,
   Camera,
   Briefcase,
   FileText,
+  Lock,
+  Eye,
+  EyeOff,
+  Check,
+  AlertCircle,
 } from "../components/ui/AppIcons";
 import { Card, Button } from "../components/ui/UIComponents";
 import { useAuth } from "../context/AuthContext";
 import { getUserStats } from "../services/database";
 import { useTheme } from "../context/ThemeContext";
 
+// Password Management Section Component
+function PasswordSection({ user, setPasswordForUser, changePassword }) {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const hasPasswordProvider = user?.providerData?.some(
+    (p) => p.providerId === "password"
+  );
+
+  const passwordChecks = {
+    length: newPassword.length >= 8,
+    uppercase: /[A-Z]/.test(newPassword),
+    lowercase: /[a-z]/.test(newPassword),
+    number: /[0-9]/.test(newPassword),
+  };
+  const isPasswordStrong = Object.values(passwordChecks).every(Boolean);
+
+  const resetForm = () => {
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setError("");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!isPasswordStrong) {
+      setError("Please create a stronger password.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (hasPasswordProvider) {
+        await changePassword(currentPassword, newPassword);
+        setSuccess("Password changed successfully.");
+      } else {
+        await setPasswordForUser(newPassword);
+        setSuccess("Password set! You can now sign in with email & password.");
+      }
+      resetForm();
+    } catch (err) {
+      console.error("Password update error:", err);
+      switch (err.code) {
+        case "auth/wrong-password":
+        case "auth/invalid-credential":
+          setError("Current password is incorrect.");
+          break;
+        case "auth/weak-password":
+          setError("Password is too weak. Please use a stronger one.");
+          break;
+        case "auth/requires-recent-login":
+          setError("Please sign out and sign in again before changing your password.");
+          break;
+        case "auth/provider-already-linked":
+          setError("A password is already set for this account. Use 'Change Password' instead.");
+          break;
+        default:
+          setError(err.message || "Failed to update password.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const [isOpen, setIsOpen] = useState(false);
+
+  const inputClass =
+    "auth-input w-full pl-10 pr-10 py-3 rounded-xl border border-[#e1e5ea] bg-[#f8f9fa] text-sm focus:outline-none focus:ring-2 focus:ring-[#3442FF] focus:border-transparent transition-all text-[#1f1f1f]";
+
+  return (
+    <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full p-5 flex items-center gap-3 text-left transition-colors hover:bg-[#f0f4f9] ${isOpen ? "border-b border-[#e1e5ea]" : ""}`}
+      >
+        <div className="w-8 h-8 rounded-lg bg-[#f0f4f9] text-[#1f1f1f] flex items-center justify-center shrink-0">
+          <Lock size={16} />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-base font-bold text-[#1f1f1f] tracking-tight">
+            {hasPasswordProvider ? "Change Password" : "Set Password"}
+          </h3>
+          <p className="text-xs text-[#444746]">
+            {hasPasswordProvider
+              ? "Update your current password"
+              : "Add a password so you can also sign in with email"}
+          </p>
+        </div>
+        <ChevronDown
+          size={18}
+          className={`text-[#444746] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      <div
+        className="transition-all duration-300 ease-in-out overflow-hidden"
+        style={{
+          maxHeight: isOpen ? "600px" : "0px",
+          opacity: isOpen ? 1 : 0,
+        }}
+      >
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          {error && (
+            <div className="p-3 rounded-xl flex items-center gap-2 text-sm bg-red-50 border border-red-200 text-red-700">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="p-3 rounded-xl flex items-center gap-2 text-sm bg-green-50 border border-green-200 text-green-700">
+              <Check className="w-4 h-4 shrink-0" />
+              {success}
+            </div>
+          )}
+
+          {hasPasswordProvider && (
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#444746]" />
+              <input
+                type={showCurrentPassword ? "text" : "password"}
+                placeholder="Current password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+                className={inputClass}
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#444746]"
+              >
+                {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          )}
+
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#444746]" />
+            <input
+              type={showNewPassword ? "text" : "password"}
+              placeholder="New password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              className={inputClass}
+            />
+            <button
+              type="button"
+              onClick={() => setShowNewPassword(!showNewPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#444746]"
+            >
+              {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#444746]" />
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className={inputClass}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#444746]"
+            >
+            </button>
+          </div>
+
+          {confirmPassword.length > 0 && newPassword !== confirmPassword && (
+            <div className="flex items-center gap-1.5 text-xs text-red-600">
+              <AlertCircle className="w-3 h-3" />
+              Passwords do not match
+            </div>
+          )}
+
+          {/* Password Strength Indicators */}
+          {newPassword.length > 0 && (
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {[
+                { key: "length", label: "8+ characters" },
+                { key: "uppercase", label: "Uppercase letter" },
+                { key: "lowercase", label: "Lowercase letter" },
+                { key: "number", label: "Number" },
+              ].map((rule) => (
+                <div
+                  key={rule.key}
+                  className={`flex items-center gap-1.5 ${
+                    passwordChecks[rule.key] ? "text-green-600" : "text-[#c4c7c5]"
+                  }`}
+                >
+                  <Check className="w-3 h-3" />
+                  {rule.label}
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading || !isPasswordStrong || newPassword !== confirmPassword}
+            className="w-full py-3 bg-[#3442FF] hover:bg-[#2835e0] text-white text-sm font-bold rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+            ) : hasPasswordProvider ? (
+              "Update Password"
+            ) : (
+              "Set Password"
+            )}
+          </button>
+        </form>
+      </div>
+    </Card>
+  );
+}
+
 export default function UserProfile({ onLogout }) {
-  const { user } = useAuth();
+  const { user, setPasswordForUser, changePassword, deleteAccount } = useAuth();
   const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] = useState({
     email: true,
@@ -32,6 +275,20 @@ export default function UserProfile({ onLogout }) {
 
   const toggleNotification = (key) => {
     setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleDeleteAccount = async () => {
+    if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      try {
+        await deleteAccount();
+      } catch (error) {
+        if (error.code === 'auth/requires-recent-login') {
+          alert("Please sign out and sign back in to verify your identity before deleting your account.");
+        } else {
+          alert("Failed to delete account: " + error.message);
+        }
+      }
+    }
   };
 
   const [profileStats, setProfileStats] = useState({
@@ -114,26 +371,6 @@ export default function UserProfile({ onLogout }) {
               </div>
             </div>
           </Card>
-
-          {/* Quick Stats Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: "Applications", value: profileStats.totalApplications ?? 0, icon: Briefcase },
-              { label: "Saved Jobs", value: profileStats.savedJobs ?? 0, icon: Mail },
-              { label: "Interviews", value: "-", icon: User },
-              { label: "Resumes", value: profileStats.resumeCount ?? 0, icon: FileText },
-            ].map((stat) => (
-              <div key={stat.label} className="bg-white border-none rounded-[24px] p-5 transition-all hover:bg-black/5 hover:shadow-md group shadow-sm">
-                <div className="flex items-start justify-between mb-2">
-                  <div className="w-8 h-8 rounded-lg bg-[#f0f4f9] group-hover:bg-[#e8f0fe] group-hover:text-[#3442FF] flex items-center justify-center transition-colors text-[#444746]">
-                    <stat.icon size={16} />
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-[#1f1f1f] tracking-tight">{stat.value}</div>
-                <div className="text-xs font-medium text-[#444746] mt-0.5">{stat.label}</div>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* Right Column - Settings */}
@@ -188,6 +425,13 @@ export default function UserProfile({ onLogout }) {
               </div>
             </div>
           </Card>
+
+          {/* Password Management */}
+          <PasswordSection
+            user={user}
+            setPasswordForUser={setPasswordForUser}
+            changePassword={changePassword}
+          />
 
           {/* Notifications Settings */}
           <Card noPadding className="border-none shadow-sm bg-white rounded-[28px] overflow-hidden">
@@ -273,7 +517,10 @@ export default function UserProfile({ onLogout }) {
                   Permanently remove your account and all data. This action cannot be undone.
                 </p>
               </div>
-              <button className="shrink-0 px-4 py-2.5 bg-[#d93025] hover:bg-[#c5221f] text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
+              <button
+                onClick={handleDeleteAccount}
+                className="shrink-0 px-4 py-2.5 bg-[#d93025] hover:bg-[#c5221f] text-white text-sm font-semibold rounded-xl transition-colors shadow-sm"
+              >
                 Delete Account
               </button>
             </div>

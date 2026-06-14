@@ -7,13 +7,18 @@ import {
   updateProfile,
   sendPasswordResetEmail,
   GoogleAuthProvider,
+  EmailAuthProvider,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   setPersistence,
   browserLocalPersistence,
+  linkWithCredential,
+  updatePassword,
+  reauthenticateWithCredential,
+  deleteUser,
 } from "firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 
 const AuthContext = createContext({});
@@ -118,6 +123,48 @@ export const AuthProvider = ({ children }) => {
     await sendPasswordResetEmail(auth, email);
   };
 
+  // Set password for Google-only users (links email/password provider)
+  const setPasswordForUser = async (newPassword) => {
+    if (!auth.currentUser) throw new Error("No user signed in");
+    const credential = EmailAuthProvider.credential(
+      auth.currentUser.email,
+      newPassword
+    );
+    await linkWithCredential(auth.currentUser, credential);
+  };
+
+  // Change password for users who already have a password provider
+  const changePassword = async (currentPassword, newPassword) => {
+    if (!auth.currentUser) throw new Error("No user signed in");
+    const credential = EmailAuthProvider.credential(
+      auth.currentUser.email,
+      currentPassword
+    );
+    await reauthenticateWithCredential(auth.currentUser, credential);
+    await updatePassword(auth.currentUser, newPassword);
+  };
+
+  // Delete user account
+  const deleteAccount = async () => {
+    if (!auth.currentUser) throw new Error("No user signed in");
+    
+    // Attempt to delete user doc from Firestore first
+    try {
+      await deleteDoc(doc(db, "users", auth.currentUser.uid));
+    } catch (error) {
+      console.error("Error deleting user document:", error);
+      // Proceed to delete auth user even if Firestore delete fails
+    }
+
+    // Delete user from Firebase Auth
+    await deleteUser(auth.currentUser);
+    
+    // Clean up local state
+    localStorage.removeItem("authUser");
+    setUser(null);
+    setUserProfile(null);
+  };
+
   // Fetch user profile from Firestore
   const fetchUserProfile = async (uid) => {
     try {
@@ -206,6 +253,9 @@ export const AuthProvider = ({ children }) => {
     logout,
     signInWithGoogle,
     resetPassword,
+    setPasswordForUser,
+    changePassword,
+    deleteAccount,
     updateUserProfile,
     fetchUserProfile,
   };

@@ -25,7 +25,6 @@ export default function Signup({ onSwitchToLogin }) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const isDark = resolvedTheme === "dark";
 
@@ -58,11 +57,6 @@ export default function Signup({ onSwitchToLogin }) {
       return;
     }
 
-    if (!agreedToTerms) {
-      setError("Please agree to the terms and conditions.");
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -71,7 +65,7 @@ export default function Signup({ onSwitchToLogin }) {
       console.error(err);
       switch (err.code) {
         case "auth/email-already-in-use":
-          setError("An account with this email already exists.");
+          setError("This email is already in use. If you signed up with Google, sign in with Google and set a password in Settings.");
           break;
         case "auth/invalid-email":
           setError("Please enter a valid email address.");
@@ -184,6 +178,29 @@ export default function Signup({ onSwitchToLogin }) {
                 }`}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirm password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className="auth-input w-full pl-10 pr-10 py-3 rounded-full border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#3442FF] transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className={`absolute right-3 top-1/2 -translate-y-1/2 ${
+                  isDark ? "text-gray-500" : "text-gray-400"
+                }`}
+              >
+                {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>

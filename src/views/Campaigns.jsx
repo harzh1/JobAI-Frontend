@@ -691,7 +691,11 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
           </div>
 
           <div className="flex flex-wrap gap-6 px-2 items-start">
-            {accounts.map(acc => (
+            {accounts.map(acc => {
+              const todayStr = new Date().toISOString().split('T')[0];
+              const actualUsedToday = acc.lastUsedDate === todayStr ? (acc.usedToday || 0) : 0;
+
+              return (
               <LocalCard key={acc.id} noPadding={true} className="flex flex-col relative group border border-gray-100 hover:ring-2 hover:ring-[#eaf1fb] transition-all duration-300 w-full md:w-[min(100%,22rem)] p-5">
                 <div className="flex items-start justify-between mb-4 gap-3">
                   <div className="flex items-center gap-3">
@@ -721,16 +725,16 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-[13px]">
-                    <span className="text-gray-500 font-medium">Daily Limit</span>
-                    <span className="font-bold text-gray-700">{acc.dailyLimit} <span className="font-normal opacity-80 text-[11px]">emails</span></span>
+                    <span className="text-gray-500 font-medium">Total Sent</span>
+                    <span className="font-bold text-gray-700">{acc.totalSent || 0} <span className="font-normal opacity-80 text-[11px]">emails</span></span>
                   </div>
                   <div className="pt-2.5 mt-2.5 border-t border-gray-100/80">
                     <div className="flex justify-between items-end mb-1.5">
                       <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Sending Health</span>
-                      <span className="text-[12px] font-bold text-[#4285F4]">{acc.usedToday} / {acc.dailyLimit}</span>
+                      <span className="text-[12px] font-bold text-[#4285F4]">{actualUsedToday} / {acc.dailyLimit || 0}</span>
                     </div>
                     <div className="w-full bg-blue-50/50 rounded-full h-1 overflow-hidden">
-                      <div className="bg-gradient-to-r from-[#4285F4] to-[#8ab4f8] h-1 rounded-full transition-all duration-500" style={{ width: `${(acc.usedToday / acc.dailyLimit) * 100}%` }}></div>
+                      <div className="bg-gradient-to-r from-[#4285F4] to-[#8ab4f8] h-1 rounded-full transition-all duration-500" style={{ width: `${(actualUsedToday / (acc.dailyLimit || 1)) * 100}%` }}></div>
                     </div>
                   </div>
                 </div>
@@ -739,12 +743,12 @@ export function Campaigns({ campaigns, setView, isNewView, setCampaigns }) {
                   <LocalButton variant="outline" onClick={() => setSelectedAccountForSettings(acc)} className="w-full text-[13px] py-1.5 px-0 h-auto">
                     <Settings2 size={14} className="mr-1.5" /> Settings
                   </LocalButton>
-                  <LocalButton variant="ghost" onClick={async () => { await deleteAccount(acc.id); setAccounts(accounts.filter(a => a.id !== acc.id)); }} className="w-full text-[13px] py-1.5 px-0 h-auto text-red-500 hover:text-red-600 hover:bg-red-50">
+                  <LocalButton variant="ghost" onClick={async () => { await deleteAccount(acc.id); setAccounts(accounts.filter(a => a.id !== acc.id)); }} className="w-full text-[13px] py-1.5 px-0 h-auto text-red-500 hover:text-red-600 hover:bg-red-50 border border-red-200 hover:border-red-300">
                     <LogOut size={14} className="mr-1.5" /> Disconnect
                   </LocalButton>
                 </div>
               </LocalCard>
-            ))}
+            )})}
           </div>
 
           <ConnectAccountModal
