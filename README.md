@@ -1,16 +1,25 @@
-# React + Vite
+# JobAI Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend for JobAI — an AI-powered job search assistant that analyzes job descriptions, generates tailored cover letters, and gives role-specific interview tips.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Paste a job posting URL or raw text to extract structured job data
+- AI-powered job description analysis (role fit, key skills, gaps)
+- One-click tailored cover letter generation
+- Interview tips customized to the specific role
+- Firebase Authentication + Firestore for saved analyses
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React + Vite
+- Tailwind CSS
+- Firebase (Auth + Firestore)
+- Axios
 
-## Expanding the ESLint configuration
+## Local Setup
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+npm install
+npm run dev
+
+Copy .env.example to .env and set VITE_API_BASE_URL to your backend URL (see JobAI-Backend).
