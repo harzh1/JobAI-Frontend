@@ -10,7 +10,7 @@ import { Card, Button, Badge } from "../components/ui/UIComponents";
 import { useAuth } from "../context/AuthContext";
 import { getUserStats } from "../services/database";
 
-export default function Dashboard({ setShowAIModal, setView }) {
+export default function Dashboard({ setView }) {
   const { user } = useAuth();
   const [applications, setApplications] = useState([]);
   const [stats, setStats] = useState({
@@ -230,7 +230,7 @@ export default function Dashboard({ setShowAIModal, setView }) {
                 <div className="gemini-text-gradient"><Sparkles size={18} /></div>
               </div>
               <div>
-                <h3 className="font-bold text-[15px] text-[var(--text-primary)]">Copilot Insight</h3>
+                <h3 className="font-bold text-[15px] text-[var(--text-primary)]">AI Match Insight</h3>
                 <p className="text-sm text-[var(--muted)] mt-1.5 leading-relaxed font-medium">
                   Your profile matches 95% with the new
                   <strong className="text-[var(--text-primary)] font-bold"> Senior Frontend </strong>
@@ -239,7 +239,7 @@ export default function Dashboard({ setShowAIModal, setView }) {
               </div>
             </div>
             <Button
-              onClick={() => setShowAIModal?.(true)}
+              onClick={() => setView("jobs")}
               variant="copilot"
               className="w-full text-sm py-2.5 rounded-full"
             >

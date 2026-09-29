@@ -269,6 +269,9 @@ export const savedJobService = {
         logo: job.logo || null,
         sourceUrl: job.sourceUrl || null,
         applyUrl: job.applyUrl || null,
+        tags: job.tags || job.skills || [],
+        description: job.description || null,
+        experience: job.experience || null,
       },
     });
 

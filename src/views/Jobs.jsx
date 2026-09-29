@@ -28,6 +28,7 @@ import {
   applicationService,
   jobService,
 } from "../services/database";
+import AddJobModal from "../components/modals/AddJobModal";
 
 export default function Jobs({ setView, setSelectedJobId }) {
   const { user } = useAuth();
@@ -41,6 +42,8 @@ export default function Jobs({ setView, setSelectedJobId }) {
   const [isLoading, setIsLoading] = useState(false);
   const [parseResult, setParseResult] = useState(null);
   const [parseError, setParseError] = useState(null);
+  const [showManualModal, setShowManualModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Load saved jobs and applications from Firestore
   useEffect(() => {
@@ -186,6 +189,11 @@ export default function Jobs({ setView, setSelectedJobId }) {
         salary: parseResult.salary || null,
         type: parseResult.type || null,
         logo: "💼",
+        tags: parseResult.skills || [],
+        description: parseResult.description || null,
+        experience: parseResult.experience || null,
+        sourceUrl: parseResult.sourceUrl || null,
+        applyUrl: parseResult.applyUrl || null,
       });
 
       const savedJobs = await savedJobService.getAll(user.uid);
@@ -198,6 +206,7 @@ export default function Jobs({ setView, setSelectedJobId }) {
         }))
       );
 
+      setSelectedJobIdLocal(jobId);
       setParseResult(null);
     } catch (error) {
       console.error("Error saving job:", error);
@@ -205,18 +214,46 @@ export default function Jobs({ setView, setSelectedJobId }) {
     }
   };
 
-  const visibleJobs =
-    interestedRoles.length > 0
-      ? jobs.filter((j) =>
-          interestedRoles.some(
-            (r) =>
-              j.title?.toLowerCase().includes(r.toLowerCase()) ||
-              (j.tags || []).some((t) =>
-                t.toLowerCase().includes(r.toLowerCase())
-              )
-          )
-        )
-      : jobs;
+  const handleJobAdded = async (newJobId) => {
+    if (!user) return;
+    try {
+      const savedJobs = await savedJobService.getAll(user.uid);
+      setJobs(
+        savedJobs.map((sj) => ({
+          id: sj.id,
+          ...sj.jobSnapshot,
+          savedAt: sj.savedAt,
+          notes: sj.notes,
+        }))
+      );
+      if (newJobId) {
+        setSelectedJobIdLocal(newJobId);
+      }
+    } catch (err) {
+      console.error("Error refreshing jobs after manual add:", err);
+    }
+  };
+
+  const visibleJobs = jobs.filter((j) => {
+    const matchesRole =
+      interestedRoles.length === 0 ||
+      interestedRoles.some(
+        (r) =>
+          j.title?.toLowerCase().includes(r.toLowerCase()) ||
+          (j.tags || []).some((t) => t.toLowerCase().includes(r.toLowerCase()))
+      );
+
+    const matchesSearch =
+      !searchQuery.trim() ||
+      j.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      j.company?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      j.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (j.tags || []).some((t) =>
+        t.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+    return matchesRole && matchesSearch;
+  });
 
   useEffect(() => {
     if (visibleJobs.length === 0) {
@@ -282,17 +319,27 @@ export default function Jobs({ setView, setSelectedJobId }) {
                 />
               </div>
               
-              <button
-                onClick={addJobByLink}
-                disabled={!linkInput.trim() || isLoading}
-                className="shrink-0 bg-[#3442FF] hover:bg-[#3442FF]/90 text-white rounded-[24px] px-6 py-3 sm:py-2.5 text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:bg-[#3442FF] active:scale-95 ml-auto w-full sm:w-auto"
-              >
-                {isLoading ? (
-                  <><Loader2 size={16} className="animate-spin" /> <span>Parsing...</span></>
-                ) : (
-                  <>Extract <ArrowRight size={16} /></>
-                )}
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowManualModal(true)}
+                  className="text-[13px] font-semibold text-[var(--muted)] hover:text-[#3442FF] dark:hover:text-[#a8c7fa] transition-colors px-2 py-1 rounded-lg hover:bg-[#3442FF]/5 whitespace-nowrap"
+                >
+                  + Manual
+                </button>
+                <button
+                  type="button"
+                  onClick={addJobByLink}
+                  disabled={!linkInput.trim() || isLoading}
+                  className="bg-[#3442FF] hover:bg-[#3442FF]/90 text-white rounded-[24px] px-6 py-3 sm:py-2.5 text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:bg-[#3442FF] active:scale-95 w-full sm:w-auto"
+                >
+                  {isLoading ? (
+                    <><Loader2 size={16} className="animate-spin" /> <span>Parsing...</span></>
+                  ) : (
+                    <>Extract <ArrowRight size={16} /></>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -460,9 +507,20 @@ export default function Jobs({ setView, setSelectedJobId }) {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search your jobs..."
-              className="w-full pl-10 pr-4 py-2.5 bg-[var(--surface-bg)] rounded-full text-sm focus:outline-none transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] border-transparent text-[var(--text-primary)]"
+              className="w-full pl-10 pr-9 py-2.5 bg-[var(--surface-bg)] rounded-full text-sm focus:outline-none transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.1)] border-transparent text-[var(--text-primary)]"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+              >
+                <X size={14} />
+              </button>
+            )}
           </div>
         </div>
         
@@ -511,16 +569,28 @@ export default function Jobs({ setView, setSelectedJobId }) {
         <div className="space-y-4">
           {visibleJobs.length === 0 ? (
             <Card className="py-16 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-[#1e1f20] rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
                 <Search size={24} />
               </div>
-              <h3 className="text-gray-900 font-bold mb-1">No jobs to display</h3>
-              <p className="text-gray-500 text-sm mb-4">Paste a job link above to get started, or clear your filters.</p>
-              {interestedRoles.length > 0 && (
-                <Button onClick={() => setInterestedRoles([])} variant="secondary" className="text-sm">
-                  Clear Filters
+              <h3 className="text-gray-900 dark:text-gray-100 font-bold mb-1">No jobs to display</h3>
+              <p className="text-gray-500 text-sm mb-4">Paste a job link above, add a job manually, or adjust your filters.</p>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <Button onClick={() => setShowManualModal(true)} variant="primary" icon={Plus} className="text-sm">
+                  Add Job Manually
                 </Button>
-              )}
+                {(interestedRoles.length > 0 || searchQuery.trim()) && (
+                  <Button
+                    onClick={() => {
+                      setInterestedRoles([]);
+                      setSearchQuery("");
+                    }}
+                    variant="secondary"
+                    className="text-sm"
+                  >
+                    Clear Filters
+                  </Button>
+                )}
+              </div>
             </Card>
           ) : (
             visibleJobs.map((job) => {
@@ -702,6 +772,13 @@ export default function Jobs({ setView, setSelectedJobId }) {
           </Card>
         </div>
       </div>
+
+      {/* --- Add Job Manually Modal --- */}
+      <AddJobModal
+        isOpen={showManualModal}
+        onClose={() => setShowManualModal(false)}
+        onJobAdded={handleJobAdded}
+      />
     </div>
   );
 }

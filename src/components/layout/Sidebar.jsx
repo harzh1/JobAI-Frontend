@@ -6,7 +6,6 @@ import {
   House,
   NotePencil,
   PaperPlaneTilt,
-  ShareNetwork,
   SidebarSimple,
   SuitcaseSimple,
   X,
@@ -117,14 +116,7 @@ export default function Sidebar({
             setView={setView}
             collapsed={isCollapsed}
           />
-          <NavItem
-            icon={ShareNetwork}
-            label="Network"
-            id="referrals"
-            view={view}
-            setView={setView}
-            collapsed={isCollapsed}
-          />
+
           <NavItem
             icon={NotePencil}
             label="Notes & Tasks"

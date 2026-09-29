@@ -3,7 +3,6 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import Header from "./components/layout/Header";
 import Sidebar from "./components/layout/Sidebar";
-import AICopilot from "./components/modals/AICopilot.jsx";
 import Dashboard from "./views/Dashboard";
 import Jobs from "./views/Jobs";
 import Campaigns from "./views/Campaigns.jsx";
@@ -66,7 +65,6 @@ function AppContent() {
   const { view, selectedJobId } = routeState;
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [showAIModal, setShowAIModal] = useState(false);
 
   // Data State - views now manage their own data from Firestore
   const [campaigns, setCampaigns] = useState([]);
@@ -138,13 +136,12 @@ function AppContent() {
           view={view}
           isMobileSidebarOpen={isMobileSidebarOpen}
           setIsMobileSidebarOpen={setIsMobileSidebarOpen}
-          setShowAIModal={setShowAIModal}
         />
 
         <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8 scrollbar-thin scrollbar-thumb-gray-200">
           <div className="max-w-7xl mx-auto">
             {view === "dashboard" && (
-              <Dashboard setShowAIModal={setShowAIModal} setView={setView} />
+              <Dashboard setView={setView} />
             )}
 
             {view === "jobs" && (
@@ -187,8 +184,6 @@ function AppContent() {
           </div>
         </div>
       </main>
-
-      <AICopilot isOpen={showAIModal} onClose={() => setShowAIModal(false)} />
     </div>
   );
 }
